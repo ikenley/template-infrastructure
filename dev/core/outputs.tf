@@ -4,6 +4,16 @@ output "vpc_id" {
   value       = module.core.vpc_id
 }
 
+output "vpc_cidr" {
+  description = "The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden"
+  value       = module.core.vpc_cidr
+}
+
+output "azs" {
+  description = "A list of availability zones names or ids in the region"
+  value       = module.core.azs
+}
+
 # Subnets
 output "private_subnets" {
   description = "List of IDs of private subnets"
