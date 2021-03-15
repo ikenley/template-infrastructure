@@ -39,6 +39,10 @@ module "application" {
   private_subnets     = data.terraform_remote_state.core.outputs.private_subnets
   database_subnets    = data.terraform_remote_state.core.outputs.database_subnets
 
+  ecs_container_definitions = file("./container_definitions.json")
+  container_memory = 512
+  container_cpu = 256
+
   tags = {
     Environment = "dev"
   }
