@@ -12,3 +12,8 @@ variable "kms_alias" {
   description = "Optional key alias. By default uses standard AES encryption with no key"
   default = ""
 }
+
+variable "bucket_policy" {
+  description = "Optional bucket policy to override default"
+  default = ""
+}

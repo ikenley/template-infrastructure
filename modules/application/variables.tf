@@ -40,6 +40,16 @@ variable "database_subnets" {
   default     = []
 }
 
+# DNS
+
+variable "domain_name" {
+  description = "Base domain name e.g. example.com"
+}
+
+variable "dns_subdomain" {
+  description = "Subdomain for creating a record e.g. my-subdomain"
+}
+
 # ECS Task Definition
 
 variable "ecs_container_definitions" {
