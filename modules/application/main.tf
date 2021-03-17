@@ -182,42 +182,53 @@ module "alb" {
   #additional_certificates_arn_for_https_listeners = var.additional_certificates_arn_for_https_listeners
 }
 
+resource "aws_cloudwatch_log_group" "this" {
+  name              = "/ecs/${var.name}"
+  retention_in_days = 30
+}
+
 #------------------------------------------------------------------------------
 # AWS ECS SERVICE
 #------------------------------------------------------------------------------
-# resource "aws_ecs_service" "service" {
-#   name = "${var.name_prefix}-service"
-#   # capacity_provider_strategy - (Optional) The capacity provider strategy to use for the service. Can be one or more. Defined below.
-#   cluster                            = var.ecs_cluster_arn
+resource "aws_ecs_cluster" "this" {
+  name = var.name
+
+  tags = local.tags
+}
+
+resource "aws_ecs_service" "this" {
+  name = var.name
+  # capacity_provider_strategy - (Optional) The capacity provider strategy to use for the service. Can be one or more. Defined below.
+  cluster                            = aws_ecs_cluster.this.arn
 #   deployment_maximum_percent         = var.deployment_maximum_percent
 #   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
-#   desired_count                      = var.desired_count
-#   enable_ecs_managed_tags            = var.enable_ecs_managed_tags
-#   health_check_grace_period_seconds  = var.health_check_grace_period_seconds
-#   launch_type                        = "FARGATE"
-#   force_new_deployment               = var.force_new_deployment
+  desired_count                      = var.desired_count
+  enable_ecs_managed_tags            = true
+  #health_check_grace_period_seconds  = var.health_check_grace_period_seconds
+  launch_type                        = "FARGATE"
+  #force_new_deployment               = var.force_new_deployment
 
+  dynamic "load_balancer" {
+    for_each = module.alb.lb_http_tgs_map_arn_port
+    content {
+      target_group_arn = load_balancer.key
+      container_name   = var.container_name
+      container_port   = load_balancer.value
+    }
+  }
 #   dynamic "load_balancer" {
-#     for_each = module.ecs-alb.lb_http_tgs_map_arn_port
+#     for_each = module.alb.lb_https_tgs_map_arn_port
 #     content {
 #       target_group_arn = load_balancer.key
 #       container_name   = var.container_name
 #       container_port   = load_balancer.value
 #     }
 #   }
-#   dynamic "load_balancer" {
-#     for_each = module.ecs-alb.lb_https_tgs_map_arn_port
-#     content {
-#       target_group_arn = load_balancer.key
-#       container_name   = var.container_name
-#       container_port   = load_balancer.value
-#     }
-#   }
-#   network_configuration {
-#     security_groups  = concat([aws_security_group.ecs_tasks_sg.id], var.security_groups)
-#     subnets          = var.assign_public_ip ? var.public_subnets : var.private_subnets
-#     assign_public_ip = var.assign_public_ip
-#   }
+  network_configuration {
+    security_groups  = concat([aws_security_group.ecs_tasks_sg.id], var.security_groups)
+    subnets          = var.public_subnets # var.private_subnets
+    assign_public_ip = true # TODO make false
+  }
 #   dynamic "ordered_placement_strategy" {
 #     for_each = var.ordered_placement_strategy
 #     content {
@@ -232,8 +243,8 @@ module "alb" {
 #       type       = placement_constraints.value.type
 #     }
 #   }
-#   platform_version = var.platform_version
-#   propagate_tags   = var.propagate_tags
+  #platform_version = var.platform_version
+  #propagate_tags   = "NONE" #var.propagate_tags
 #   dynamic "service_registries" {
 #     for_each = var.service_registries
 #     content {
@@ -243,52 +254,51 @@ module "alb" {
 #       container_port = lookup(service_registries.value, "container_port", null)
 #     }
 #   }
-#   task_definition = var.task_definition_arn
-#   tags = {
-#     Name = "${var.name_prefix}-ecs-tasks-sg"
-#   }
-# }
+  task_definition = aws_ecs_task_definition.this.arn
+  
+  tags = local.tags
+}
 
 # #------------------------------------------------------------------------------
 # # AWS SECURITY GROUP - ECS Tasks, allow traffic only from Load Balancer
 # #------------------------------------------------------------------------------
-# resource "aws_security_group" "ecs_tasks_sg" {
-#   name        = "${var.name_prefix}-ecs-tasks-sg"
-#   description = "Allow inbound access from the LB only"
-#   vpc_id      = var.vpc_id
+resource "aws_security_group" "ecs_tasks_sg" {
+  name        = "${var.name}-ecs-tasks-sg"
+  description = "Allow inbound access from the LB only"
+  vpc_id      = var.vpc_id
 
-#   tags = {
-#     Name = "${var.name_prefix}-ecs-tasks-sg"
-#   }
-# }
+  tags = {
+    Name = "${var.name}-ecs-tasks-sg"
+  }
+}
 
-# resource "aws_security_group_rule" "egress" {
-#   security_group_id = aws_security_group.ecs_tasks_sg.id
-#   type              = "egress"
-#   from_port         = 0
-#   to_port           = 0
-#   protocol          = "-1"
-#   cidr_blocks       = ["0.0.0.0/0"]
-# }
+resource "aws_security_group_rule" "egress" {
+  security_group_id = aws_security_group.ecs_tasks_sg.id
+  type              = "egress"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
 
-# resource "aws_security_group_rule" "ingress_through_http" {
-#   for_each                 = toset(module.ecs-alb.lb_http_tgs_ports)
-#   security_group_id        = aws_security_group.ecs_tasks_sg.id
-#   type                     = "ingress"
-#   from_port                = each.key
-#   to_port                  = each.key
-#   protocol                 = "tcp"
-#   source_security_group_id = module.ecs-alb.aws_security_group_lb_access_sg_id
-# }
+resource "aws_security_group_rule" "ingress_through_http" {
+  for_each                 = toset(module.alb.lb_http_tgs_ports)
+  security_group_id        = aws_security_group.ecs_tasks_sg.id
+  type                     = "ingress"
+  from_port                = each.key
+  to_port                  = each.key
+  protocol                 = "tcp"
+  source_security_group_id = module.alb.aws_security_group_lb_access_sg_id
+}
 
 # resource "aws_security_group_rule" "ingress_through_https" {
-#   for_each                 = toset(module.ecs-alb.lb_https_tgs_ports)
+#   for_each                 = toset(module.alb.lb_https_tgs_ports)
 #   security_group_id        = aws_security_group.ecs_tasks_sg.id
 #   type                     = "ingress"
 #   from_port                = each.key
 #   to_port                  = each.key
 #   protocol                 = "tcp"
-#   source_security_group_id = module.ecs-alb.aws_security_group_lb_access_sg_id
+#   source_security_group_id = module.alb.aws_security_group_lb_access_sg_id
 # }
 
 # module "ecs-autoscaling" {
@@ -297,7 +307,7 @@ module "alb" {
 #   source  = "cn-terraform/ecs-service-autoscaling/aws"
 #   version = "1.0.1"
 
-#   name_prefix               = var.name_prefix
+#   name               = var.name
 #   ecs_cluster_name          = var.ecs_cluster_name
 #   ecs_service_name          = aws_ecs_service.service.name
 #   max_cpu_threshold         = var.max_cpu_threshold

@@ -42,6 +42,7 @@ module "application" {
   domain_name   = "antig-one-rav.com"
   dns_subdomain = "template-app-dev"
 
+  container_name = "template-app"
   ecs_container_definitions = file("./container_definitions.json")
   container_memory          = 512
   container_cpu             = 256

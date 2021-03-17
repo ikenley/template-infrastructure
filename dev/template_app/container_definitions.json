@@ -1,6 +1,6 @@
 [
     {
-        "name": "template-application-test",
+        "name": "template-app",
         "image": "924586450630.dkr.ecr.us-east-1.amazonaws.com/template-app:dev-0.1",
         "cpu": 0,
         "portMappings": [

@@ -1,0 +1,222 @@
+{
+    "services": [
+        {
+            "serviceArn": "arn:aws:ecs:us-east-1:924586450630:service/template-application-test/template-application-test",
+            "serviceName": "template-application-test",
+            "clusterArn": "arn:aws:ecs:us-east-1:924586450630:cluster/template-application-test",
+            "loadBalancers": [
+                {
+                    "targetGroupArn": "arn:aws:elasticloadbalancing:us-east-1:924586450630:targetgroup/template-application-test/593ee53dbdf45cbe",
+                    "containerName": "template-application-test",
+                    "containerPort": 80
+                }
+            ],
+            "serviceRegistries": [],
+            "status": "ACTIVE",
+            "desiredCount": 1,
+            "runningCount": 1,
+            "pendingCount": 0,
+            "launchType": "FARGATE",
+            "platformVersion": "LATEST",
+            "taskDefinition": "arn:aws:ecs:us-east-1:924586450630:task-definition/template-application-test:4",
+            "deploymentConfiguration": {
+                "deploymentCircuitBreaker": {
+                    "enable": false,
+                    "rollback": false
+                },
+                "maximumPercent": 200,
+                "minimumHealthyPercent": 100
+            },
+            "deployments": [
+                {
+                    "id": "ecs-svc/5772259535935456395",
+                    "status": "PRIMARY",
+                    "taskDefinition": "arn:aws:ecs:us-east-1:924586450630:task-definition/template-application-test:4",
+                    "desiredCount": 1,
+                    "pendingCount": 0,
+                    "runningCount": 1,
+                    "failedTasks": 0,
+                    "createdAt": "2021-03-10T20:23:37.816000-05:00",
+                    "updatedAt": "2021-03-10T20:24:36.098000-05:00",
+                    "launchType": "FARGATE",
+                    "platformVersion": "1.3.0",
+                    "networkConfiguration": {
+                        "awsvpcConfiguration": {
+                            "subnets": [
+                                "subnet-0cc1be1928d1c22cc",
+                                "subnet-0213ebc0ff3d4e48f",
+                                "subnet-0f7ed8266e701c5c2"
+                            ],
+                            "securityGroups": [
+                                "sg-0f0199d595f082cf1"
+                            ],
+                            "assignPublicIp": "ENABLED"
+                        }
+                    },
+                    "rolloutState": "COMPLETED",
+                    "rolloutStateReason": "ECS deployment ecs-svc/5772259535935456395 completed."
+                }
+            ],
+            "roleArn": "arn:aws:iam::924586450630:role/aws-service-role/ecs.amazonaws.com/AWSServiceRoleForECS",
+            "events": [
+                {
+                    "id": "5166753b-3147-42e2-8026-15d8d4aa7ecf",
+                    "createdAt": "2021-03-16T15:34:40.414000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "05b34d12-0b01-4c85-a19c-153638be9318",
+                    "createdAt": "2021-03-16T09:34:26.948000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "14c80593-f18b-4bcc-a29f-726aa98370b1",
+                    "createdAt": "2021-03-16T03:34:20.618000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "745f7be4-80f2-4448-89f5-d46e5d519caa",
+                    "createdAt": "2021-03-15T21:33:41.109000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "8c720575-6d9c-49bc-a0a1-89ce8b34fd44",
+                    "createdAt": "2021-03-15T15:32:56.960000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "491857ef-23ce-4ed4-bfe2-106337387208",
+                    "createdAt": "2021-03-15T09:32:40.837000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "3272b679-b988-478f-a862-d8bde0306c38",
+                    "createdAt": "2021-03-15T03:32:06.252000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "87f4df46-d952-4376-a667-2dd23c48c8d8",
+                    "createdAt": "2021-03-14T21:32:01.606000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "62e4d8f4-4fd2-4745-bf37-ad2612947b9b",
+                    "createdAt": "2021-03-14T15:31:56.288000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "08dbf916-bb67-404d-adba-ee155d31b5f5",
+                    "createdAt": "2021-03-14T09:31:15.333000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "30aef6ec-a762-4889-818d-1579dc7ed845",
+                    "createdAt": "2021-03-14T03:31:04.838000-04:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "ef828405-ce58-4494-a1c0-74b3ee70ec93",
+                    "createdAt": "2021-03-13T20:30:21.994000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "e045f131-86d5-4056-9de1-be4e005d37a9",
+                    "createdAt": "2021-03-13T14:30:04.301000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "1cb15c8a-4dfa-43a7-8e5f-59aa8c0f1479",
+                    "createdAt": "2021-03-13T08:29:39.049000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "7632f5f3-43a0-4cc0-a9cc-1e6c516c26de",
+                    "createdAt": "2021-03-13T02:29:30.017000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "2bf36bd1-ffc1-48e5-a568-7e02fb29883c",
+                    "createdAt": "2021-03-12T20:29:14.975000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "d76a77a5-716d-4023-8ac0-7da1753e119e",
+                    "createdAt": "2021-03-12T14:28:29.331000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "63f1cfcf-f8ef-40f6-94c0-fa2ae3237498",
+                    "createdAt": "2021-03-12T08:27:52.223000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "df1f2ae6-b759-4318-846b-b84afd5a818b",
+                    "createdAt": "2021-03-12T02:27:07.962000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "643c2f8b-71c6-4175-9557-e21c4f786356",
+                    "createdAt": "2021-03-11T20:26:28.550000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "ea488007-c6f5-4e6a-becf-ec2cee50903c",
+                    "createdAt": "2021-03-11T14:26:01.328000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "692907d8-d0e6-42b7-b101-4390d03ef8dd",
+                    "createdAt": "2021-03-11T08:25:29.151000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "bee49984-c065-4f55-a819-b0384e6cc955",
+                    "createdAt": "2021-03-11T02:25:21.224000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "1282885c-a26b-491f-aed5-90393f70f5cf",
+                    "createdAt": "2021-03-10T20:24:36.106000-05:00",
+                    "message": "(service template-application-test) has reached a steady state."
+                },
+                {
+                    "id": "c74b4ab7-c758-4d9e-b2a2-f7c73824674d",
+                    "createdAt": "2021-03-10T20:24:36.105000-05:00",
+                    "message": "(service template-application-test) (deployment ecs-svc/5772259535935456395) deployment completed."
+                },
+                {
+                    "id": "9b175448-319f-4ff6-9237-3090a3985523",
+                    "createdAt": "2021-03-10T20:24:15.363000-05:00",
+                    "message": "(service template-application-test) registered 1 targets in (target-group arn:aws:elasticloadbalancing:us-east-1:924586450630:targetgroup/template-application-test/593ee53dbdf45cbe)"
+                },
+                {
+                    "id": "50ac2455-362e-49e3-9e10-7a4bcefc450f",
+                    "createdAt": "2021-03-10T20:23:42.016000-05:00",
+                    "message": "(service template-application-test) has started 1 tasks: (task f968aecbaa15483db2d74ac3f9f23f4d)."
+                }
+            ],
+            "createdAt": "2021-03-10T20:23:37.816000-05:00",
+            "placementConstraints": [],
+            "placementStrategy": [],
+            "networkConfiguration": {
+                "awsvpcConfiguration": {
+                    "subnets": [
+                        "subnet-0cc1be1928d1c22cc",
+                        "subnet-0213ebc0ff3d4e48f",
+                        "subnet-0f7ed8266e701c5c2"
+                    ],
+                    "securityGroups": [
+                        "sg-0f0199d595f082cf1"
+                    ],
+                    "assignPublicIp": "ENABLED"
+                }
+            },
+            "healthCheckGracePeriodSeconds": 0,
+            "schedulingStrategy": "REPLICA",
+            "createdBy": "arn:aws:iam::924586450630:role/AntigoneDevAccountAccessRole",
+            "enableECSManagedTags": true,
+            "propagateTags": "NONE"
+        }
+    ],
+    "failures": []
+}

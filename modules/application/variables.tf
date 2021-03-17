@@ -52,6 +52,10 @@ variable "dns_subdomain" {
 
 # ECS Task Definition
 
+variable "container_name" {
+  description = "Name of the running container"
+}
+
 variable "ecs_container_definitions" {
   description = "JSON container definitions https://docs.aws.amazon.com/cli/latest/reference/ecs/describe-task-definition.html"
 }
@@ -66,4 +70,18 @@ variable "container_cpu" {
   type        = number
   description = "The number of cpu units to reserve for the container."
   default     = 0
+}
+
+# ECS Service
+
+variable "desired_count" {
+  description = "(Optional) The number of instances of the task definition to place and keep running. Defaults to 0."
+  type        = number
+  default     = 1
+}
+
+variable "security_groups" {
+  description = "(Optional) The security groups associated with the task or service. If you do not specify a security group, the default security group for the VPC is used."
+  type        = list(any)
+  default     = []
 }

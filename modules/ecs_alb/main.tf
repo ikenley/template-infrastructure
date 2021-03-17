@@ -262,42 +262,43 @@ resource "aws_lb_listener" "lb_https_listeners" {
   ssl_policy        = var.ssl_policy
   certificate_arn   = var.default_certificate_arn
 
-  dynamic "default_action" {
-    for_each = lookup(each.value, "type", "") == "redirect" ? [1] : []
-    content {
-      type = "redirect"
+  # dynamic "default_action" {
+  #   for_each = lookup(each.value, "type", "") == "redirect" ? [1] : []
+  #   content {
+  #     type = "redirect"
 
-      redirect {
-        host        = lookup(each.value, "host", "#{host}")
-        path        = lookup(each.value, "path", "/#{path}")
-        port        = lookup(each.value, "port", "#{port}")
-        protocol    = lookup(each.value, "protocol", "#{protocol}")
-        query       = lookup(each.value, "query", "#{query}")
-        status_code = lookup(each.value, "status_code", "HTTP_301")
-      }
-    }
-  }
+  #     redirect {
+  #       host        = lookup(each.value, "host", "#{host}")
+  #       path        = lookup(each.value, "path", "/#{path}")
+  #       port        = lookup(each.value, "port", "#{port}")
+  #       protocol    = lookup(each.value, "protocol", "#{protocol}")
+  #       query       = lookup(each.value, "query", "#{query}")
+  #       status_code = lookup(each.value, "status_code", "HTTP_301")
+  #     }
+  #   }
+  # }
 
-  dynamic "default_action" {
-    for_each = lookup(each.value, "type", "") == "fixed-response" ? [1] : []
-    content {
-      type = "fixed-response"
+  # dynamic "default_action" {
+  #   for_each = lookup(each.value, "type", "") == "fixed-response" ? [1] : []
+  #   content {
+  #     type = "fixed-response"
 
-      fixed_response {
-        content_type = lookup(each.value, "content_type", "text/plain")
-        message_body = lookup(each.value, "message_body", "Fixed response content")
-        status_code  = lookup(each.value, "status_code", "200")
-      }
-    }
-  }
+  #     fixed_response {
+  #       content_type = lookup(each.value, "content_type", "text/plain")
+  #       message_body = lookup(each.value, "message_body", "Fixed response content")
+  #       status_code  = lookup(each.value, "status_code", "200")
+  #     }
+  #   }
+  # }
 
   # We fallback to using forward type action if type is not defined
-  dynamic "default_action" {
-    for_each = (lookup(each.value, "type", "") == "" || lookup(each.value, "type", "") == "forward") ? [1] : []
-    content {
-      target_group_arn = aws_lb_target_group.lb_https_tgs[each.key].arn
+  #dynamic "default_action" {
+  default_action {
+    #for_each = (lookup(each.value, "type", "") == "" || lookup(each.value, "type", "") == "forward") ? [1] : []
+    #content {
+      target_group_arn = aws_lb_target_group.lb_http_tgs["default_http"].arn
       type             = "forward"
-    }
+    #}
   }
 }
 
