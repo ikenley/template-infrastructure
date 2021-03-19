@@ -1,0 +1,58 @@
+{
+    "projects": [
+        {
+            "name": "template-app-test",
+            "arn": "arn:aws:codebuild:us-east-1:924586450630:project/template-app-test",
+            "description": "Lorem ipsum dolor sit amet description",
+            "source": {
+                "type": "CODEPIPELINE",
+                "insecureSsl": false
+            },
+            "secondarySourceVersions": [],
+            "artifacts": {
+                "type": "CODEPIPELINE",
+                "name": "template-app-test",
+                "packaging": "NONE",
+                "encryptionDisabled": false
+            },
+            "cache": {
+                "type": "NO_CACHE"
+            },
+            "environment": {
+                "type": "LINUX_CONTAINER",
+                "image": "aws/codebuild/amazonlinux2-x86_64-standard:3.0",
+                "computeType": "BUILD_GENERAL1_SMALL",
+                "environmentVariables": [
+                    {
+                        "name": "ENV",
+                        "value": "dev",
+                        "type": "PLAINTEXT"
+                    }
+                ],
+                "privilegedMode": true,
+                "imagePullCredentialsType": "CODEBUILD"
+            },
+            "serviceRole": "arn:aws:iam::924586450630:role/service-role/template-app-test-role",
+            "timeoutInMinutes": 60,
+            "queuedTimeoutInMinutes": 480,
+            "encryptionKey": "arn:aws:kms:us-east-1:924586450630:alias/aws/s3",
+            "tags": [],
+            "created": "2021-03-18T18:28:17.022000-04:00",
+            "lastModified": "2021-03-18T18:28:17.022000-04:00",
+            "badge": {
+                "badgeEnabled": false
+            },
+            "logsConfig": {
+                "cloudWatchLogs": {
+                    "status": "ENABLED",
+                    "groupName": "code-pipeline/template-application-test"
+                },
+                "s3Logs": {
+                    "status": "DISABLED",
+                    "encryptionDisabled": false
+                }
+            }
+        }
+    ],
+    "projectsNotFound": []
+}

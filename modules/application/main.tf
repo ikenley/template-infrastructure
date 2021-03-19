@@ -6,6 +6,9 @@ locals {
     Terraform = true
   })
   account_id = data.aws_caller_identity.current.account_id
+
+  # Need to create this locally to avoid circular dep
+  codebuild_project_name = var.name
 }
 
 resource "aws_ecr_repository" "this" {
@@ -19,7 +22,7 @@ resource "aws_ecr_repository" "this" {
 
 # DNS
 data "aws_route53_zone" "this" {
-  name         = "${var.domain_name}."
+  name = "${var.domain_name}."
 }
 
 resource "aws_route53_record" "app" {
@@ -134,7 +137,7 @@ resource "aws_ecs_task_definition" "this" {
 # AWS LOAD BALANCER
 #------------------------------------------------------------------------------
 module "alb" {
-  source  = "../ecs_alb"
+  source = "../ecs_alb"
 
   name_prefix = var.name
   vpc_id      = var.vpc_id
@@ -142,44 +145,11 @@ module "alb" {
   # S3 Bucket
   block_s3_bucket_public_access = true
 
-  # Application Load Balancer
-  #internal                         = var.lb_internal
-  #security_groups                  = var.lb_security_groups
-  #drop_invalid_header_fields       = var.lb_drop_invalid_header_fields
-  private_subnets                  = var.private_subnets
-  public_subnets                   = var.public_subnets
-  #idle_timeout                     = var.lb_idle_timeout
-  #enable_deletion_protection       = var.lb_enable_deletion_protection
-  #enable_cross_zone_load_balancing = var.lb_enable_cross_zone_load_balancing
-  #enable_http2                     = var.lb_enable_http2
-  #ip_address_type                  = var.lb_ip_address_type
-
-  # Access Control to Application Load Balancer
-  # TODO redirect to https
-  #http_ports                    = var.lb_http_ports
-  #http_ingress_cidr_blocks      = var.lb_http_ingress_cidr_blocks
-  #http_ingress_prefix_list_ids  = var.lb_http_ingress_prefix_list_ids
-  #https_ports                   = var.lb_https_ports
-  #https_ingress_cidr_blocks     = var.lb_https_ingress_cidr_blocks
-  #https_ingress_prefix_list_ids = var.lb_https_ingress_prefix_list_ids
-
-  # Target Groups
-#   deregistration_delay                          = var.lb_deregistration_delay
-#   slow_start                                    = var.lb_slow_start
-#   load_balancing_algorithm_type                 = var.lb_load_balancing_algorithm_type
-#   stickiness                                    = var.lb_stickiness
-#   target_group_health_check_enabled             = var.lb_target_group_health_check_enabled
-#   target_group_health_check_interval            = var.lb_target_group_health_check_interval
-#   target_group_health_check_path                = var.lb_target_group_health_check_path
-#   target_group_health_check_timeout             = var.lb_target_group_health_check_timeout
-#   target_group_health_check_healthy_threshold   = var.lb_target_group_health_check_healthy_threshold
-#   target_group_health_check_unhealthy_threshold = var.lb_target_group_health_check_unhealthy_threshold
-#   target_group_health_check_matcher             = var.lb_target_group_health_check_matcher
+  private_subnets = var.private_subnets
+  public_subnets  = var.public_subnets
 
   # Certificates
-  default_certificate_arn                         = aws_acm_certificate.this.arn
-  #ssl_policy                                      = var.ssl_policy
-  #additional_certificates_arn_for_https_listeners = var.additional_certificates_arn_for_https_listeners
+  default_certificate_arn = aws_acm_certificate.this.arn
 }
 
 resource "aws_cloudwatch_log_group" "this" {
@@ -197,16 +167,11 @@ resource "aws_ecs_cluster" "this" {
 }
 
 resource "aws_ecs_service" "this" {
-  name = var.name
-  # capacity_provider_strategy - (Optional) The capacity provider strategy to use for the service. Can be one or more. Defined below.
-  cluster                            = aws_ecs_cluster.this.arn
-#   deployment_maximum_percent         = var.deployment_maximum_percent
-#   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
-  desired_count                      = var.desired_count
-  enable_ecs_managed_tags            = true
-  #health_check_grace_period_seconds  = var.health_check_grace_period_seconds
-  launch_type                        = "FARGATE"
-  #force_new_deployment               = var.force_new_deployment
+  name                    = var.name
+  cluster                 = aws_ecs_cluster.this.arn
+  desired_count           = var.desired_count
+  enable_ecs_managed_tags = true
+  launch_type             = "FARGATE"
 
   dynamic "load_balancer" {
     for_each = module.alb.lb_http_tgs_map_arn_port
@@ -216,52 +181,27 @@ resource "aws_ecs_service" "this" {
       container_port   = load_balancer.value
     }
   }
-#   dynamic "load_balancer" {
-#     for_each = module.alb.lb_https_tgs_map_arn_port
-#     content {
-#       target_group_arn = load_balancer.key
-#       container_name   = var.container_name
-#       container_port   = load_balancer.value
-#     }
-#   }
+
   network_configuration {
     security_groups  = concat([aws_security_group.ecs_tasks_sg.id], var.security_groups)
     subnets          = var.public_subnets # var.private_subnets
-    assign_public_ip = true # TODO make false
+    assign_public_ip = true               # TODO make false
   }
-#   dynamic "ordered_placement_strategy" {
-#     for_each = var.ordered_placement_strategy
-#     content {
-#       type  = ordered_placement_strategy.value.type
-#       field = lookup(ordered_placement_strategy.value, "field", null)
-#     }
-#   }
-#   dynamic "placement_constraints" {
-#     for_each = var.placement_constraints
-#     content {
-#       expression = lookup(placement_constraints.value, "expression", null)
-#       type       = placement_constraints.value.type
-#     }
-#   }
-  #platform_version = var.platform_version
-  #propagate_tags   = "NONE" #var.propagate_tags
-#   dynamic "service_registries" {
-#     for_each = var.service_registries
-#     content {
-#       registry_arn   = service_registries.value.registry_arn
-#       port           = lookup(service_registries.value, "port", null)
-#       container_name = lookup(service_registries.value, "container_name", null)
-#       container_port = lookup(service_registries.value, "container_port", null)
-#     }
-#   }
   task_definition = aws_ecs_task_definition.this.arn
-  
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore task_definition b/c this will be managed by CodePipeline
+      task_definition,
+    ]
+  }
+
   tags = local.tags
 }
 
-# #------------------------------------------------------------------------------
-# # AWS SECURITY GROUP - ECS Tasks, allow traffic only from Load Balancer
-# #------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
+# AWS SECURITY GROUP - ECS Tasks, allow traffic only from Load Balancer
+#------------------------------------------------------------------------------
 resource "aws_security_group" "ecs_tasks_sg" {
   name        = "${var.name}-ecs-tasks-sg"
   description = "Allow inbound access from the LB only"
@@ -291,31 +231,184 @@ resource "aws_security_group_rule" "ingress_through_http" {
   source_security_group_id = module.alb.aws_security_group_lb_access_sg_id
 }
 
-# resource "aws_security_group_rule" "ingress_through_https" {
-#   for_each                 = toset(module.alb.lb_https_tgs_ports)
-#   security_group_id        = aws_security_group.ecs_tasks_sg.id
-#   type                     = "ingress"
-#   from_port                = each.key
-#   to_port                  = each.key
-#   protocol                 = "tcp"
-#   source_security_group_id = module.alb.aws_security_group_lb_access_sg_id
-# }
+#------------------------------------------------------------------------------
+# CodePipeline
+#------------------------------------------------------------------------------
 
-# module "ecs-autoscaling" {
-#   count = var.enable_autoscaling ? 1 : 0
+resource "aws_codepipeline" "this" {
+  name     = var.name
+  role_arn = aws_iam_role.codepipeline_role.arn
 
-#   source  = "cn-terraform/ecs-service-autoscaling/aws"
-#   version = "1.0.1"
+  artifact_store {
+    location = var.code_pipeline_s3_bucket_name
+    type     = "S3"
+  }
 
-#   name               = var.name
-#   ecs_cluster_name          = var.ecs_cluster_name
-#   ecs_service_name          = aws_ecs_service.service.name
-#   max_cpu_threshold         = var.max_cpu_threshold
-#   min_cpu_threshold         = var.min_cpu_threshold
-#   max_cpu_evaluation_period = var.max_cpu_evaluation_period
-#   min_cpu_evaluation_period = var.min_cpu_evaluation_period
-#   max_cpu_period            = var.max_cpu_period
-#   min_cpu_period            = var.min_cpu_period
-#   scale_target_max_capacity = var.scale_target_max_capacity
-#   scale_target_min_capacity = var.scale_target_min_capacity
-# }
+  stage {
+    name = "Source"
+
+    action {
+      name             = "Source"
+      category         = "Source"
+      owner            = "AWS"
+      provider         = "CodeStarSourceConnection"
+      version          = "1"
+      output_artifacts = ["SourceArtifact"]
+
+      configuration = {
+        "BranchName" : var.source_branch_name
+        "ConnectionArn" : var.codestar_connection_arn
+        "FullRepositoryId" : var.source_full_repository_id
+        "OutputArtifactFormat" : "CODE_ZIP"
+      }
+    }
+  }
+
+  stage {
+    name = "Build"
+
+    action {
+      name             = "Build"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["SourceArtifact"]
+      output_artifacts = ["BuildArtifact"]
+      version          = "1"
+
+      configuration = {
+        ProjectName = local.codebuild_project_name
+      }
+    }
+  }
+
+  stage {
+    name = "Deploy"
+
+    action {
+      name            = "Deploy"
+      category        = "Deploy"
+      owner           = "AWS"
+      provider        = "ECS"
+      input_artifacts = ["BuildArtifact"]
+      version         = "1"
+
+      configuration = {
+        "ClusterName" : aws_ecs_cluster.this.name
+        "ServiceName" : aws_ecs_service.this.name
+      }
+    }
+  }
+}
+
+resource "aws_iam_role" "codepipeline_role" {
+  name = "${var.name}-codepipeline-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codepipeline.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "codepipeline_policy" {
+  name = "${var.name}-codepipeline-policy"
+  role = aws_iam_role.codepipeline_role.id
+
+  policy = templatefile("${path.module}/codepipeline_policy.tpl", {
+    code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
+  })
+}
+
+#------------------------------------------------------------------------------
+# CodePipeline
+#------------------------------------------------------------------------------
+
+resource "aws_codebuild_project" "this" {
+  name        = local.codebuild_project_name
+  description = "CodeBuild project for ${var.name}"
+
+  service_role = aws_iam_role.codebuild_role.arn
+
+  artifacts {
+    type = "CODEPIPELINE"
+    name = aws_codepipeline.this.name
+  }
+
+  cache {
+    type  = "LOCAL"
+    modes = ["LOCAL_DOCKER_LAYER_CACHE"]
+  }
+
+  environment {
+    type                        = "LINUX_CONTAINER"
+    compute_type                = "BUILD_GENERAL1_SMALL"
+    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+    image_pull_credentials_type = "CODEBUILD"
+    privileged_mode             = true
+
+    environment_variable {
+      name  = "ENV"
+      value = var.env
+    }
+
+    environment_variable {
+      name  = "AWS_ACCOUNT_ID"
+      value = local.account_id
+    }
+
+    environment_variable {
+      name  = "IMAGE_REPO_NAME"
+      value = aws_ecr_repository.this.name
+    }
+
+    environment_variable {
+      name  = "ECS_CONTAINER_NAME"
+      value = var.container_name
+    }
+  }
+
+  source {
+    type = "CODEPIPELINE"
+  }
+
+  tags = local.tags
+}
+
+resource "aws_iam_role" "codebuild_role" {
+  name = "${var.name}-codebuild-role"
+
+  assume_role_policy = <<EOF
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "codebuild.amazonaws.com"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+EOF
+}
+
+resource "aws_iam_role_policy" "codebuild_policy" {
+  role = aws_iam_role.codebuild_role.name
+
+  policy = templatefile("${path.module}/codebuild_policy.tpl", {
+    code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
+    ecr_arn                      = aws_ecr_repository.this.arn
+    codebuild_project_name       = local.codebuild_project_name
+  })
+}

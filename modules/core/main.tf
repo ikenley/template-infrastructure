@@ -170,3 +170,15 @@ module "vpc" {
   #   #Name      = "vpc-impact"
   # }
 }
+
+# ------------------------------------------------------------------------------
+# S3 buckets
+# ------------------------------------------------------------------------------
+
+module "s3_bucket_codepipeline" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "code-pipeline"
+
+  tags = local.tags
+}

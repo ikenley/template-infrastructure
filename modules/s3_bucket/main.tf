@@ -32,7 +32,7 @@ resource "aws_s3_bucket" "this" {
   tags = local.tags
 }
 
-resource "aws_s3_bucket_policy" "lb_logs_access_policy" {
+resource "aws_s3_bucket_policy" "this" {
   bucket = aws_s3_bucket.this.id
   policy = var.bucket_policy != "" ? var.bucket_policy : templatefile("${path.module}/bucket_policy.tmpl", {
     bucket_name = local.bucket_name

@@ -74,7 +74,7 @@ resource "aws_lb" "lb" {
   )
 
   access_logs {
-    bucket  = module.s3_bucket.s3_bucket_id
+    bucket  = module.s3_bucket.s3_bucket_name
     enabled = true
   }
 

@@ -8,6 +8,10 @@ variable "name" {
   description = "Project name to use as a base for most resources"
 }
 
+variable "env" {
+  description = "Environment used for tagging images etc."
+}
+
 variable "vpc_id" {
   description = "VPC to deploy resources into"
 }
@@ -85,3 +89,10 @@ variable "security_groups" {
   type        = list(any)
   default     = []
 }
+
+# CodePipeline
+
+variable "code_pipeline_s3_bucket_name" {}
+variable "source_full_repository_id" {}
+variable "source_branch_name" {}
+variable "codestar_connection_arn" {}

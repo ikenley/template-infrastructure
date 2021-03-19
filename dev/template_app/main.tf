@@ -31,6 +31,7 @@ module "application" {
   source = "../../modules/application"
 
   name = "template-app"
+  env = "dev"
 
   vpc_id           = data.terraform_remote_state.core.outputs.vpc_id
   vpc_cidr         = data.terraform_remote_state.core.outputs.vpc_cidr
@@ -46,6 +47,12 @@ module "application" {
   ecs_container_definitions = file("./container_definitions.json")
   container_memory          = 512
   container_cpu             = 256
+
+  code_pipeline_s3_bucket_name = data.terraform_remote_state.core.outputs.code_pipeline_s3_bucket_name
+  source_full_repository_id = "ikenley/template-application"
+  source_branch_name = "main"
+  codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
+
 
   tags = {
     Environment = "dev"

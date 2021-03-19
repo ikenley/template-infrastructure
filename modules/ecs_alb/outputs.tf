@@ -4,7 +4,7 @@ output "alb_log_s3_bucket_arn" {
 }
 
 output "alb_log_s3_bucket_id" {
-  value       = module.s3_bucket.s3_bucket_id
+  value       = module.s3_bucket.s3_bucket_name
   description = "The ARN of the S3 bucket"
 }
 
