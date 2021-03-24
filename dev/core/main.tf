@@ -28,6 +28,11 @@ module "core" {
   public_subnets      = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
   database_subnets    = ["10.0.20.0/24", "10.0.21.0/24", "10.0.22.0/24"]
 
+  docker_username = "ikenley6"
+  # This must be stored securely 
+  # https://learn.hashicorp.com/tutorials/terraform/sensitive-variables
+  docker_password = var.docker_password
+
   tags = {
     Environment = "dev"
   }

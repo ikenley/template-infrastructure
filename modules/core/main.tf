@@ -1,3 +1,4 @@
+
 # ------------------------------------------------------------------------------
 # VPC
 # ------------------------------------------------------------------------------
@@ -179,6 +180,26 @@ module "s3_bucket_codepipeline" {
   source = "../s3_bucket"
 
   bucket_name_suffix = "code-pipeline"
+
+  tags = local.tags
+}
+
+# ------------------------------------------------------------------------------
+# Docker credentials
+# ------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "docker_username" {
+  name  = "/docker/username"
+  type  = "String"
+  value = var.docker_username
+
+  tags = local.tags
+}
+
+resource "aws_ssm_parameter" "docker_password" {
+  name  = "/docker/password"
+  type  = "SecureString"
+  value = var.docker_password
 
   tags = local.tags
 }

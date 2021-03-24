@@ -33,3 +33,15 @@ variable "database_subnets" {
   type        = list(string)
   default     = []
 }
+
+# Docker credentials
+
+variable "docker_username" {
+  description = "Username for logging into DockerHub"
+  sensitive   = true
+}
+
+variable "docker_password" {
+  description = "Password for logging into DockerHub. STORE SECURELY. https://learn.hashicorp.com/tutorials/terraform/sensitive-variables"
+  sensitive   = true
+}
