@@ -1,3 +1,20 @@
+#------------------------------------------------------------------------------
+# Application
+# Creates a **FULL** stack application-
+# AWS Fargate service with 2 containers:
+#   - "client": NGINX SPA create-react-app with a reverse proxy
+#   - An API backend (in this case a .NET Core API)
+#
+# Resources created:
+#   - DNS record + SSL cert
+#   - Application Load Balancer
+#   - ECR repositories
+#   - ECS Task Definition
+#   - ECS Fargate Cluster + Service
+#   - CodePipeline/CodeBuild CI/CD pipeline
+#   - IAM roles/policies for all the above
+# Future iterations may require that these parts be abstracted (e.g. ALB)
+#------------------------------------------------------------------------------
 
 data "aws_caller_identity" "current" {}
 
@@ -11,16 +28,10 @@ locals {
   codebuild_project_name = var.name
 }
 
-resource "aws_ecr_repository" "this" {
-  name                 = var.name
-  image_tag_mutability = "IMMUTABLE"
-
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
+#------------------------------------------------------------------------------
 # DNS
+#------------------------------------------------------------------------------
+
 data "aws_route53_zone" "this" {
   name = "${var.domain_name}."
 }
@@ -68,8 +79,28 @@ resource "aws_route53_record" "ssl_validation" {
 # ECS Fargate
 # https://github.com/cn-terraform/terraform-aws-ecs-fargate
 
+#------------------------------------------------------------------------------
 # Task Definition
 # https://github.com/cn-terraform/terraform-aws-ecs-fargate-task-definition
+#------------------------------------------------------------------------------
+
+resource "aws_ecr_repository" "client" {
+  name                 = "${var.name}-client"
+  image_tag_mutability = "IMMUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository" "api" {
+  name                 = "${var.name}-api"
+  image_tag_mutability = "IMMUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
 
 resource "aws_iam_role" "ecs_task_execution_role" {
   name = "${var.name}-ecs-task-execution-role"
@@ -118,14 +149,43 @@ resource "aws_iam_role_policy_attachment" "ecs_task_role_policy_attach" {
 }
 
 resource "aws_ecs_task_definition" "this" {
-  family                   = var.name
-  container_definitions    = var.ecs_container_definitions
+  family = var.name
+
   task_role_arn            = aws_iam_role.ecs_task_role.arn
   execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
   network_mode             = "awsvpc"
   cpu                      = var.container_cpu
   memory                   = var.container_memory
   requires_compatibilities = ["FARGATE"]
+
+  container_definitions = jsonencode([
+    {
+      name  = aws_ecr_repository.client.name
+      image = "${aws_ecr_repository.client.repository_url}:latest"
+      #cpu       = 10
+      #memory    = 512
+      #essential = true
+      portMappings = [
+        {
+          containerPort = 80
+          hostPort      = 80
+        }
+      ]
+    },
+    {
+      name  = aws_ecr_repository.api.name
+      image = "${aws_ecr_repository.api.repository_url}:latest"
+      #cpu       = 10
+      #memory    = 256
+      #essential = true
+      portMappings = [
+        {
+          containerPort = 5000
+          hostPort      = 5000
+        }
+      ]
+    }
+  ])
 
   tags = local.tags
 }
@@ -367,14 +427,15 @@ resource "aws_codebuild_project" "this" {
     }
 
     environment_variable {
-      name  = "IMAGE_REPO_NAME"
-      value = aws_ecr_repository.this.name
+      name  = "CLIENT_IMAGE_REPO_NAME"
+      value = aws_ecr_repository.client.name
     }
 
     environment_variable {
-      name  = "ECS_CONTAINER_NAME"
-      value = var.container_name
+      name  = "API_IMAGE_REPO_NAME"
+      value = aws_ecr_repository.api.name
     }
+    
   }
 
   source {
@@ -408,7 +469,10 @@ resource "aws_iam_role_policy" "codebuild_policy" {
 
   policy = templatefile("${path.module}/codebuild_policy.tpl", {
     code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
-    ecr_arn                      = aws_ecr_repository.this.arn
+    ecr_arns                     = jsonencode([
+      aws_ecr_repository.client.arn, 
+      aws_ecr_repository.api.arn
+    ])
     codebuild_project_name       = local.codebuild_project_name
   })
 }

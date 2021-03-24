@@ -13,9 +13,7 @@
                 "ecr:InitiateLayerUpload",
                 "ecr:BatchCheckLayerAvailability"
             ],
-            "Resource": [
-                "${ecr_arn}"
-            ]
+            "Resource": ${ecr_arns}
         },
         {
             "Sid": "AllowECRAuthorizationToken",
