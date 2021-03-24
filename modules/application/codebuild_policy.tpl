@@ -64,6 +64,22 @@
                 "arn:aws:logs:us-east-1:924586450630:log-group:/aws/codebuild/${codebuild_project_name}",
                 "arn:aws:logs:us-east-1:924586450630:log-group:/aws/codebuild/${codebuild_project_name}:*"
             ]
+        },
+        {
+            "Sid": "AllowSSMDescribeParameters",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:DescribeParameters"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Sid": "AllowSSMGetParametersDocker",
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameters"
+            ],
+            "Resource": "arn:aws:ssm:*:*:parameter/docker/*"
         }
     ]
 }
