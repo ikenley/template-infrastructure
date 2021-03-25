@@ -171,6 +171,14 @@ resource "aws_ecs_task_definition" "this" {
           hostPort      = 80
         }
       ]
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = "/ecs/${aws_ecr_repository.client.name}",
+          awslogs-region        = "us-east-1",
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     },
     {
       name  = aws_ecr_repository.api.name
@@ -237,7 +245,7 @@ resource "aws_ecs_service" "this" {
     for_each = module.alb.lb_http_tgs_map_arn_port
     content {
       target_group_arn = load_balancer.key
-      container_name   = var.container_name
+      container_name   = aws_ecr_repository.client.name
       container_port   = load_balancer.value
     }
   }
@@ -435,7 +443,7 @@ resource "aws_codebuild_project" "this" {
       name  = "API_IMAGE_REPO_NAME"
       value = aws_ecr_repository.api.name
     }
-    
+
   }
 
   source {
@@ -469,10 +477,10 @@ resource "aws_iam_role_policy" "codebuild_policy" {
 
   policy = templatefile("${path.module}/codebuild_policy.tpl", {
     code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
-    ecr_arns                     = jsonencode([
-      aws_ecr_repository.client.arn, 
+    ecr_arns = jsonencode([
+      aws_ecr_repository.client.arn,
       aws_ecr_repository.api.arn
     ])
-    codebuild_project_name       = local.codebuild_project_name
+    codebuild_project_name = local.codebuild_project_name
   })
 }
