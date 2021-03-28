@@ -58,3 +58,30 @@ module "application" {
     Environment = "dev"
   }
 }
+
+module "db" {
+  source = "../../modules/rds_postgres_instance"
+
+  name = "template-app"
+  env = "dev"
+  is_prod = false
+
+  vpc_id           = data.terraform_remote_state.core.outputs.vpc_id
+  vpc_cidr         = data.terraform_remote_state.core.outputs.vpc_cidr
+  azs              = data.terraform_remote_state.core.outputs.azs
+  public_subnets   = data.terraform_remote_state.core.outputs.public_subnets
+  private_subnets  = data.terraform_remote_state.core.outputs.private_subnets
+  database_subnets = data.terraform_remote_state.core.outputs.database_subnets
+
+  domain_name   = "antig-one-rav.com"
+  dns_subdomain = "template-app-dev"
+
+  default_db_name = "template_app"
+  instance_class = "db.t3.micro"
+  allocated_storage = 20
+  max_allocated_storage = 50
+
+  tags = {
+    Environment = "dev"
+  }
+}
