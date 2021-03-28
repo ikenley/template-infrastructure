@@ -148,6 +148,20 @@ resource "aws_iam_role_policy_attachment" "ecs_task_role_policy_attach" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
+resource "aws_iam_policy" "ecs_task_role_app_policy" {
+  name        = "${var.name}-ecs-task-policy"
+  description = "Additional permissions for ECS task application"
+
+  policy = templatefile("${path.module}/ecs_task_role_policy.tpl", {
+    name = var.name
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_role_app_policy_attach" {
+  role       = aws_iam_role.ecs_task_role.name
+  policy_arn = aws_iam_policy.ecs_task_role_app_policy.arn
+}
+
 resource "aws_ecs_task_definition" "this" {
   family = var.name
 

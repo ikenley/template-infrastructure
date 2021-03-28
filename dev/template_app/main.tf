@@ -80,6 +80,7 @@ module "db" {
   instance_class = "db.t3.micro"
   allocated_storage = 20
   max_allocated_storage = 50
+  app_username = "template_app_user"
 
   tags = {
     Environment = "dev"

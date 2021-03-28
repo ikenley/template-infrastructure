@@ -65,3 +65,7 @@ variable "instance_class" {}
 variable "allocated_storage" {}
 variable "max_allocated_storage" {}
 variable "default_db_name" {}
+
+variable "app_username" {
+  description = "Username for the application user"
+}

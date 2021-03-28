@@ -52,9 +52,17 @@ module "security_group" {
   tags = local.tags
 }
 
-resource "random_password" "this" {
+resource "random_password" "admin" {
   length  = 32
   special = false
+}
+
+resource "aws_ssm_parameter" "admin_password" {
+  name  = "/rds_admin/${var.name}-password"
+  type  = "SecureString"
+  value = random_password.admin.result
+
+  tags = local.tags
 }
 
 ################################################################################
@@ -86,7 +94,7 @@ module "db" {
   # user cannot be used as it is a reserved word used by the engine"
   name     = var.default_db_name
   username = "admin_user"
-  password = random_password.this.result
+  password = random_password.admin.result
   port     = 5432
 
   multi_az               = var.is_prod ? true : false
@@ -106,6 +114,31 @@ module "db" {
   create_monitoring_role                = true
   monitoring_role_name                  = "${var.name}-monitoring-role"
   monitoring_interval                   = 60
+
+  tags = local.tags
+}
+
+################################################################################
+# Application user credentials
+################################################################################
+
+resource "random_password" "app_user" {
+  length  = 32
+  special = false
+}
+
+resource "aws_ssm_parameter" "app_user_password" {
+  name  = "/${var.name}/db-app-user-password"
+  type  = "SecureString"
+  value = random_password.app_user.result
+
+  tags = local.tags
+}
+
+resource "aws_ssm_parameter" "main_connection_string" {
+  name  = "/${var.name}/main-connection-string"
+  type  = "SecureString"
+  value = "Host=${module.db.this_db_instance_endpoint};Database=${var.default_db_name};Username=${var.app_username};Password=${random_password.app_user.result}"
 
   tags = local.tags
 }
