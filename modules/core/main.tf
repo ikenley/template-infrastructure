@@ -203,3 +203,10 @@ resource "aws_ssm_parameter" "docker_password" {
 
   tags = local.tags
 }
+
+# ------------------------------------------------------------------------------
+# Client VPN
+# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_client_vpn_endpoint
+# https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/cvpn-getting-started.html
+# ------------------------------------------------------------------------------
+# TODO
