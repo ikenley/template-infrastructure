@@ -205,9 +205,29 @@ resource "aws_ecs_task_definition" "this" {
           containerPort = 5000
           hostPort      = 5000
         }
-      ]
+      ],
+      logConfiguration = {
+        logDriver = "awslogs",
+        options = {
+          awslogs-group         = "/ecs/${aws_ecr_repository.api.name}",
+          awslogs-region        = "us-east-1",
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
+
+  tags = local.tags
+}
+
+resource "aws_cloudwatch_log_group" "client" {
+  name = "/ecs/${aws_ecr_repository.client.name}"
+
+  tags = local.tags
+}
+
+resource "aws_cloudwatch_log_group" "api" {
+  name = "/ecs/${aws_ecr_repository.api.name}"
 
   tags = local.tags
 }

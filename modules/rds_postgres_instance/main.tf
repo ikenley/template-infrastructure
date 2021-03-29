@@ -138,7 +138,7 @@ resource "aws_ssm_parameter" "app_user_password" {
 resource "aws_ssm_parameter" "main_connection_string" {
   name  = "/${var.name}/main-connection-string"
   type  = "SecureString"
-  value = "Host=${module.db.this_db_instance_endpoint};Database=${var.default_db_name};Username=${var.app_username};Password=${random_password.app_user.result}"
+  value = "Host=${module.db.this_db_instance_address};Database=${var.default_db_name};Username=${var.app_username};Password=${random_password.app_user.result}"
 
   tags = local.tags
 }
