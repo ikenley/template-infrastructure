@@ -294,7 +294,7 @@ resource "aws_ecs_service" "this" {
   lifecycle {
     ignore_changes = [
       # Ignore task_definition b/c this will be managed by CodePipeline
-      # task_definition,
+      task_definition,
     ]
   }
 

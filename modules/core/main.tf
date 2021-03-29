@@ -184,6 +184,17 @@ module "s3_bucket_codepipeline" {
   tags = local.tags
 }
 
+# Data lake for storing base/staging data
+# Each project will have its own s3 keyPrefix e.g. "template-app/base/file.csv"
+# https://discourse.getdbt.com/t/how-we-structure-our-dbt-projects/355
+module "s3_bucket_data_lake" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "data-lake"
+
+  tags = local.tags
+}
+
 # ------------------------------------------------------------------------------
 # Docker credentials
 # ------------------------------------------------------------------------------
