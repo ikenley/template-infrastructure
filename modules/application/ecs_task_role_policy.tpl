@@ -12,6 +12,7 @@
             "Sid": "AllowSSMGetParameters",
             "Effect": "Allow",
             "Action": [
+                "ssm:GetParameter",
                 "ssm:GetParameters"
             ],
             "Resource": "arn:aws:ssm:*:*:parameter/${name}/*"
