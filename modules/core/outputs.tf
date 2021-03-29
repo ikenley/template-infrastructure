@@ -42,3 +42,8 @@ output "code_pipeline_s3_bucket_name" {
   description = "S3 bucket used for CodePipeline artifacts"
   value = module.s3_bucket_codepipeline.s3_bucket_name
 }
+
+output "data_lake_s3_bucket_name" {
+  description = "S3 bucket used for data lake"
+  value = module.s3_bucket_data_lake.s3_bucket_name
+}

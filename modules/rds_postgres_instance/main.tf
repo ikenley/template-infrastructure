@@ -142,3 +142,53 @@ resource "aws_ssm_parameter" "main_connection_string" {
 
   tags = local.tags
 }
+
+################################################################################
+# Setting up access to an Amazon S3 bucket
+# https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/PostgreSQL.Procedural.Importing.html
+################################################################################
+
+resource "aws_iam_role" "etl_role" {
+  name = "${var.name}-rds-etl-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "rds.amazonaws.com"
+        }
+      }
+    ]
+  })
+
+  tags = local.tags
+}
+
+resource "aws_iam_policy" "etl_policy" {
+  name        = "${var.name}-rds-etl-policy"
+  description = "Policy enabling RDS s3 read writes"
+
+  policy = templatefile("${path.module}/rds_etl_policy.tpl", {
+    data_lake_s3_bucket_name = var.data_lake_s3_bucket_name
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "aws_iam_policy_attach" {
+  role       = aws_iam_role.etl_role.name
+  policy_arn = aws_iam_policy.etl_policy.arn
+}
+
+resource "aws_db_instance_role_association" "s3_import" {
+  db_instance_identifier = module.db.this_db_instance_id
+  feature_name           = "s3Import"
+  role_arn               = aws_iam_role.etl_role.arn
+}
+
+# resource "aws_db_instance_role_association" "s3_export" {
+#   db_instance_identifier = module.db.this_db_instance_id
+#   feature_name           = "s3Export"
+#   role_arn               = aws_iam_role.etl_role.arn
+# }
+

@@ -80,6 +80,7 @@ module "db" {
   allocated_storage     = 20
   max_allocated_storage = 50
   app_username          = "template_app_user"
+  data_lake_s3_bucket_name = data.terraform_remote_state.core.outputs.data_lake_s3_bucket_name
 
   tags = {
     Environment = "dev"

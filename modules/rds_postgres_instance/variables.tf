@@ -69,3 +69,7 @@ variable "default_db_name" {}
 variable "app_username" {
   description = "Username for the application user"
 }
+
+variable "data_lake_s3_bucket_name" {
+  description = "Bucket name used for data lake ETL"
+}
