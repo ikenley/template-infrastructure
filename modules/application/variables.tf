@@ -60,10 +60,6 @@ variable "container_name" {
   description = "Name of the running container"
 }
 
-variable "ecs_container_definitions" {
-  description = "JSON container definitions https://docs.aws.amazon.com/cli/latest/reference/ecs/describe-task-definition.html"
-}
-
 variable "container_memory" {
   type        = number
   description = "The amount of memory (in MiB) to allow the container to use. This is a hard limit, if the container attempts to exceed the container_memory, the container is killed."

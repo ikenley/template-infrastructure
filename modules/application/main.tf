@@ -176,8 +176,8 @@ resource "aws_ecs_task_definition" "this" {
     {
       name  = aws_ecr_repository.client.name
       image = "${aws_ecr_repository.client.repository_url}:latest"
-      #cpu       = 10
-      #memory    = 512
+      #cpu       = 512
+      memory    = 512
       #essential = true
       portMappings = [
         {
@@ -198,7 +198,7 @@ resource "aws_ecs_task_definition" "this" {
       name  = aws_ecr_repository.api.name
       image = "${aws_ecr_repository.api.repository_url}:latest"
       #cpu       = 10
-      #memory    = 256
+      memory    = 512
       #essential = true
       portMappings = [
         {
@@ -294,7 +294,7 @@ resource "aws_ecs_service" "this" {
   lifecycle {
     ignore_changes = [
       # Ignore task_definition b/c this will be managed by CodePipeline
-      task_definition,
+      # task_definition,
     ]
   }
 

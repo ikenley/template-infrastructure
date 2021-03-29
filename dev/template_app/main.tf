@@ -31,7 +31,7 @@ module "application" {
   source = "../../modules/application"
 
   name = "template-app"
-  env = "dev"
+  env  = "dev"
 
   vpc_id           = data.terraform_remote_state.core.outputs.vpc_id
   vpc_cidr         = data.terraform_remote_state.core.outputs.vpc_cidr
@@ -43,15 +43,14 @@ module "application" {
   domain_name   = "antig-one-rav.com"
   dns_subdomain = "template-app-dev"
 
-  container_name = "template-app"
-  ecs_container_definitions = file("./container_definitions.json")
-  container_memory          = 512
+  container_name            = "template-app"
   container_cpu             = 256
+  container_memory          = 1024
 
   code_pipeline_s3_bucket_name = data.terraform_remote_state.core.outputs.code_pipeline_s3_bucket_name
-  source_full_repository_id = "ikenley/template-application"
-  source_branch_name = "main"
-  codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
+  source_full_repository_id    = "ikenley/template-application"
+  source_branch_name           = "main"
+  codestar_connection_arn      = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
 
 
   tags = {
@@ -62,8 +61,8 @@ module "application" {
 module "db" {
   source = "../../modules/rds_postgres_instance"
 
-  name = "template-app"
-  env = "dev"
+  name    = "template-app"
+  env     = "dev"
   is_prod = false
 
   vpc_id           = data.terraform_remote_state.core.outputs.vpc_id
@@ -76,11 +75,11 @@ module "db" {
   domain_name   = "antig-one-rav.com"
   dns_subdomain = "template-app-dev"
 
-  default_db_name = "template_app"
-  instance_class = "db.t3.micro"
-  allocated_storage = 20
+  default_db_name       = "template_app"
+  instance_class        = "db.t3.micro"
+  allocated_storage     = 20
   max_allocated_storage = 50
-  app_username = "template_app_user"
+  app_username          = "template_app_user"
 
   tags = {
     Environment = "dev"
