@@ -12,6 +12,11 @@ variable "env" {
   description = "Environment used for tagging images etc."
 }
 
+variable "is_prod" {
+  description = ""
+  type        = bool
+}
+
 variable "vpc_id" {
   description = "VPC to deploy resources into"
 }
@@ -23,7 +28,7 @@ variable "vpc_cidr" {
 
 variable "azs" {
   description = "A list of availability zones names or ids in the region"
-  type = list(string)
+  type        = list(string)
 }
 
 variable "public_subnets" {

@@ -177,7 +177,7 @@ resource "aws_ecs_task_definition" "this" {
       name  = aws_ecr_repository.client.name
       image = "${aws_ecr_repository.client.repository_url}:latest"
       #cpu       = 512
-      memory    = 512
+      memory = 512
       #essential = true
       portMappings = [
         {
@@ -198,7 +198,7 @@ resource "aws_ecs_task_definition" "this" {
       name  = aws_ecr_repository.api.name
       image = "${aws_ecr_repository.api.repository_url}:latest"
       #cpu       = 10
-      memory    = 512
+      memory = 512
       #essential = true
       portMappings = [
         {

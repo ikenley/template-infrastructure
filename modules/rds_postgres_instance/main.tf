@@ -34,7 +34,7 @@ module "security_group" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "~> 3"
 
-  name        = var.name
+  name        = "${var.name}-rds-sg"
   description = "Complete PostgreSQL example security group"
   vpc_id      = var.vpc_id
 
@@ -48,6 +48,8 @@ module "security_group" {
       cidr_blocks = var.vpc_cidr
     },
   ]
+
+  egress_rules = ["all-all"]
 
   tags = local.tags
 }
@@ -83,17 +85,16 @@ module "db" {
   option_group_name    = "default:postgres-12"
   parameter_group_name = "postgres12"
 
-  allocated_storage     = var.allocated_storage
-  max_allocated_storage = var.max_allocated_storage
-  storage_encrypted     = true
-
+  allocated_storage                   = var.allocated_storage
+  max_allocated_storage               = var.max_allocated_storage
+  storage_encrypted                   = true
   iam_database_authentication_enabled = true
 
   # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
   # "Error creating DB Instance: InvalidParameterValue: MasterUsername
   # user cannot be used as it is a reserved word used by the engine"
   name     = var.default_db_name
-  username = "admin_user"
+  username = "rds_admin"
   password = random_password.admin.result
   port     = 5432
 
@@ -106,7 +107,7 @@ module "db" {
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
   backup_retention_period = 7
-  skip_final_snapshot     = var.is_prod ? true : false
+  skip_final_snapshot     = var.is_prod ? false : true
   deletion_protection     = var.is_prod ? true : false
 
   performance_insights_enabled          = true
