@@ -4,7 +4,7 @@
 
 locals {
   name    = "template-app"
-  env     = "dev"
+  env     = "Development"
   is_prod = false
 
   domain_name   = "antig-one-rav.com"
