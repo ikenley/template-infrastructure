@@ -176,6 +176,14 @@ module "vpc" {
 # S3 buckets
 # ------------------------------------------------------------------------------
 
+module "s3_bucket_logs" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "logs"
+
+  tags = local.tags
+}
+
 module "s3_bucket_codepipeline" {
   source = "../s3_bucket"
 
@@ -216,8 +224,6 @@ resource "aws_ssm_parameter" "docker_password" {
 }
 
 # ------------------------------------------------------------------------------
-# Client VPN
-# https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/ec2_client_vpn_endpoint
-# https://docs.aws.amazon.com/vpn/latest/clientvpn-admin/cvpn-getting-started.html
+# Bastion host
 # ------------------------------------------------------------------------------
 # TODO

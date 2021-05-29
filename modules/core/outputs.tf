@@ -38,6 +38,11 @@ output "nat_public_ips" {
 
 # S3
 
+output "logs_s3_bucket_name" {
+  description = "S3 bucket used for logs"
+  value = module.s3_bucket_logs.s3_bucket_name
+}
+
 output "code_pipeline_s3_bucket_name" {
   description = "S3 bucket used for CodePipeline artifacts"
   value = module.s3_bucket_codepipeline.s3_bucket_name
