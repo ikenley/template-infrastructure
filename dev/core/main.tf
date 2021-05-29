@@ -2,6 +2,13 @@
 # Create the core VPC network infrastructure
 # ------------------------------------------------------------------------------
 
+locals {
+  name    = "template-app"
+  env     = "Development"
+  is_prod = false
+  domain_name   = "ikenley.com"
+}
+
 terraform {
   required_version = ">= 0.14"
 
@@ -21,6 +28,11 @@ provider "aws" {
 module "core" {
   source  = "../../modules/core"
 
+  name          = local.name
+  env           = local.env
+  is_prod       = local.is_prod
+  domain_name   = local.domain_name
+
   cidr = "10.0.0.0/18" 
 
   azs                 = ["us-east-1a", "us-east-1b", "us-east-1c"]
@@ -33,7 +45,5 @@ module "core" {
   # https://learn.hashicorp.com/tutorials/terraform/sensitive-variables
   docker_password = var.docker_password
 
-  tags = {
-    Environment = "dev"
-  }
+  tags = {}
 }

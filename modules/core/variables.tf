@@ -4,6 +4,25 @@ variable "tags" {
   default     = {}
 }
 
+variable "name" {
+  description = "Project name to use as a base for most resources"
+}
+
+variable "env" {
+  description = "Environment used for tagging images etc."
+}
+
+variable "is_prod" {
+  description = ""
+  type        = bool
+}
+
+# DNS
+
+variable "domain_name" {
+  description = "Base domain name e.g. example.com"
+}
+
 variable "cidr" {
   description = "The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden"
   type        = string
