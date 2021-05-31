@@ -13,9 +13,10 @@
             "Effect": "Allow",
             "Action": [
                 "ssm:GetParameter",
-                "ssm:GetParameters"
+                "ssm:GetParameters",
+                "ssm:GetParametersByPath"
             ],
-            "Resource": "arn:aws:ssm:*:*:parameter/${name}/*"
+            "Resource": "arn:aws:ssm:*:*:parameter/${name}/app*"
         }
     ],
     "Version": "2012-10-17"

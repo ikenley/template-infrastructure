@@ -59,10 +59,51 @@ variable "dns_subdomain" {
   description = "Subdomain for creating a record e.g. my-subdomain"
 }
 
+variable "is_dns_private_zone" {
+  description = "Whether DNS is in private zone"
+  default     = false
+}
+
+# ALB
+
+variable "alb_arn" {}
+variable "alb_sg_id" {
+  description = "ALB security group id"
+}
+
+variable "alb_listener_rule_path_pattern" {
+  description = "Path pattern for ALB listener rule e.g. /my-app"
+  default     = "/"
+}
+
+variable "health_check_path" {
+  description = "Path for target group health check"
+  default     = "/"
+}
+
+# AWS ECS Fargate cluster
+variable "ecs_cluster_arn" {
+  description = "ARN of ECS Fargate cluster. Defaults to new cluster"
+  default     = ""
+}
+
+variable "ecs_cluster_name" {
+  description = "Name of ECS Fargate cluster. Defaults to new cluster"
+  default     = ""
+}
+
 # ECS Task Definition
 
-variable "container_name" {
-  description = "Name of the running container"
+variable "container_names" {
+  type        = list(string)
+  description = "Names of each container. Additional resources are created for each container (e.g. ECR repos)"
+  default     = ["main"]
+}
+
+variable "container_ports" {
+  type        = list(number)
+  description = "Port number to expose for each container"
+  default     = [80]
 }
 
 variable "container_memory" {
@@ -97,3 +138,15 @@ variable "code_pipeline_s3_bucket_name" {}
 variable "source_full_repository_id" {}
 variable "source_branch_name" {}
 variable "codestar_connection_arn" {}
+
+# Configuration parameters
+
+variable "jwt_authority" {
+  description = "JWT Authority endpoint for user authentication"
+}
+variable "cognito_users_pool_id" {
+  description = "External users Cognito UserPool id"
+}
+variable "cognito_users_client_id" {
+  description = "External uses Cognito client id"
+}

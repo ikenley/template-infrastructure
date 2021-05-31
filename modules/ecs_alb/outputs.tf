@@ -158,7 +158,3 @@ output "aws_security_group_lb_access_sg_egress" {
 #   description = "List of HTTPS Listeners ARNs"
 #   value       = [for listener in aws_lb_listener.lb_https_listeners : listener.arn]
 # }
-
-output "acm_certificate_arn" {
-  value = var.internal ? "" : aws_acm_certificate.this[0].arn
-}

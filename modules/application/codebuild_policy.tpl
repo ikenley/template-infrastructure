@@ -49,7 +49,7 @@
                 "codebuild:BatchPutTestCases"
             ],
             "Resource": [
-                "arn:aws:codebuild:us-east-1:924586450630:report-group/${codebuild_project_name}-*"
+                "arn:aws:codebuild:us-east-1:${account_id}:report-group/${codebuild_project_name}-*"
             ]
         },
         {
@@ -61,8 +61,8 @@
                 "logs:CreateLogStream"
             ],
             "Resource": [
-                "arn:aws:logs:us-east-1:924586450630:log-group:/aws/codebuild/${codebuild_project_name}",
-                "arn:aws:logs:us-east-1:924586450630:log-group:/aws/codebuild/${codebuild_project_name}:*"
+                "arn:aws:logs:us-east-1:${account_id}:log-group:/aws/codebuild/${codebuild_project_name}",
+                "arn:aws:logs:us-east-1:${account_id}:log-group:/aws/codebuild/${codebuild_project_name}:*"
             ]
         },
         {
@@ -79,7 +79,10 @@
             "Action": [
                 "ssm:GetParameters"
             ],
-            "Resource": "arn:aws:ssm:*:*:parameter/docker/*"
+            "Resource": [
+                "arn:aws:ssm:*:*:parameter/docker/*",
+                "arn:aws:ssm:*:*:parameter/${name}/codebuild/*"
+            ]
         }
     ]
 }

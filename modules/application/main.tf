@@ -7,6 +7,7 @@
 #
 # Resources created:
 #   - DNS record + SSL cert
+#   - Application Load Balancer
 #   - ECR repositories
 #   - ECS Task Definition
 #   - ECS Fargate Cluster + Service
@@ -32,7 +33,12 @@ locals {
 #------------------------------------------------------------------------------
 
 data "aws_route53_zone" "this" {
-  name = "${var.domain_name}."
+  name         = "${var.domain_name}."
+  private_zone = var.is_dns_private_zone
+}
+
+data "aws_lb" "this" {
+  arn = var.alb_arn
 }
 
 resource "aws_route53_record" "app" {
@@ -41,13 +47,15 @@ resource "aws_route53_record" "app" {
   type    = "A"
 
   alias {
-    name                   = module.alb.aws_lb_lb_dns_name
-    zone_id                = module.alb.aws_lb_lb_zone_id
+    name                   = data.aws_lb.this.dns_name
+    zone_id                = data.aws_lb.this.zone_id
     evaluate_target_health = true
   }
 }
 
 resource "aws_acm_certificate" "this" {
+  count = var.is_dns_private_zone ? 0 : 1
+
   domain_name       = "${var.dns_subdomain}.${var.domain_name}"
   validation_method = "DNS"
 
@@ -59,8 +67,8 @@ resource "aws_acm_certificate" "this" {
 }
 
 resource "aws_route53_record" "ssl_validation" {
-  for_each = {
-    for dvo in aws_acm_certificate.this.domain_validation_options : dvo.domain_name => {
+  for_each = var.is_dns_private_zone ? {} : {
+    for dvo in aws_acm_certificate.this[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -83,17 +91,10 @@ resource "aws_route53_record" "ssl_validation" {
 # https://github.com/cn-terraform/terraform-aws-ecs-fargate-task-definition
 #------------------------------------------------------------------------------
 
-resource "aws_ecr_repository" "client" {
-  name                 = "${var.name}-client"
-  image_tag_mutability = "IMMUTABLE"
+resource "aws_ecr_repository" "this" {
+  count = length(var.container_names)
 
-  image_scanning_configuration {
-    scan_on_push = true
-  }
-}
-
-resource "aws_ecr_repository" "api" {
-  name                 = "${var.name}-api"
+  name                 = "${var.name}-${var.container_names[count.index]}"
   image_tag_mutability = "IMMUTABLE"
 
   image_scanning_configuration {
@@ -161,6 +162,34 @@ resource "aws_iam_role_policy_attachment" "ecs_task_role_app_policy_attach" {
   policy_arn = aws_iam_policy.ecs_task_role_app_policy.arn
 }
 
+# https://github.com/cloudposse/terraform-aws-ecs-container-definition
+
+module "ecs_container_definition" {
+  count = length(var.container_names)
+
+  source  = "cloudposse/ecs-container-definition/aws"
+  version = "0.56.0"
+
+  container_name   = aws_ecr_repository.this[count.index].name
+  container_image  = "${aws_ecr_repository.this[count.index].repository_url}:latest"
+  container_memory = var.container_memory / length(var.container_names)
+  port_mappings = [
+    {
+      containerPort = var.container_ports[count.index]
+      hostPort      = var.container_ports[count.index]
+      protocol      = "tcp"
+    }
+  ]
+  log_configuration = {
+    logDriver = "awslogs",
+    options = {
+      awslogs-group         = "/ecs/${aws_ecr_repository.this[count.index].name}",
+      awslogs-region        = "us-east-1",
+      awslogs-stream-prefix = "ecs"
+    }
+  }
+}
+
 resource "aws_ecs_task_definition" "this" {
   family = var.name
 
@@ -171,62 +200,24 @@ resource "aws_ecs_task_definition" "this" {
   memory                   = var.container_memory
   requires_compatibilities = ["FARGATE"]
 
-  container_definitions = jsonencode([
-    {
-      name  = aws_ecr_repository.client.name
-      image = "${aws_ecr_repository.client.repository_url}:latest"
-      #cpu       = 512
-      memory = 512
-      #essential = true
-      portMappings = [
-        {
-          containerPort = 80
-          hostPort      = 80
-        }
-      ]
-      logConfiguration = {
-        logDriver = "awslogs",
-        options = {
-          awslogs-group         = "/ecs/${aws_ecr_repository.client.name}",
-          awslogs-region        = "us-east-1",
-          awslogs-stream-prefix = "ecs"
-        }
-      }
-    },
-    {
-      name  = aws_ecr_repository.api.name
-      image = "${aws_ecr_repository.api.repository_url}:latest"
-      #cpu       = 10
-      memory = 512
-      #essential = true
-      portMappings = [
-        {
-          containerPort = 5000
-          hostPort      = 5000
-        }
-      ],
-      logConfiguration = {
-        logDriver = "awslogs",
-        options = {
-          awslogs-group         = "/ecs/${aws_ecr_repository.api.name}",
-          awslogs-region        = "us-east-1",
-          awslogs-stream-prefix = "ecs"
-        }
-      }
-    }
-  ])
+  container_definitions = jsonencode(
+    module.ecs_container_definition.*.json_map_object
+  )
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore container_definitions b/c this will be managed by CodePipeline
+      container_definitions,
+    ]
+  }
 
   tags = local.tags
 }
 
-resource "aws_cloudwatch_log_group" "client" {
-  name = "/ecs/${aws_ecr_repository.client.name}"
+resource "aws_cloudwatch_log_group" "this" {
+  count = length(aws_ecr_repository.this)
 
-  tags = local.tags
-}
-
-resource "aws_cloudwatch_log_group" "api" {
-  name = "/ecs/${aws_ecr_repository.api.name}"
+  name = "/ecs/${aws_ecr_repository.this[count.index].name}"
 
   tags = local.tags
 }
@@ -237,31 +228,38 @@ resource "aws_cloudwatch_log_group" "api" {
 #------------------------------------------------------------------------------
 # AWS ECS SERVICE
 #------------------------------------------------------------------------------
-resource "aws_cloudwatch_log_group" "this" {
-  name              = "/ecs/${var.name}"
-  retention_in_days = 30
+
+locals {
+  # Default to variable if exists, else create new cluster
+  ecs_cluster_arn  = var.ecs_cluster_arn == "" ? aws_ecs_cluster.this[0].arn : var.ecs_cluster_arn
+  ecs_cluster_name = var.ecs_cluster_name == "" ? aws_ecs_cluster.this[0].name : var.ecs_cluster_name
+}
+
+resource "aws_ecs_cluster" "this" {
+  count = var.ecs_cluster_arn == "" ? 1 : 0
+
+  name = var.name
+
+  tags = local.tags
 }
 
 resource "aws_ecs_service" "this" {
   name                    = var.name
-  cluster                 = aws_ecs_cluster.this.arn
+  cluster                 = local.ecs_cluster_arn
   desired_count           = var.desired_count
   enable_ecs_managed_tags = true
   launch_type             = "FARGATE"
 
-  dynamic "load_balancer" {
-    for_each = module.alb.lb_http_tgs_map_arn_port
-    content {
-      target_group_arn = load_balancer.key
-      container_name   = aws_ecr_repository.client.name
-      container_port   = load_balancer.value
-    }
+  load_balancer {
+    target_group_arn = aws_lb_target_group.lb_http_tgs.arn
+    container_name   = aws_ecr_repository.this[0].name
+    container_port   = 80
   }
 
   network_configuration {
     security_groups  = concat([aws_security_group.ecs_tasks_sg.id], var.security_groups)
-    subnets          = var.public_subnets # var.private_subnets
-    assign_public_ip = true               # TODO make false
+    subnets          = var.private_subnets
+    assign_public_ip = false
   }
   task_definition = aws_ecs_task_definition.this.arn
 
@@ -273,6 +271,108 @@ resource "aws_ecs_service" "this" {
   }
 
   tags = local.tags
+}
+
+#------------------------------------------------------------------------------
+# AWS LOAD BALANCER - Target Groups
+#------------------------------------------------------------------------------
+resource "aws_lb_target_group" "lb_http_tgs" {
+  name                          = "${var.name}-http-80"
+  port                          = 80
+  protocol                      = "HTTP"
+  vpc_id                        = var.vpc_id
+  deregistration_delay          = 300
+  slow_start                    = 0
+  load_balancing_algorithm_type = "round_robin"
+  stickiness {
+    type            = "lb_cookie"
+    cookie_duration = 86400
+    enabled         = true
+  }
+  health_check {
+    enabled             = true
+    interval            = 30
+    path                = var.health_check_path
+    protocol            = "HTTP"
+    timeout             = 5
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
+    matcher             = "200"
+  }
+  target_type = "ip"
+  tags = {
+    Name = "${var.name}-http-80"
+  }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+#------------------------------------------------------------------------------
+# AWS LOAD BALANCER - Listeners
+#------------------------------------------------------------------------------
+resource "aws_lb_listener" "lb_http_listeners" {
+  load_balancer_arn = var.alb_arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "host_header" {
+  listener_arn = var.is_dns_private_zone ? aws_lb_listener.lb_http_listeners.arn : aws_lb_listener.lb_https_listeners[0].arn
+  #priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.lb_http_tgs.arn
+  }
+
+  condition {
+    host_header {
+      values = [aws_route53_record.app.name]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "path_pattern" {
+  listener_arn = var.is_dns_private_zone ? aws_lb_listener.lb_http_listeners.arn : aws_lb_listener.lb_https_listeners[0].arn
+  #priority     = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.lb_http_tgs.arn
+  }
+
+  condition {
+    path_pattern {
+      values = [var.alb_listener_rule_path_pattern]
+    }
+  }
+}
+
+resource "aws_lb_listener" "lb_https_listeners" {
+  count = var.is_dns_private_zone ? 0 : 1
+
+  load_balancer_arn = var.alb_arn
+  port              = 443
+  protocol          = "HTTPS"
+  #ssl_policy        = var.ssl_policy
+  certificate_arn = aws_acm_certificate.this[0].arn
+
+  # Terminate SSL and forward to HTTP Target Group
+  default_action {
+    target_group_arn = aws_lb_target_group.lb_http_tgs.arn
+    type             = "forward"
+  }
 }
 
 #------------------------------------------------------------------------------
@@ -298,13 +398,12 @@ resource "aws_security_group_rule" "egress" {
 }
 
 resource "aws_security_group_rule" "ingress_through_http" {
-  for_each                 = toset(module.alb.lb_http_tgs_ports)
   security_group_id        = aws_security_group.ecs_tasks_sg.id
   type                     = "ingress"
-  from_port                = each.key
-  to_port                  = each.key
+  from_port                = 80
+  to_port                  = 80
   protocol                 = "tcp"
-  source_security_group_id = module.alb.aws_security_group_lb_access_sg_id
+  source_security_group_id = var.alb_sg_id
 }
 
 #------------------------------------------------------------------------------
@@ -370,7 +469,7 @@ resource "aws_codepipeline" "this" {
       version         = "1"
 
       configuration = {
-        "ClusterName" : aws_ecs_cluster.this.name
+        "ClusterName" : local.ecs_cluster_name
         "ServiceName" : aws_ecs_service.this.name
       }
     }
@@ -406,7 +505,7 @@ resource "aws_iam_role_policy" "codepipeline_policy" {
 }
 
 #------------------------------------------------------------------------------
-# CodePipeline
+# CodeBuild
 #------------------------------------------------------------------------------
 
 resource "aws_codebuild_project" "this" {
@@ -428,7 +527,7 @@ resource "aws_codebuild_project" "this" {
   environment {
     type                        = "LINUX_CONTAINER"
     compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:3.0"
+    image                       = "aws/codebuild/standard:5.0"
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
 
@@ -438,18 +537,21 @@ resource "aws_codebuild_project" "this" {
     }
 
     environment_variable {
+      name  = "BRANCH_NAME"
+      value = var.source_branch_name
+    }
+
+    environment_variable {
       name  = "AWS_ACCOUNT_ID"
       value = local.account_id
     }
 
-    environment_variable {
-      name  = "CLIENT_IMAGE_REPO_NAME"
-      value = aws_ecr_repository.client.name
-    }
-
-    environment_variable {
-      name  = "API_IMAGE_REPO_NAME"
-      value = aws_ecr_repository.api.name
+    dynamic "environment_variable" {
+      for_each = aws_ecr_repository.this.*
+      content {
+        name  = "${upper(replace(environment_variable.value.name, "${var.name}-", ""))}_IMAGE_REPO_NAME"
+        value = environment_variable.value.name
+      }
     }
 
   }
@@ -484,11 +586,61 @@ resource "aws_iam_role_policy" "codebuild_policy" {
   role = aws_iam_role.codebuild_role.name
 
   policy = templatefile("${path.module}/codebuild_policy.tpl", {
+    account_id                   = local.account_id
     code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
-    ecr_arns = jsonencode([
-      aws_ecr_repository.client.arn,
-      aws_ecr_repository.api.arn
-    ])
-    codebuild_project_name = local.codebuild_project_name
+    ecr_arns                     = jsonencode(aws_ecr_repository.this.*.arn)
+    codebuild_project_name       = local.codebuild_project_name
+    name                         = var.name
   })
+}
+
+#------------------------------------------------------------------------------
+# Configuration parameters
+#------------------------------------------------------------------------------
+
+# TODO delete after publish
+resource "aws_ssm_parameter" "cognito_users_jwt_authority_old" {
+  name      = "/${var.name}/cognito-users/jwt-authority"
+  type      = "SecureString"
+  value     = var.jwt_authority
+  overwrite = true
+
+  tags = local.tags
+}
+# TODO delete after publish
+resource "aws_ssm_parameter" "cognito_users_pool_id_old" {
+  name      = "/${var.name}/cognito-users/pool-id"
+  type      = "SecureString"
+  value     = var.cognito_users_pool_id
+  overwrite = true
+}
+# TODO delete after publish
+resource "aws_ssm_parameter" "cognito_users_client_id_old" {
+  name      = "/${var.name}/cognito-users/client-id"
+  type      = "SecureString"
+  value     = var.cognito_users_client_id
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "cognito_users_jwt_authority" {
+  name      = "/${var.name}/app/cognito-users/jwt-authority"
+  type      = "SecureString"
+  value     = var.jwt_authority
+  overwrite = true
+
+  tags = local.tags
+}
+
+resource "aws_ssm_parameter" "cognito_users_pool_id" {
+  name      = "/${var.name}/app/cognito-users/pool-id"
+  type      = "SecureString"
+  value     = var.cognito_users_pool_id
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "cognito_users_client_id" {
+  name      = "/${var.name}/app/cognito-users/client-id"
+  type      = "SecureString"
+  value     = var.cognito_users_client_id
+  overwrite = true
 }

@@ -41,13 +41,18 @@ output "alb_public_arn" {
   value = module.core.alb_public_arn
 }
 
-# output "alb_public_sg_id" {
-#   description = "The ID of the ALB security group"
-#   value       = module.alb_public.aws_security_group_lb_access_sg_id
-# }
+output "alb_public_sg_id" {
+  description = "The ID of the ALB security group"
+  value       = module.core.alb_public_sg_id
+}
 
 # output "alb_private_arn" {
-#   value = module.alb_private.aws_lb_lb_arn
+#   value = module.core.alb_private_arn
+# }
+
+# output "alb_private_sg_id" {
+#   description = "The ID of the ALB security group"
+#   value       = module.core.alb_private_sg_id
 # }
 
 # S3
