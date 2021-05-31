@@ -36,8 +36,21 @@ output "nat_public_ips" {
   value       = module.core.nat_public_ips
 }
 
-# S3
+# ALB
+output "alb_public_arn" {
+  value = module.core.alb_public_arn
+}
 
+# output "alb_public_sg_id" {
+#   description = "The ID of the ALB security group"
+#   value       = module.alb_public.aws_security_group_lb_access_sg_id
+# }
+
+# output "alb_private_arn" {
+#   value = module.alb_private.aws_lb_lb_arn
+# }
+
+# S3
 output "logs_s3_bucket_name" {
   description = "S3 bucket used for logs"
   value = module.core.logs_s3_bucket_name
@@ -51,4 +64,15 @@ output "code_pipeline_s3_bucket_name" {
 output "data_lake_s3_bucket_name" {
   description = "S3 bucket used for data lake"
   value = module.core.data_lake_s3_bucket_name
+}
+
+# AWS ECS Fargate cluster
+output "ecs_cluster_arn" {
+  description = "ARN of ECS Fargate cluster"
+  value       = module.core.ecs_cluster_arn
+}
+
+output "ecs_cluster_name" {
+  description = "Name of ECS Fargate cluster"
+  value       = module.core.ecs_cluster_name
 }

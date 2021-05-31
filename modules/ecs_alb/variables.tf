@@ -5,6 +5,8 @@ variable "name_prefix" {
   description = "Name prefix for resources on AWS"
 }
 
+variable "log_s3_bucket_name" {}
+
 #------------------------------------------------------------------------------
 # AWS Networking
 #------------------------------------------------------------------------------
@@ -12,14 +14,16 @@ variable "vpc_id" {
   description = "ID of the VPC"
 }
 
-#------------------------------------------------------------------------------
-# S3 bucket
-#------------------------------------------------------------------------------
-variable "block_s3_bucket_public_access" {
-  description = "(Optional) If true, public access to the S3 bucket will be blocked."
-  type        = bool
-  default     = false
+variable "vpc_cidr" {
+  description = "For internal lb's, the CIDR range"
+  default     = "0.0.0.0/0"
 }
+
+#------------------------------------------------------------------------------
+# DNS + SSL
+#------------------------------------------------------------------------------
+variable "dns_zone_id" {}
+variable "dns_domain_name" {}
 
 #------------------------------------------------------------------------------
 # APPLICATION LOAD BALANCER
@@ -248,12 +252,6 @@ variable "target_group_health_check_matcher" {
 
 variable "ssl_policy" {
   description = "(Optional) The name of the SSL Policy for the listener. . Required if var.https_ports is set."
-  type        = string
-  default     = null
-}
-
-variable "default_certificate_arn" {
-  description = "(Optional) The ARN of the default SSL server certificate. Required if var.https_ports is set."
   type        = string
   default     = null
 }

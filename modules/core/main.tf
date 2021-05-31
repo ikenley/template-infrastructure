@@ -3,7 +3,13 @@
 # VPC
 # ------------------------------------------------------------------------------
 
+data "aws_caller_identity" "current" {}
+
 locals {
+  account_id       = data.aws_caller_identity.current.account_id
+  lb_internal_name = "${var.name}-alb-internal"
+  # Need to pre-calculate the bucket name to avoid dependency loop
+  lb_log_bucket_name = "${local.account_id}-logs"
   tags = merge(var.tags, {
     Terraform = true
     Environment = var.env
@@ -178,14 +184,6 @@ module "vpc" {
 # S3 buckets
 # ------------------------------------------------------------------------------
 
-module "s3_bucket_logs" {
-  source = "../s3_bucket"
-
-  bucket_name_suffix = "logs"
-
-  tags = local.tags
-}
-
 module "s3_bucket_codepipeline" {
   source = "../s3_bucket"
 
@@ -235,7 +233,53 @@ resource "aws_route53_zone" "public" {
 # ------------------------------------------------------------------------------
 # Load Balancers
 # ------------------------------------------------------------------------------
-# TODO
+
+# S3 BUCKET - For access logs
+data "aws_elb_service_account" "default" {}
+
+module "s3_bucket_logs" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "logs"
+
+  bucket_policy = templatefile("${path.module}/bucket_policy.tpl", {
+    bucket_name                 = local.lb_log_bucket_name
+    account_id                  = local.account_id
+    aws_elb_service_account_arn = data.aws_elb_service_account.default.arn
+  })
+}
+
+module "alb_public" {
+  source = "../ecs_alb"
+
+  name_prefix = "${var.name}-public"
+  vpc_id      = module.vpc.vpc_id
+
+  log_s3_bucket_name = module.s3_bucket_logs.s3_bucket_name
+
+  internal        = false
+  private_subnets = module.vpc.private_subnets
+  public_subnets  = module.vpc.public_subnets
+
+  dns_zone_id     = aws_route53_zone.public.zone_id
+  dns_domain_name = var.domain_name
+}
+
+# module "alb_private" {
+#   source = "../ecs_alb"
+
+#   name_prefix = "${var.name}-private"
+#   vpc_id      = var.vpc_id
+
+#   log_s3_bucket_name = module.s3_bucket_logs.s3_bucket_name
+
+#   internal        = true
+#   private_subnets = module.vpc.private_subnets
+#   public_subnets  = module.vpc.public_subnets
+
+#   dns_zone_id     = aws_route53_zone.private.zone_id
+#   dns_domain_name = "internal.${var.domain_name}"
+# }
 
 # ------------------------------------------------------------------------------
 # Bastion host
@@ -245,4 +289,9 @@ resource "aws_route53_zone" "public" {
 # ------------------------------------------------------------------------------
 # ECS Fargate Cluster
 # ------------------------------------------------------------------------------
-# TODO
+
+resource "aws_ecs_cluster" "this" {
+  name = var.name
+
+  tags = local.tags
+}

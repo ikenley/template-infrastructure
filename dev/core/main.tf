@@ -3,7 +3,7 @@
 # ------------------------------------------------------------------------------
 
 locals {
-  name    = "template-app"
+  name    = "main"
   env     = "Development"
   is_prod = false
   domain_name   = "ikenley.com"

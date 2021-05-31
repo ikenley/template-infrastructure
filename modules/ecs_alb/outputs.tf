@@ -1,12 +1,12 @@
-output "alb_log_s3_bucket_arn" {
-  value       = module.s3_bucket.s3_bucket_arn
-  description = "The ARN of the S3 bucket"
-}
+# output "alb_log_s3_bucket_arn" {
+#   value       = module.s3_bucket.s3_bucket_arn
+#   description = "The ARN of the S3 bucket"
+# }
 
-output "alb_log_s3_bucket_id" {
-  value       = module.s3_bucket.s3_bucket_name
-  description = "The ARN of the S3 bucket"
-}
+# output "alb_log_s3_bucket_id" {
+#   value       = module.s3_bucket.s3_bucket_name
+#   description = "The ARN of the S3 bucket"
+# }
 
 #------------------------------------------------------------------------------
 # APPLICATION LOAD BALANCER
@@ -82,79 +82,83 @@ output "aws_security_group_lb_access_sg_egress" {
 #------------------------------------------------------------------------------
 # AWS LOAD BALANCER - Target Groups
 #------------------------------------------------------------------------------
-output "lb_http_tgs_ids" {
-  description = "List of HTTP Target Groups IDs"
-  value       = [for tg in aws_lb_target_group.lb_http_tgs : tg.id]
-}
+# output "lb_http_tgs_ids" {
+#   description = "List of HTTP Target Groups IDs"
+#   value       = [for tg in aws_lb_target_group.lb_http_tgs : tg.id]
+# }
 
-output "lb_http_tgs_arns" {
-  description = "List of HTTP Target Groups ARNs"
-  value       = [for tg in aws_lb_target_group.lb_http_tgs : tg.arn]
-}
+# output "lb_http_tgs_arns" {
+#   description = "List of HTTP Target Groups ARNs"
+#   value       = [for tg in aws_lb_target_group.lb_http_tgs : tg.arn]
+# }
 
-output "lb_http_tgs_names" {
-  description = "List of HTTP Target Groups Names"
-  value       = [for tg in aws_lb_target_group.lb_http_tgs : tg.name]
-}
+# output "lb_http_tgs_names" {
+#   description = "List of HTTP Target Groups Names"
+#   value       = [for tg in aws_lb_target_group.lb_http_tgs : tg.name]
+# }
 
-output "lb_http_tgs_ports" {
-  description = "List of HTTP Target Groups ports"
-  value       = [for tg in aws_lb_target_group.lb_http_tgs : tostring(tg.port)]
-}
+# output "lb_http_tgs_ports" {
+#   description = "List of HTTP Target Groups ports"
+#   value       = [for tg in aws_lb_target_group.lb_http_tgs : tostring(tg.port)]
+# }
 
-output "lb_http_tgs_map_arn_port" {
-  value = zipmap(
-    [for tg in aws_lb_target_group.lb_http_tgs : tg.arn],
-    [for tg in aws_lb_target_group.lb_http_tgs : tostring(tg.port)]
-  )
-}
+# output "lb_http_tgs_map_arn_port" {
+#   value = zipmap(
+#     [for tg in aws_lb_target_group.lb_http_tgs : tg.arn],
+#     [for tg in aws_lb_target_group.lb_http_tgs : tostring(tg.port)]
+#   )
+# }
 
-output "lb_https_tgs_ids" {
-  description = "List of HTTPS Target Groups IDs"
-  value       = [for tg in aws_lb_target_group.lb_https_tgs : tg.id]
-}
+# output "lb_https_tgs_ids" {
+#   description = "List of HTTPS Target Groups IDs"
+#   value       = [for tg in aws_lb_target_group.lb_https_tgs : tg.id]
+# }
 
-output "lb_https_tgs_arns" {
-  description = "List of HTTPS Target Groups ARNs"
-  value       = [for tg in aws_lb_target_group.lb_https_tgs : tg.arn]
-}
+# output "lb_https_tgs_arns" {
+#   description = "List of HTTPS Target Groups ARNs"
+#   value       = [for tg in aws_lb_target_group.lb_https_tgs : tg.arn]
+# }
 
-output "lb_https_tgs_names" {
-  description = "List of HTTPS Target Groups Names"
-  value       = [for tg in aws_lb_target_group.lb_https_tgs : tg.name]
-}
+# output "lb_https_tgs_names" {
+#   description = "List of HTTPS Target Groups Names"
+#   value       = [for tg in aws_lb_target_group.lb_https_tgs : tg.name]
+# }
 
-output "lb_https_tgs_ports" {
-  description = "List of HTTPS Target Groups ports"
-  value       = [for tg in aws_lb_target_group.lb_https_tgs : tostring(tg.port)]
-}
+# output "lb_https_tgs_ports" {
+#   description = "List of HTTPS Target Groups ports"
+#   value       = [for tg in aws_lb_target_group.lb_https_tgs : tostring(tg.port)]
+# }
 
-output "lb_https_tgs_map_arn_port" {
-  value = zipmap(
-    [for tg in aws_lb_target_group.lb_https_tgs : tg.arn],
-    [for tg in aws_lb_target_group.lb_https_tgs : tostring(tg.port)]
-  )
-}
+# output "lb_https_tgs_map_arn_port" {
+#   value = zipmap(
+#     [for tg in aws_lb_target_group.lb_https_tgs : tg.arn],
+#     [for tg in aws_lb_target_group.lb_https_tgs : tostring(tg.port)]
+#   )
+# }
 
-#------------------------------------------------------------------------------
-# AWS LOAD BALANCER - Listeners
-#------------------------------------------------------------------------------
-output "lb_http_listeners_ids" {
-  description = "List of HTTP Listeners IDs"
-  value       = [for listener in aws_lb_listener.lb_http_listeners : listener.id]
-}
+# #------------------------------------------------------------------------------
+# # AWS LOAD BALANCER - Listeners
+# #------------------------------------------------------------------------------
+# output "lb_http_listeners_ids" {
+#   description = "List of HTTP Listeners IDs"
+#   value       = [for listener in aws_lb_listener.lb_http_listeners : listener.id]
+# }
 
-output "lb_http_listeners_arns" {
-  description = "List of HTTP Listeners ARNs"
-  value       = [for listener in aws_lb_listener.lb_http_listeners : listener.arn]
-}
+# output "lb_http_listeners_arns" {
+#   description = "List of HTTP Listeners ARNs"
+#   value       = [for listener in aws_lb_listener.lb_http_listeners : listener.arn]
+# }
 
-output "lb_https_listeners_ids" {
-  description = "List of HTTPS Listeners IDs"
-  value       = [for listener in aws_lb_listener.lb_https_listeners : listener.id]
-}
+# output "lb_https_listeners_ids" {
+#   description = "List of HTTPS Listeners IDs"
+#   value       = [for listener in aws_lb_listener.lb_https_listeners : listener.id]
+# }
 
-output "lb_https_listeners_arns" {
-  description = "List of HTTPS Listeners ARNs"
-  value       = [for listener in aws_lb_listener.lb_https_listeners : listener.arn]
+# output "lb_https_listeners_arns" {
+#   description = "List of HTTPS Listeners ARNs"
+#   value       = [for listener in aws_lb_listener.lb_https_listeners : listener.arn]
+# }
+
+output "acm_certificate_arn" {
+  value = var.internal ? "" : aws_acm_certificate.this[0].arn
 }

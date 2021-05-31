@@ -7,7 +7,6 @@
 #
 # Resources created:
 #   - DNS record + SSL cert
-#   - Application Load Balancer
 #   - ECR repositories
 #   - ECS Task Definition
 #   - ECS Fargate Cluster + Service
@@ -236,36 +235,11 @@ resource "aws_cloudwatch_log_group" "api" {
 # https://github.com/cn-terraform/terraform-aws-ecs-fargate-service
 
 #------------------------------------------------------------------------------
-# AWS LOAD BALANCER
+# AWS ECS SERVICE
 #------------------------------------------------------------------------------
-module "alb" {
-  source = "../ecs_alb"
-
-  name_prefix = var.name
-  vpc_id      = var.vpc_id
-
-  # S3 Bucket
-  block_s3_bucket_public_access = true
-
-  private_subnets = var.private_subnets
-  public_subnets  = var.public_subnets
-
-  # Certificates
-  default_certificate_arn = aws_acm_certificate.this.arn
-}
-
 resource "aws_cloudwatch_log_group" "this" {
   name              = "/ecs/${var.name}"
   retention_in_days = 30
-}
-
-#------------------------------------------------------------------------------
-# AWS ECS SERVICE
-#------------------------------------------------------------------------------
-resource "aws_ecs_cluster" "this" {
-  name = var.name
-
-  tags = local.tags
 }
 
 resource "aws_ecs_service" "this" {
