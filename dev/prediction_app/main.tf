@@ -31,9 +31,9 @@ data "terraform_remote_state" "core" {
   backend = "s3"
   config = {
     profile = "terraform-dev"
-    bucket = "924586450630-terraform-state"
-    key    = "core/terraform.tfstate"
-    region = "us-east-1"
+    bucket  = "924586450630-terraform-state"
+    key     = "core/terraform.tfstate"
+    region  = "us-east-1"
   }
 }
 
@@ -73,9 +73,10 @@ module "application" {
   source_branch_name           = "main"
   codestar_connection_arn      = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
 
-  jwt_authority           = "todo"
-  cognito_users_pool_id   = "todo"
-  cognito_users_client_id = "todo"
+  auth_jwt_authority         = var.auth_jwt_authority
+  auth_cognito_users_pool_id = var.auth_cognito_users_pool_id
+  auth_client_id             = var.auth_client_id
+  auth_aud                   = var.auth_aud
 
   tags = {
     Environment = "dev"

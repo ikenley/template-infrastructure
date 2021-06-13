@@ -598,49 +598,32 @@ resource "aws_iam_role_policy" "codebuild_policy" {
 # Configuration parameters
 #------------------------------------------------------------------------------
 
-# TODO delete after publish
-resource "aws_ssm_parameter" "cognito_users_jwt_authority_old" {
-  name      = "/${var.name}/cognito-users/jwt-authority"
+resource "aws_ssm_parameter" "auth_jwt_authority" {
+  name      = "/${var.name}/app/auth/jwt-authority"
   type      = "SecureString"
-  value     = var.jwt_authority
-  overwrite = true
-
-  tags = local.tags
-}
-# TODO delete after publish
-resource "aws_ssm_parameter" "cognito_users_pool_id_old" {
-  name      = "/${var.name}/cognito-users/pool-id"
-  type      = "SecureString"
-  value     = var.cognito_users_pool_id
-  overwrite = true
-}
-# TODO delete after publish
-resource "aws_ssm_parameter" "cognito_users_client_id_old" {
-  name      = "/${var.name}/cognito-users/client-id"
-  type      = "SecureString"
-  value     = var.cognito_users_client_id
-  overwrite = true
-}
-
-resource "aws_ssm_parameter" "cognito_users_jwt_authority" {
-  name      = "/${var.name}/app/cognito-users/jwt-authority"
-  type      = "SecureString"
-  value     = var.jwt_authority
+  value     = var.auth_jwt_authority
   overwrite = true
 
   tags = local.tags
 }
 
-resource "aws_ssm_parameter" "cognito_users_pool_id" {
-  name      = "/${var.name}/app/cognito-users/pool-id"
+resource "aws_ssm_parameter" "auth_cognito_users_pool_id" {
+  name      = "/${var.name}/app/auth/pool-id"
   type      = "SecureString"
-  value     = var.cognito_users_pool_id
+  value     = var.auth_cognito_users_pool_id
   overwrite = true
 }
 
-resource "aws_ssm_parameter" "cognito_users_client_id" {
-  name      = "/${var.name}/app/cognito-users/client-id"
+resource "aws_ssm_parameter" "auth_client_id" {
+  name      = "/${var.name}/app/auth/client-id"
   type      = "SecureString"
-  value     = var.cognito_users_client_id
+  value     = var.auth_client_id
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "auth_aud" {
+  name      = "/${var.name}/app/auth/aud"
+  type      = "SecureString"
+  value     = var.auth_aud
   overwrite = true
 }
