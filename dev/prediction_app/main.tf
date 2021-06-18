@@ -4,6 +4,7 @@
 
 locals {
   name    = "prediction-app"
+  namespace    = "prediction-app"
   env     = "Development"
   is_prod = false
 
@@ -81,6 +82,20 @@ module "application" {
   tags = {
     Environment = "dev"
   }
+}
+
+module "dynamo_users" {
+  source = "../../modules/dynamo_table"
+
+  namespace     = local.namespace
+  env           = local.env
+  is_prod       = local.is_prod
+
+  name = "Users"
+  hash_key = "Id"
+
+  role_name = module.application.task_role_name
+
 }
 
 # module "db" {
