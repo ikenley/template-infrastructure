@@ -258,8 +258,8 @@ resource "aws_ecs_service" "this" {
 
   network_configuration {
     security_groups  = concat([aws_security_group.ecs_tasks_sg.id], var.security_groups)
-    subnets          = var.private_subnets
-    assign_public_ip = false
+    subnets          = var.host_in_public_subnets ? var.public_subnets : var.private_subnets
+    assign_public_ip = var.host_in_public_subnets ? true : false
   }
   task_definition = aws_ecs_task_definition.this.arn
 

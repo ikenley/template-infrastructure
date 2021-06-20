@@ -132,6 +132,12 @@ variable "security_groups" {
   default     = []
 }
 
+variable "host_in_public_subnets" {
+  description = "Whether to host Service in public subnet. Default is private. Only use to save $"
+  type        = bool
+  default     = false
+}
+
 # CodePipeline
 
 variable "code_pipeline_s3_bucket_name" {}
