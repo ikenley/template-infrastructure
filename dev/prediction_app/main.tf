@@ -57,7 +57,7 @@ module "application" {
   public_subnets   = data.terraform_remote_state.core.outputs.public_subnets
   private_subnets  = data.terraform_remote_state.core.outputs.private_subnets
   database_subnets = data.terraform_remote_state.core.outputs.database_subnets
-  
+
   host_in_public_subnets = true
 
   alb_arn   = data.terraform_remote_state.core.outputs.alb_public_arn
@@ -96,8 +96,25 @@ module "dynamo_users" {
   name = "Users"
   hash_key = "Id"
 
-  role_name = module.application.task_role_name
+  attributes = [{"name": "Id", "type": "S"}]
 
+  role_name = module.application.task_role_name
+}
+
+module "dynamo_predictions" {
+  source = "../../modules/dynamo_table"
+
+  namespace     = local.namespace
+  env           = local.env
+  is_prod       = local.is_prod
+
+  name = "Predictions"
+  hash_key = "UserId"
+  range_key = "Id"
+
+  attributes = [{"name": "Id", "type": "S"}, {"name": "UserId", "type": "S"}]
+
+  role_name = module.application.task_role_name
 }
 
 # module "db" {

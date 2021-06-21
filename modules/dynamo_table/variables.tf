@@ -29,15 +29,14 @@ variable "write_capacity" {
 }
 
 variable "hash_key" {}
-variable "hash_key_type" {
-  default = "S"
-}
 
 variable "range_key" {
   default = ""
 }
-variable "range_key_type" {
-  default = ""
+
+variable "attributes" {
+  type    = list(any)
+  default = []
 }
 
 variable "role_name" {

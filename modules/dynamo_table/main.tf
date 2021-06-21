@@ -18,16 +18,20 @@ data "aws_region" "current" {}
 # ------------------------------------------------------------------------------
 
 resource "aws_dynamodb_table" "this" {
-  name           = var.name
-  #billing_mode   = "PROVISIONED"
+  name = var.name
+
   read_capacity  = var.read_capacity
   write_capacity = var.write_capacity
   hash_key       = var.hash_key
-  range_key = var.range_key
+  range_key      = var.range_key
 
-  attribute {
-    name = var.hash_key
-    type = var.hash_key_type
+  dynamic "attribute" {
+    for_each = var.attributes
+
+    content {
+      name = attribute.value["name"]
+      type = attribute.value["type"]
+    }
   }
 
   server_side_encryption {
