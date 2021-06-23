@@ -3,10 +3,10 @@
 # ------------------------------------------------------------------------------
 
 locals {
-  name    = "prediction-app"
-  namespace    = "prediction-app"
-  env     = "Development"
-  is_prod = false
+  name      = "prediction-app"
+  namespace = "prediction-app"
+  env       = "Development"
+  is_prod   = false
 
   domain_name   = "ikenley.com"
   dns_subdomain = "predictions"
@@ -42,10 +42,11 @@ data "terraform_remote_state" "core" {
 # Resources
 # ------------------------------------------------------------------------------
 
-module "application" {
-  source = "../../modules/application"
+module "prediction_app" {
+  source = "../../modules/prediction_app"
 
   name          = local.name
+  namespace     = local.namespace
   env           = local.env
   is_prod       = local.is_prod
   domain_name   = local.domain_name
@@ -85,62 +86,3 @@ module "application" {
     Environment = "dev"
   }
 }
-
-module "dynamo_users" {
-  source = "../../modules/dynamo_table"
-
-  namespace     = local.namespace
-  env           = local.env
-  is_prod       = local.is_prod
-
-  name = "Users"
-  hash_key = "Id"
-
-  attributes = [{"name": "Id", "type": "S"}]
-
-  role_name = module.application.task_role_name
-}
-
-module "dynamo_predictions" {
-  source = "../../modules/dynamo_table"
-
-  namespace     = local.namespace
-  env           = local.env
-  is_prod       = local.is_prod
-
-  name = "Predictions"
-  hash_key = "UserId"
-  range_key = "Id"
-
-  attributes = [{"name": "Id", "type": "S"}, {"name": "UserId", "type": "S"}]
-
-  role_name = module.application.task_role_name
-}
-
-# module "db" {
-#   source = "../../modules/rds_postgres_instance"
-
-#   name          = local.name
-#   env           = local.env
-#   is_prod       = local.is_prod
-#   domain_name   = local.domain_name
-#   dns_subdomain = local.dns_subdomain
-
-#   vpc_id           = data.terraform_remote_state.core.outputs.vpc_id
-#   vpc_cidr         = data.terraform_remote_state.core.outputs.vpc_cidr
-#   azs              = data.terraform_remote_state.core.outputs.azs
-#   public_subnets   = data.terraform_remote_state.core.outputs.public_subnets
-#   private_subnets  = data.terraform_remote_state.core.outputs.private_subnets
-#   database_subnets = data.terraform_remote_state.core.outputs.database_subnets
-
-#   default_db_name          = "template_app"
-#   instance_class           = "db.t3.micro"
-#   allocated_storage        = 20
-#   max_allocated_storage    = 50
-#   app_username             = "template_app_user"
-#   data_lake_s3_bucket_name = data.terraform_remote_state.core.outputs.data_lake_s3_bucket_name
-
-#   tags = {
-#     Environment = "dev"
-#   }
-# }
