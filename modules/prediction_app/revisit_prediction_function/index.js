@@ -1,10 +1,10 @@
-// Load the AWS SDK for Node.js
-// var AWS = require('aws-sdk');
-// // Set the region
-// AWS.config.update({region: 'REGION'});
+const { AWS_REGION, USERS_TABLE_NAME, PREDICTIONS_TABLE_NAME } = process.env;
 
-// // Create DynamoDB service object
-// var ddb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
+const AWS = require("aws-sdk");
+AWS.config.update({
+  region: AWS_REGION,
+});
+const dbClient = new AWS.DynamoDB({ region: AWS_REGION });
 
 // var params = {
 //   ExpressionAttributeValues: {
@@ -32,14 +32,30 @@
 exports.handler = async function (event, context) {
   console.log("EVENT: \n" + JSON.stringify(event, null, 2));
 
-  const today = getTodayDate();
-  console.log("today: \n" + JSON.stringify(today, null, 2));
+  const todayDateIso = getTodayDateIso();
+  console.log("today: \n" + JSON.stringify(todayDateIso, null, 2));
 
   return context.logStreamName;
 };
 
-const getTodayDate = () => {
+const getTodayDateIso = () => {
   const d = new Date();
   const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   return today;
 };
+
+// const getPredictionsByDate = async (todayDateIso) => {
+//   var params = {
+//     TableName: PREDICTIONS_TABLE_NAME,
+//     Key: {
+//         RevisitOn: { S: todayDate },
+//     },
+//   };
+
+//   try {
+//     const data = await dbClient.getItem(params).promise();
+//     return data.Item;
+//   } catch (err) {
+//     console.error(err);
+//   }
+// };
