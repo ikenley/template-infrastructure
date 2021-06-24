@@ -31,5 +31,15 @@
 
 exports.handler = async function (event, context) {
   console.log("EVENT: \n" + JSON.stringify(event, null, 2));
+
+  const today = getTodayDate();
+  console.log("today: \n" + JSON.stringify(today, null, 2));
+
   return context.logStreamName;
+};
+
+const getTodayDate = () => {
+  const d = new Date();
+  const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  return today;
 };

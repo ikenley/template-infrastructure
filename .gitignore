@@ -30,3 +30,5 @@ override.tf.json
 
 # Ignore secret tfvars
 *.tfvars
+
+builds

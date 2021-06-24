@@ -1,1 +1,0 @@
-{"filename": "builds\\e712007a68bb93a90c3bc2f139ba6c79767480254ca7bc4437b5dad79c31559c.zip", "runtime": "nodejs12.x", "artifacts_dir": "builds", "build_plan": [["zip", "../../modules/prediction_app/revisit_prediction_function", null]]}
