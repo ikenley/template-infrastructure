@@ -14,7 +14,7 @@ locals {
 data "aws_region" "current" {}
 
 # ------------------------------------------------------------------------------
-# DynamoDB table for storing one-time codes
+# DynamoDB table
 # ------------------------------------------------------------------------------
 
 resource "aws_dynamodb_table" "this" {
@@ -34,6 +34,20 @@ resource "aws_dynamodb_table" "this" {
     }
   }
 
+  dynamic "global_secondary_index" {
+    for_each = var.global_secondary_index
+
+    content {
+      name               = global_secondary_index.value["name"]
+      write_capacity     = global_secondary_index.value["write_capacity"]
+      read_capacity      = global_secondary_index.value["read_capacity"]
+      hash_key           = global_secondary_index.value["hash_key"]
+      range_key          = global_secondary_index.value["range_key"]
+      projection_type    = global_secondary_index.value["projection_type"]
+      non_key_attributes = global_secondary_index.value["non_key_attributes"]
+    }
+  }
+
   server_side_encryption {
     enabled = true
   }
@@ -49,7 +63,9 @@ resource "aws_iam_policy" "dynamo_policy" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "cognito_admin" {
-  role       = var.role_name
+resource "aws_iam_role_policy_attachment" "dynamo_read_write_attach" {
+  count = length(var.role_names)
+
+  role       = var.role_names[count.index]
   policy_arn = aws_iam_policy.dynamo_policy.arn
 }

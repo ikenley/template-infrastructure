@@ -1,5 +1,5 @@
 # ------------------------------------------------------------------------------
-# 
+# Prediction application
 # ------------------------------------------------------------------------------
 
 module "application" {
@@ -44,6 +44,10 @@ module "application" {
   tags = var.tags
 }
 
+# ------------------------------------------------------------------------------
+# Dynamo tables
+# ------------------------------------------------------------------------------
+
 module "dynamo_users" {
   source = "../../modules/dynamo_table"
 
@@ -56,7 +60,10 @@ module "dynamo_users" {
 
   attributes = [{ "name" : "Id", "type" : "S" }]
 
-  role_name = module.application.task_role_name
+  role_names = [
+    module.application.task_role_name,
+    module.lambda_revisit_prediction_function.lambda_role_name
+  ]
 }
 
 module "dynamo_predictions" {
@@ -70,7 +77,48 @@ module "dynamo_predictions" {
   hash_key  = "UserId"
   range_key = "Id"
 
-  attributes = [{ "name" : "Id", "type" : "S" }, { "name" : "UserId", "type" : "S" }]
+  role_names = [
+    module.application.task_role_name,
+    module.lambda_revisit_prediction_function.lambda_role_name
+  ]
 
-  role_name = module.application.task_role_name
+  attributes = [
+    { "name" : "Id", "type" : "S" },
+    { "name" : "UserId", "type" : "S" },
+    { "name" : "RevisitOn", "type" : "S" }
+  ]
+
+  global_secondary_index = [{
+    name               = "RevisitOn"
+    write_capacity     = 1
+    read_capacity      = 1
+    hash_key           = "RevisitOn"
+    range_key          = "UserId"
+    projection_type    = "INCLUDE"
+    non_key_attributes = ["Id", "Name"]
+  }]
+}
+
+# ------------------------------------------------------------------------------
+# Revisit Prediction Lambda Function
+# ------------------------------------------------------------------------------
+
+module "lambda_revisit_prediction_function" {
+  source = "terraform-aws-modules/lambda/aws"
+
+  function_name = "${var.namespace}-revisit-prediction"
+  description   = "Check for Predictions that have a RevisitOn date"
+  handler       = "index.handler"
+  runtime       = "nodejs12.x"
+  publish       = true
+
+  source_path = "${path.module}/revisit_prediction_function"
+
+  environment_variables = {
+    Serverless             = "Terraform"
+    USERS_TABLE_NAME       = module.dynamo_users.table_name
+    PREDICTIONS_TABLE_NAME = module.dynamo_users.table_name
+  }
+
+  tags = var.tags
 }

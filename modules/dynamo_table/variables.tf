@@ -34,14 +34,19 @@ variable "range_key" {
   default = ""
 }
 
+variable "role_names" {
+  type        = list(any)
+  description = "List of Role names to grant read/write access"
+}
+
 variable "attributes" {
   type    = list(any)
   default = []
 }
 
-variable "role_name" {
-
+variable "global_secondary_index" {
+  type    = list(any)
+  default = []
 }
-
 
 
