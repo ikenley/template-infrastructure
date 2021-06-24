@@ -170,3 +170,4 @@ variable "auth_aud" {
 
 # SES
 variable "ses_email_address" {}
+variable "ses_email_arn" {}

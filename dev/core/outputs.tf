@@ -86,3 +86,6 @@ output "ecs_cluster_name" {
 output "ses_email_address" {
   value = module.core.ses_email_address
 }
+output "ses_email_arn" {
+  value = module.core.ses_email_arn
+}

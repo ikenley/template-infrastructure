@@ -87,3 +87,6 @@ output "ecs_cluster_name" {
 output "ses_email_address" {
   value = aws_ses_email_identity.this.email
 }
+output "ses_email_arn" {
+  value = aws_ses_email_identity.this.arn
+}

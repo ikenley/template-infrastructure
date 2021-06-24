@@ -15,6 +15,8 @@ const sesClient = new AWS.SES({ region: AWS_REGION, apiVersion: "2010-12-01" });
 exports.handler = async function (event, context) {
   console.log("EVENT: \n" + JSON.stringify(event, null, 2));
 
+  console.log("SES_EMAIL_ADDRESS", SES_EMAIL_ADDRESS);
+
   const todayDateIso = getTodayDateIso();
   console.log("today: \n" + JSON.stringify(todayDateIso, null, 2));
 
@@ -116,16 +118,12 @@ const getUser = async (userId) => {
 };
 
 const sendEmail = async (prediction, user) => {
-  //Create sendEmail params
   const params = {
     Destination: {
-      /* required */
       ToAddresses: [user.Email],
     },
     Message: {
-      /* required */
       Body: {
-        /* required */
         Html: {
           Charset: "UTF-8",
           Data: "HTML_FORMAT_BODY",
@@ -143,6 +141,8 @@ const sendEmail = async (prediction, user) => {
     Source: SES_EMAIL_ADDRESS,
     ReplyToAddresses: [SES_EMAIL_ADDRESS],
   };
+
+  console.log("params: \n" + JSON.stringify(params, null, 2));
 
   try {
     const response = await sesClient.sendEmail(params).promise();

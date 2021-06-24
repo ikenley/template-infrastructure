@@ -128,3 +128,16 @@ module "lambda_revisit_prediction_function" {
 // AccessDenied: User `arn:aws:sts::924586450630:assumed-role/prediction-app-revisit-prediction/prediction-app-revisit-prediction' 
 // is not authorized to perform `ses:SendEmail' 
 // on resource `arn:aws:ses:us-east-1:924586450630:identity/predictions.ikenley@gmail.com'
+
+resource "aws_iam_policy" "revisit_prediction_function" {
+  name = "${var.name}-revisit-prediction-function-policy"
+
+  policy = templatefile("${path.module}/revisit_prediction_function_policy.json", {
+    ses_email_arn = var.ses_email_arn
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "revisit_prediction_function_attach" {
+  role       = module.lambda_revisit_prediction_function.lambda_role_name
+  policy_arn = aws_iam_policy.revisit_prediction_function.arn
+}
