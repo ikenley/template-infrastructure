@@ -141,3 +141,39 @@ resource "aws_iam_role_policy_attachment" "revisit_prediction_function_attach" {
   role       = module.lambda_revisit_prediction_function.lambda_role_name
   policy_arn = aws_iam_policy.revisit_prediction_function.arn
 }
+
+module "eventbridge_revisit_prediction_function" {
+  source  = "terraform-aws-modules/eventbridge/aws"
+  version = "1.4.0"
+
+  #bus_name = "${var.namespace}-bus"
+  create_bus = false
+
+  rules = {
+    predictions = {
+      name                = "daily-revisit-predictions"
+      description         = "Check predictions once daily"
+      schedule_expression = "cron(0 10 ? * * *)"
+      enabled             = true
+    }
+  }
+
+  targets = {
+    predictions = [
+      {
+        name = "trigger-revisit-prediction-function"
+        arn  = module.lambda_revisit_prediction_function.lambda_function_arn
+      }
+    ]
+  }
+
+  tags = var.tags
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_revisit_prediction_function" {
+  statement_id  = "AllowExecutionFromCloudWatch"
+  action        = "lambda:InvokeFunction"
+  function_name = module.lambda_revisit_prediction_function.lambda_function_name
+  principal     = "events.amazonaws.com"
+  source_arn    = module.eventbridge_revisit_prediction_function.eventbridge_rule_arns["predictions"]
+}

@@ -13,15 +13,9 @@ const dbClient = new AWS.DynamoDB({ region: AWS_REGION });
 const sesClient = new AWS.SES({ region: AWS_REGION, apiVersion: "2010-12-01" });
 
 exports.handler = async function (event, context) {
-  console.log("EVENT: \n" + JSON.stringify(event, null, 2));
-
-  console.log("SES_EMAIL_ADDRESS", SES_EMAIL_ADDRESS);
-
   const todayDateIso = getTodayDateIso();
-  console.log("today: \n" + JSON.stringify(todayDateIso, null, 2));
 
   const predictionItems = await getPredictionsByDate(todayDateIso);
-  console.log("predictionItems: \n" + JSON.stringify(predictionItems, null, 2));
 
   const predictions = mapPredictionItems(predictionItems);
   console.log("predictions: \n" + JSON.stringify(predictions, null, 2));
@@ -43,7 +37,9 @@ exports.handler = async function (event, context) {
 const getTodayDateIso = () => {
   const d = new Date();
   const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  return today.toISOString();
+  const todayIsoString = today.toISOString();
+  console.log("todayIsoString", todayIsoString);
+  return todayIsoString;
 };
 
 const getPredictionsByDate = async (todayDateIso) => {
@@ -126,23 +122,21 @@ const sendEmail = async (prediction, user) => {
       Body: {
         Html: {
           Charset: "UTF-8",
-          Data: "HTML_FORMAT_BODY",
+          Data: `<html><body>It's time to check back in on your prediction about <a href="https://predictions.ikenley.com/p/${prediction.Id}">${prediction.Name}</a></body></html>`,
         },
         Text: {
           Charset: "UTF-8",
-          Data: "TEXT_FORMAT_BODY",
+          Data: `It's time to check back in on your prediction about ${prediction.Name}: https://predictions.ikenley.com/p/${prediction.Id}`,
         },
       },
       Subject: {
         Charset: "UTF-8",
-        Data: "Test email",
+        Data: `Remember when you cared about ${prediction.Name}?`,
       },
     },
     Source: SES_EMAIL_ADDRESS,
     ReplyToAddresses: [SES_EMAIL_ADDRESS],
   };
-
-  console.log("params: \n" + JSON.stringify(params, null, 2));
 
   try {
     const response = await sesClient.sendEmail(params).promise();

@@ -5,7 +5,7 @@
       "Sid": "AllowSes",
       "Effect": "Allow",
       "Action": ["ses:SendEmail", "ses:SendRawEmail"],
-      "Resource": "*"
+      "Resource": "${ses_email_arn}"
     }
   ]
 }
