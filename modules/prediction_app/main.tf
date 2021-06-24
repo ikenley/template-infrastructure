@@ -118,7 +118,13 @@ module "lambda_revisit_prediction_function" {
     Serverless             = "Terraform"
     USERS_TABLE_NAME       = module.dynamo_users.table_name
     PREDICTIONS_TABLE_NAME = module.dynamo_predictions.table_name
+    SES_EMAIL_ADDRESS      = var.ses_email_address
   }
 
   tags = var.tags
 }
+
+// TODO
+// AccessDenied: User `arn:aws:sts::924586450630:assumed-role/prediction-app-revisit-prediction/prediction-app-revisit-prediction' 
+// is not authorized to perform `ses:SendEmail' 
+// on resource `arn:aws:ses:us-east-1:924586450630:identity/predictions.ikenley@gmail.com'

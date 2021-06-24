@@ -167,3 +167,6 @@ variable "auth_aud" {
   description = "Auth aud"
   sensitive   = true
 }
+
+# SES
+variable "ses_email_address" {}

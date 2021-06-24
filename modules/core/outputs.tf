@@ -59,17 +59,17 @@ output "alb_public_sg_id" {
 
 output "logs_s3_bucket_name" {
   description = "S3 bucket used for logs"
-  value = module.s3_bucket_logs.s3_bucket_name
+  value       = module.s3_bucket_logs.s3_bucket_name
 }
 
 output "code_pipeline_s3_bucket_name" {
   description = "S3 bucket used for CodePipeline artifacts"
-  value = module.s3_bucket_codepipeline.s3_bucket_name
+  value       = module.s3_bucket_codepipeline.s3_bucket_name
 }
 
 output "data_lake_s3_bucket_name" {
   description = "S3 bucket used for data lake"
-  value = module.s3_bucket_data_lake.s3_bucket_name
+  value       = module.s3_bucket_data_lake.s3_bucket_name
 }
 
 # AWS ECS Fargate cluster
@@ -81,4 +81,9 @@ output "ecs_cluster_arn" {
 output "ecs_cluster_name" {
   description = "Name of ECS Fargate cluster"
   value       = aws_ecs_cluster.this.name
+}
+
+# SES
+output "ses_email_address" {
+  value = aws_ses_email_identity.this.email
 }

@@ -11,9 +11,9 @@ locals {
   # Need to pre-calculate the bucket name to avoid dependency loop
   lb_log_bucket_name = "${local.account_id}-logs"
   tags = merge(var.tags, {
-    Terraform = true
+    Terraform   = true
     Environment = var.env
-    is_prod = var.is_prod
+    is_prod     = var.is_prod
   })
 }
 
@@ -28,12 +28,12 @@ module "vpc" {
 
   name = "main"
 
-  cidr = var.cidr 
+  cidr = var.cidr
 
-  azs                 = var.azs
-  private_subnets     = var.private_subnets
-  public_subnets      = var.public_subnets
-  database_subnets    = var.database_subnets
+  azs              = var.azs
+  private_subnets  = var.private_subnets
+  public_subnets   = var.public_subnets
+  database_subnets = var.database_subnets
   # elasticache_subnets = ["10.214.158.0/24", "10.214.159.0/24", "10.214.160.0/24"]
   # elasticache_subnet_suffix  = "elasticache"
   # redshift_subnets    = ["10.214.168.0/24", "10.214.169.0/24", "10.214.170.0/24"]
@@ -42,14 +42,14 @@ module "vpc" {
   # intra_subnet_suffix  = "intra"
 
   public_subnet_tags = {
-    Tier = "public"
+    Tier                               = "public"
     "kubernetes.io/cluster/impact-eks" = "shared"
-    "kubernetes.io/role/elb" = 1
+    "kubernetes.io/role/elb"           = 1
   }
   private_subnet_tags = {
-    Tier = "private"
+    Tier                               = "private"
     "kubernetes.io/cluster/impact-eks" = "shared"
-    "kubernetes.io/role/internal-elb" = 1
+    "kubernetes.io/role/internal-elb"  = 1
   }
   database_subnet_tags = {
     Tier = "database"
@@ -294,4 +294,11 @@ resource "aws_ecs_cluster" "this" {
   name = var.name
 
   tags = local.tags
+}
+
+# ------------------------------------------------------------------------------
+# SES (Simple Email Service)
+# ------------------------------------------------------------------------------
+resource "aws_ses_email_identity" "this" {
+  email = var.ses_email_address
 }

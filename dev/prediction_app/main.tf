@@ -82,6 +82,8 @@ module "prediction_app" {
   auth_client_id             = var.auth_client_id
   auth_aud                   = var.auth_aud
 
+  ses_email_address = data.terraform_remote_state.core.outputs.ses_email_address
+
   tags = {
     Environment = "dev"
   }
