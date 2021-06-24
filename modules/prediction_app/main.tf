@@ -117,7 +117,7 @@ module "lambda_revisit_prediction_function" {
   environment_variables = {
     Serverless             = "Terraform"
     USERS_TABLE_NAME       = module.dynamo_users.table_name
-    PREDICTIONS_TABLE_NAME = module.dynamo_users.table_name
+    PREDICTIONS_TABLE_NAME = module.dynamo_predictions.table_name
   }
 
   tags = var.tags
