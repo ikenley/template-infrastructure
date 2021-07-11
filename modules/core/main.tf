@@ -262,7 +262,7 @@ module "alb_public" {
   public_subnets  = module.vpc.public_subnets
 
   dns_zone_id     = aws_route53_zone.public.zone_id
-  dns_domain_name = var.domain_name
+  dns_domain_name = "xyz.${var.domain_name}"
 }
 
 # module "alb_private" {

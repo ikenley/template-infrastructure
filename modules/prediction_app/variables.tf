@@ -75,9 +75,14 @@ variable "alb_sg_id" {
   description = "ALB security group id"
 }
 
+variable "alb_listener_rule_host" {
+  description = "Host for ALB listener rule. Defaults to var.dns_subdomain"
+  default     = ""
+}
+
 variable "alb_listener_rule_path_pattern" {
   description = "Path pattern for ALB listener rule e.g. /my-app"
-  default     = "/"
+  default     = "*"
 }
 
 variable "health_check_path" {

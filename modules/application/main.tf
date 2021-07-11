@@ -311,25 +311,18 @@ resource "aws_lb_target_group" "lb_http_tgs" {
 #------------------------------------------------------------------------------
 # AWS LOAD BALANCER - Listeners
 #------------------------------------------------------------------------------
-resource "aws_lb_listener" "lb_http_listeners" {
-  load_balancer_arn = var.alb_arn
-  port              = 80
-  protocol          = "HTTP"
 
-  default_action {
-    type = "redirect"
-
-    redirect {
-      port        = "443"
-      protocol    = "HTTPS"
-      status_code = "HTTP_301"
-    }
-  }
+locals {
+  alb_listener_rule_host = var.alb_listener_rule_host == "" ? aws_route53_record.app.name : var.alb_listener_rule_host
 }
 
-resource "aws_lb_listener_rule" "host_header" {
-  listener_arn = var.is_dns_private_zone ? aws_lb_listener.lb_http_listeners.arn : aws_lb_listener.lb_https_listeners[0].arn
-  #priority     = 100
+data "aws_lb_listener" "this" {
+  load_balancer_arn = var.alb_arn
+  port              = var.is_dns_private_zone ? 80 : 443
+}
+
+resource "aws_lb_listener_rule" "host_header_path_pattern" {
+  listener_arn = data.aws_lb_listener.this.arn
 
   action {
     type             = "forward"
@@ -338,18 +331,8 @@ resource "aws_lb_listener_rule" "host_header" {
 
   condition {
     host_header {
-      values = [aws_route53_record.app.name]
+      values = [local.alb_listener_rule_host]
     }
-  }
-}
-
-resource "aws_lb_listener_rule" "path_pattern" {
-  listener_arn = var.is_dns_private_zone ? aws_lb_listener.lb_http_listeners.arn : aws_lb_listener.lb_https_listeners[0].arn
-  #priority     = 100
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.lb_http_tgs.arn
   }
 
   condition {
@@ -359,20 +342,11 @@ resource "aws_lb_listener_rule" "path_pattern" {
   }
 }
 
-resource "aws_lb_listener" "lb_https_listeners" {
+resource "aws_lb_listener_certificate" "this" {
   count = var.is_dns_private_zone ? 0 : 1
 
-  load_balancer_arn = var.alb_arn
-  port              = 443
-  protocol          = "HTTPS"
-  #ssl_policy        = var.ssl_policy
+  listener_arn    = data.aws_lb_listener.this.arn
   certificate_arn = aws_acm_certificate.this[0].arn
-
-  # Terminate SSL and forward to HTTP Target Group
-  default_action {
-    target_group_arn = aws_lb_target_group.lb_http_tgs.arn
-    type             = "forward"
-  }
 }
 
 #------------------------------------------------------------------------------

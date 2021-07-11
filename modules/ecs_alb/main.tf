@@ -77,43 +77,85 @@ resource "aws_security_group_rule" "ingress_through_https" {
 # DNS + SSL
 #------------------------------------------------------------------------------
 
-# resource "aws_route53_record" "this" {
-#   zone_id = var.dns_zone_id
-#   name    = var.dns_domain_name
-#   type    = "A"
+resource "aws_route53_record" "this" {
+  zone_id = var.dns_zone_id
+  name    = var.dns_domain_name
+  type    = "A"
 
-#   alias {
-#     name                   = aws_lb.lb.dns_name
-#     zone_id                = aws_lb.lb.zone_id
-#     evaluate_target_health = true
-#   }
-# }
+  alias {
+    name                   = aws_lb.lb.dns_name
+    zone_id                = aws_lb.lb.zone_id
+    evaluate_target_health = true
+  }
+}
 
-# resource "aws_acm_certificate" "this" {
-#   count = var.internal ? 0 : 1
+resource "aws_acm_certificate" "this" {
+  count = var.internal ? 0 : 1
 
-#   domain_name       = var.dns_domain_name
-#   validation_method = "DNS"
+  domain_name       = var.dns_domain_name
+  validation_method = "DNS"
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
-# resource "aws_route53_record" "ssl_validation" {
-#   for_each = var.internal ? {} : {
-#     for dvo in aws_acm_certificate.this[0].domain_validation_options : dvo.domain_name => {
-#       name   = dvo.resource_record_name
-#       record = dvo.resource_record_value
-#       type   = dvo.resource_record_type
-#     }
-#   }
+resource "aws_route53_record" "ssl_validation" {
+  for_each = var.internal ? {} : {
+    for dvo in aws_acm_certificate.this[0].domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
 
-#   allow_overwrite = true
-#   name            = each.value.name
-#   records         = [each.value.record]
-#   ttl             = 60
-#   type            = each.value.type
-#   zone_id         = var.dns_zone_id
-# }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = var.dns_zone_id
+}
 
+#------------------------------------------------------------------------------
+# Listeners
+#------------------------------------------------------------------------------
+
+resource "aws_lb_listener" "lb_http_listeners" {
+  load_balancer_arn = aws_lb.lb.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = "443"
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+resource "aws_lb_listener" "lb_https_listeners" {
+  count = var.internal ? 0 : 1
+
+  load_balancer_arn = aws_lb.lb.arn
+  port              = 443
+  protocol          = "HTTPS"
+  #ssl_policy        = var.ssl_policy
+  certificate_arn = aws_acm_certificate.this[0].arn
+
+  # Terminate SSL and forward to HTTP Target Group
+  default_action {
+    target_group_arn = aws_lb_target_group.default.arn
+    type             = "forward"
+  }
+}
+
+resource "aws_lb_target_group" "default" {
+  name     = "${var.name_prefix}-tg-default"
+  port     = 80
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+}
