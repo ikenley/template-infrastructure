@@ -203,6 +203,24 @@ module "s3_bucket_data_lake" {
   tags = local.tags
 }
 
+# Build artifacts
+module "s3_bucket_artifacts" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "artifacts"
+
+  tags = local.tags
+}
+
+# Install scripts and configuration files for user_data etc.
+module "s3_bucket_install" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "install"
+
+  tags = local.tags
+}
+
 # ------------------------------------------------------------------------------
 # Docker credentials
 # ------------------------------------------------------------------------------

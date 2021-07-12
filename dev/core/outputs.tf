@@ -56,6 +56,16 @@ output "alb_public_sg_id" {
 # }
 
 # S3
+output "s3_artifacts_name" {
+  description = "S3 bucket used for build artifacts"
+  value       = module.core.s3_artifacts_name
+}
+
+output "s3_install_name" {
+  description = "S3 bucket used for install scripts bucket"
+  value       = module.core.s3_install_name
+}
+
 output "logs_s3_bucket_name" {
   description = "S3 bucket used for logs"
   value       = module.core.logs_s3_bucket_name
