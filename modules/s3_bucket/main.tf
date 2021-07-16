@@ -4,7 +4,7 @@ locals {
   tags = merge(var.tags, {
     Terraform = true
   })
-  account_id = data.aws_caller_identity.current.account_id
+  account_id  = data.aws_caller_identity.current.account_id
   bucket_name = "${local.account_id}-${var.bucket_name_suffix}"
 }
 
@@ -33,6 +33,8 @@ resource "aws_s3_bucket" "this" {
 }
 
 resource "aws_s3_bucket_policy" "this" {
+  count = var.skip_create_policy ? 0 : 1
+
   bucket = aws_s3_bucket.this.id
   policy = var.bucket_policy != "" ? var.bucket_policy : templatefile("${path.module}/bucket_policy.tmpl", {
     bucket_name = local.bucket_name
@@ -42,18 +44,18 @@ resource "aws_s3_bucket_policy" "this" {
 resource "aws_s3_bucket_public_access_block" "this" {
   bucket = aws_s3_bucket.this.id
 
-  block_public_acls   = true
-  block_public_policy = true
-  ignore_public_acls = true
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
   restrict_public_buckets = true
 }
 
 resource "aws_kms_key" "this" {
   count = var.kms_alias == "" ? 0 : 1
-  
+
   description             = "This key is used to encrypt bucket objects"
   deletion_window_in_days = 10
-  enable_key_rotation = true
+  enable_key_rotation     = true
 }
 
 resource "aws_kms_alias" "this" {

@@ -10,10 +10,16 @@ variable "bucket_name_suffix" {
 
 variable "kms_alias" {
   description = "Optional key alias. By default uses standard AES encryption with no key"
-  default = ""
+  default     = ""
 }
 
 variable "bucket_policy" {
   description = "Optional bucket policy to override default"
-  default = ""
+  default     = ""
+}
+
+variable "skip_create_policy" {
+  description = "Skip creation of bucket policy. Useful for when this is overridden by other modules"
+  type        = bool
+  default     = false
 }
