@@ -4,12 +4,16 @@ variable "tags" {
   default     = {}
 }
 
-variable "name" {
+variable "namespace" {
   description = "Project name to use as a base for most resources"
 }
 
 variable "env" {
   description = "Environment used for tagging images etc."
+}
+
+variable "name" {
+  description = "Project name to use as a base for most resources"
 }
 
 variable "is_prod" {

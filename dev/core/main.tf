@@ -3,8 +3,9 @@
 # ------------------------------------------------------------------------------
 
 locals {
+  namespace   = "ik"
+  env         = "dev"
   name        = "main"
-  env         = "Development"
   is_prod     = false
   domain_name = "ikenley.com"
 }
@@ -28,8 +29,9 @@ provider "aws" {
 module "core" {
   source = "../../modules/core"
 
-  name        = local.name
+  namespace   = local.namespace
   env         = local.env
+  name        = local.name
   is_prod     = local.is_prod
   domain_name = local.domain_name
 
