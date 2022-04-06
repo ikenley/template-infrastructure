@@ -154,6 +154,22 @@ variable "source_full_repository_id" {}
 variable "source_branch_name" {}
 variable "codestar_connection_arn" {}
 
+variable "create_e2e_tests" {
+  description = "Whether to create E2E CodeBuild project"
+  type        = bool
+  default     = false
+}
+variable "e2e_codebuild_buildspec_path" {
+  description = "buildspec.yml path for E2E test. Default to buildspec-e2e.yml in root"
+  type        = string
+  default     = "buildspec-e2e.yml"
+}
+variable "e2e_codebuild_env_vars" {
+  description = "Environment variables for E2E test CodeBuild project"
+  type        = map(string)
+  default     = {}
+}
+
 # Configuration parameters
 
 variable "auth_jwt_authority" {

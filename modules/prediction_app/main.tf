@@ -35,6 +35,9 @@ module "application" {
   source_full_repository_id    = var.source_full_repository_id
   source_branch_name           = var.source_branch_name
   codestar_connection_arn      = var.codestar_connection_arn
+  create_e2e_tests             = var.create_e2e_tests
+  e2e_codebuild_buildspec_path = var.e2e_codebuild_buildspec_path
+  e2e_codebuild_env_vars       = var.e2e_codebuild_env_vars
 
   auth_jwt_authority         = var.auth_jwt_authority
   auth_cognito_users_pool_id = var.auth_cognito_users_pool_id
