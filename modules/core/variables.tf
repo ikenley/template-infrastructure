@@ -57,6 +57,13 @@ variable "database_subnets" {
   default     = []
 }
 
+# Bastion host
+
+variable "enable_bastion_host" {
+  type    = bool
+  default = false
+}
+
 # Docker credentials
 
 variable "docker_username" {

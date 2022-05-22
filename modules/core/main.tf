@@ -113,12 +113,12 @@ module "vpc" {
   # ec2messages_endpoint_security_group_ids  = [data.aws_security_group.default.id]
 
   # VPC Endpoint for ECR API
-  # enable_ecr_api_endpoint              = true
+  enable_ecr_api_endpoint = false
   # ecr_api_endpoint_private_dns_enabled = true
-  # ecr_api_endpoint_security_group_ids  = [
-  #   data.aws_security_group.default.id, 
-  #   module.internal_all_security_group.this_security_group_id
-  # ]
+  ecr_api_endpoint_security_group_ids = [
+    data.aws_security_group.default.id
+    //, module.internal_all_security_group.this_security_group_id
+  ]
 
   # # VPC Endpoint for ECR DKR
   # enable_ecr_dkr_endpoint              = true
@@ -313,7 +313,17 @@ module "alb_public" {
 # ------------------------------------------------------------------------------
 # Bastion host
 # ------------------------------------------------------------------------------
-# TODO
+
+module "bastion_host" {
+  source = "../bastion_host"
+
+  namespace = var.namespace
+  env       = var.env
+  name      = var.name
+
+  vpc_id          = module.vpc.vpc_id
+  private_subnets = module.vpc.private_subnets
+}
 
 # ------------------------------------------------------------------------------
 # ECS Fargate Cluster
