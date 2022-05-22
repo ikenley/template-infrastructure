@@ -38,7 +38,7 @@ module "aws_key_pair" {
   source              = "cloudposse/key-pair/aws"
   version             = "0.16.1"
   attributes          = ["ssh", "key"]
-  ssh_public_key_path = "~/.ssh"
+  ssh_public_key_path = "secrets"
   generate_ssh_key    = true
   name                = local.id
 }

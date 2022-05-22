@@ -57,6 +57,10 @@ variable "database_subnets" {
   default     = []
 }
 
+variable "enable_s3_endpoint" {
+  type = bool
+}
+
 # Bastion host
 
 variable "enable_bastion_host" {

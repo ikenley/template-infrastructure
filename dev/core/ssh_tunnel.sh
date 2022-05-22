@@ -6,7 +6,11 @@
 # USERNAME=$USERNAME
 # MY_ENV=development
 EC2_INSTANCE_NAME=ik-dev-main-bastion-host
-KEY_PATH=$HOME/.ssh/ik-dev-main-bastion-host-ssh-key
+KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
+INSTANCE_PARAM_NAME='//ik\dev\main\bastion-host\instance-id'
+SOURCE_PORT="5439"
+TARGET_HOST="924586450630.us-east-1.redshift-serverless.amazonaws.com"
+TARGET_PORT="5439"
 
 # echo "AWS_PROFILE=$AWS_PROFILE"
 # export AWS_PROFILE=$AWS_PROFILE
@@ -15,25 +19,25 @@ KEY_PATH=$HOME/.ssh/ik-dev-main-bastion-host-ssh-key
 # echo "KEY_PATH=$KEY_PATH"
 
 # # Function to fetch SSM parameter
-# get_parameter () {
-#   local func_result=$(aws ssm get-parameter --name $1 --with-decryption --query "Parameter.Value" | tr -d '"')
-#   echo "$func_result"
-# }
+get_parameter () {
+  local func_result=$(aws ssm get-parameter --name $1 --with-decryption --query "Parameter.Value" | tr -d '"')
+  echo "$func_result"
+}
 
 # echo "Fetching host info..."
-# INSTANCE_ID=$(get_parameter "//bastion-host\instance-id")
-# echo "INSTANCE_ID=$INSTANCE_ID"
+INSTANCE_ID=$(get_parameter "$INSTANCE_PARAM_NAME")
+echo "INSTANCE_ID=$INSTANCE_ID"
 # LOCAL_PORT=$(get_parameter "//todo\port-forwarding-number")
 # echo "LOCAL_PORT=$LOCAL_PORT"
 # DB_INSTANCE_ADDRESS=$(get_parameter "//\db-instance-address")
 # echo "DB_INSTANCE_ADDRESS=$DB_INSTANCE_ADDRESS"
 
-INSTANCE_ID=$(aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME" \
-  --output text --query 'Reservations[*].Instances[*].InstanceId')
-echo INSTANCE_ID=$INSTANCE_ID
+# INSTANCE_ID=$(aws ec2 describe-instances \
+#   --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME" \
+#   --output text --query 'Reservations[*].Instances[*].InstanceId')
+# echo INSTANCE_ID=$INSTANCE_ID
 
 # echo "Establishing SSH tunnel via..."
-# -L $LOCAL_PORT:$DB_INSTANCE_ADDRESS:5432"
-echo "ssh -i $KEY_PATH ec2-user@$INSTANCE_ID"
-ssh -i $KEY_PATH ec2-user@$INSTANCE_ID
+# 
+echo "ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT"
+ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT

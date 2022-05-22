@@ -84,7 +84,7 @@ module "vpc" {
   # dhcp_options_domain_name_servers = ["127.0.0.1", "10.10.0.2"]
 
   # VPC endpoint for S3
-  #enable_s3_endpoint = true
+  enable_s3_endpoint = var.enable_s3_endpoint
 
   # VPC endpoint for DynamoDB
   # enable_dynamodb_endpoint = true
@@ -315,6 +315,8 @@ module "alb_public" {
 # ------------------------------------------------------------------------------
 
 module "bastion_host" {
+  count = var.enable_bastion_host ? 1 : 0
+
   source = "../bastion_host"
 
   namespace = var.namespace

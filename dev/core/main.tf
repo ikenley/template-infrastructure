@@ -8,6 +8,9 @@ locals {
   name        = "main"
   is_prod     = false
   domain_name = "ikenley.com"
+
+  # Quick way to turn off expensive services
+  spend_money = false
 }
 
 terraform {
@@ -42,7 +45,9 @@ module "core" {
   public_subnets   = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
   database_subnets = ["10.0.20.0/24", "10.0.21.0/24", "10.0.22.0/24"]
 
-  enable_bastion_host = true
+  enable_s3_endpoint = local.spend_money
+
+  enable_bastion_host = local.spend_money
 
   docker_username = "ikenley6"
   # This must be stored securely 
