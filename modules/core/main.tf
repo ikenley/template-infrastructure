@@ -10,6 +10,9 @@ locals {
   lb_internal_name = "${var.name}-alb-internal"
   # Need to pre-calculate the bucket name to avoid dependency loop
   lb_log_bucket_name = "${local.account_id}-logs"
+
+  id = "${var.namespace}-${var.env}-${var.name}-core"
+
   tags = merge(var.tags, {
     Terraform   = true
     Environment = var.env
@@ -342,4 +345,18 @@ resource "aws_ecs_cluster" "this" {
 # ------------------------------------------------------------------------------
 resource "aws_ses_email_identity" "this" {
   email = var.ses_email_address
+}
+
+# ------------------------------------------------------------------------------
+# CodeArtifact
+# See https://github.com/ikenley/code-artifact-npm-boilerplate
+# ------------------------------------------------------------------------------
+
+resource "aws_codeartifact_domain" "this" {
+  domain = local.id
+}
+
+resource "aws_codeartifact_repository" "this" {
+  repository = "main"
+  domain     = aws_codeartifact_domain.this.domain
 }

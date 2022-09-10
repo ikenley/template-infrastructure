@@ -220,3 +220,5 @@ resource "aws_ssm_parameter" "ses_email_arn" {
   type  = "String"
   value = aws_ses_email_identity.this.arn
 }
+
+# TODO codeartifact
