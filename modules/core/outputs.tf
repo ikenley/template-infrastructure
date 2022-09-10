@@ -221,4 +221,32 @@ resource "aws_ssm_parameter" "ses_email_arn" {
   value = aws_ses_email_identity.this.arn
 }
 
-# TODO codeartifact
+resource "aws_ssm_parameter" "codeartifact_domain_arn" {
+  name  = "/${var.namespace}/${var.env}/core/codeartifact_domain_arn"
+  type  = "String"
+  value = aws_codeartifact_domain.this.arn
+}
+
+resource "aws_ssm_parameter" "codeartifact_domain_name" {
+  name  = "/${var.namespace}/${var.env}/core/codeartifact_domain_name"
+  type  = "String"
+  value = aws_codeartifact_domain.this.domain
+}
+
+resource "aws_ssm_parameter" "codeartifact_domain_owner" {
+  name  = "/${var.namespace}/${var.env}/core/codeartifact_domain_owner"
+  type  = "String"
+  value = aws_codeartifact_domain.this.owner
+}
+
+resource "aws_ssm_parameter" "codeartifact_repo_arn" {
+  name  = "/${var.namespace}/${var.env}/core/codeartifact_repo_arn"
+  type  = "String"
+  value = aws_codeartifact_repository.this.arn
+}
+
+resource "aws_ssm_parameter" "codeartifact_repo_name" {
+  name  = "/${var.namespace}/${var.env}/core/codeartifact_repo_name"
+  type  = "String"
+  value = aws_codeartifact_repository.this.repository
+}
