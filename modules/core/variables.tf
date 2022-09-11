@@ -21,6 +21,11 @@ variable "is_prod" {
   type        = bool
 }
 
+variable "spend_money" {
+  description = "Disable expensive resources that are safe to destroy"
+  type        = bool
+}
+
 # DNS
 
 variable "domain_name" {

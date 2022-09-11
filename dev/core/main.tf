@@ -16,6 +16,13 @@ locals {
 terraform {
   required_version = ">= 0.14"
 
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "4.30.0"
+    }
+  }
+
   backend "s3" {
     profile = "terraform-dev"
     region  = "us-east-1"
@@ -37,6 +44,8 @@ module "core" {
   name        = local.name
   is_prod     = local.is_prod
   domain_name = local.domain_name
+
+  spend_money = local.spend_money
 
   cidr = "10.0.0.0/18"
 

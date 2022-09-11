@@ -360,3 +360,30 @@ resource "aws_codeartifact_repository" "this" {
   repository = "main"
   domain     = aws_codeartifact_domain.this.domain
 }
+
+# ------------------------------------------------------------------------------
+# AWS Transfer Family for SFTP
+# ------------------------------------------------------------------------------
+
+module "s3_bucket_sftp" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "sftp"
+
+  tags = local.tags
+}
+
+module "transfer_sftp" {
+  source = "../transfer_sftp"
+
+  namespace   = var.namespace
+  env         = var.env
+  name        = "main"
+  is_prod     = var.is_prod
+  spend_money = true # TODO revert this to var.spend_money
+
+  domain_name      = "sftp.${var.domain_name}"
+  route_53_zone_id = aws_route53_zone.public.zone_id
+
+  tags = local.tags
+}

@@ -250,3 +250,15 @@ resource "aws_ssm_parameter" "codeartifact_repo_name" {
   type  = "String"
   value = aws_codeartifact_repository.this.repository
 }
+
+# SFTP
+output "sftp_s3_bucket_name" {
+  description = "S3 bucket used for AWS Transfer Family for SFTP"
+  value       = module.s3_bucket_sftp.s3_bucket_name
+}
+
+resource "aws_ssm_parameter" "sftp_s3_bucket_name" {
+  name  = "/${var.namespace}/${var.env}/core/sftp_s3_bucket_name"
+  type  = "String"
+  value = module.s3_bucket_sftp.s3_bucket_name
+}
