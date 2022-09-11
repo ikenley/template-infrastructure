@@ -66,7 +66,7 @@ module "vpc" {
   # enable_classiclink             = true
   # enable_classiclink_dns_support = true
 
-  enable_nat_gateway = true
+  enable_nat_gateway = var.spend_money ? true : false
   single_nat_gateway = true
 
   # customer_gateways = {
@@ -380,7 +380,7 @@ module "transfer_sftp" {
   env         = var.env
   name        = "main"
   is_prod     = var.is_prod
-  spend_money = true # TODO revert this to var.spend_money
+  spend_money = false # TODO revert this to var.spend_money
 
   domain_name      = "sftp.${var.domain_name}"
   route_53_zone_id = aws_route53_zone.public.zone_id

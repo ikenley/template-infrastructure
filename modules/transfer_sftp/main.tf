@@ -10,6 +10,8 @@ locals {
 
   id = "${var.namespace}-${var.env}-sftp"
 
+  enabled = var.spend_money
+
   tags = merge(var.tags, {
     Terraform   = true
     Environment = var.env
@@ -31,7 +33,7 @@ locals {
 }
 
 resource "aws_transfer_server" "this" {
-  count = var.spend_money ? 1 : 0
+  count = local.enabled ? 1 : 0
 
   identity_provider_type = "SERVICE_MANAGED"
   protocols              = ["SFTP"]
@@ -43,6 +45,69 @@ resource "aws_transfer_server" "this" {
 
   tags = local.tags
 }
+
+# Custom Domain
+resource "aws_route53_record" "this" {
+  count = local.enabled ? 1 : 0
+
+  name    = var.domain_name
+  zone_id = var.route_53_zone_id
+  type    = "CNAME"
+  ttl     = "300"
+
+  records = [
+    join("", aws_transfer_server.this[*].endpoint)
+  ]
+}
+
+# ------------------------------------------------------------------------------
+# Logging
+# ------------------------------------------------------------------------------
+
+data "aws_iam_policy_document" "assume_role_policy" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["transfer.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role" "logging" {
+  name                = "${local.id}-logging"
+  assume_role_policy  = data.aws_iam_policy_document.assume_role_policy.json
+  managed_policy_arns = [aws_iam_policy.logging.arn]
+
+  tags = local.tags
+}
+
+
+data "aws_iam_policy_document" "logging" {
+  statement {
+    sid    = "CloudWatchAccessForAWSTransfer"
+    effect = "Allow"
+
+    actions = [
+      "logs:CreateLogStream",
+      "logs:DescribeLogStreams",
+      "logs:CreateLogGroup",
+      "logs:PutLogEvents"
+    ]
+
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "logging" {
+  name   = "${local.id}-logging"
+  policy = data.aws_iam_policy_document.logging.json
+}
+
+# ------------------------------------------------------------------------------
+# Users
+# ------------------------------------------------------------------------------
 
 # resource "aws_transfer_user" "default" {
 #   for_each = local.enabled ? var.sftp_users : {}
@@ -88,29 +153,6 @@ resource "aws_transfer_server" "this" {
 #     aws_transfer_user.default
 #   ]
 # }
-
-# Custom Domain
-resource "aws_route53_record" "main" {
-  name    = var.domain_name
-  zone_id = var.route_53_zone_id
-  type    = "CNAME"
-  ttl     = "300"
-
-  records = [
-    join("", aws_transfer_server.this[*].endpoint)
-  ]
-}
-
-data "aws_iam_policy_document" "assume_role_policy" {
-  statement {
-    actions = ["sts:AssumeRole"]
-
-    principals {
-      type        = "Service"
-      identifiers = ["transfer.amazonaws.com"]
-    }
-  }
-}
 
 # data "aws_iam_policy_document" "s3_access_for_sftp_users" {
 #   for_each = local.enabled ? local.user_names_map : {}
@@ -176,34 +218,3 @@ data "aws_iam_policy_document" "assume_role_policy" {
 
 #   tags = module.this.tags
 # }
-
-resource "aws_iam_role" "logging" {
-  name                = "${local.id}-logging"
-  assume_role_policy  = data.aws_iam_policy_document.assume_role_policy.json
-  managed_policy_arns = [aws_iam_policy.logging.arn]
-
-  tags = local.tags
-}
-
-
-data "aws_iam_policy_document" "logging" {
-  statement {
-    sid    = "CloudWatchAccessForAWSTransfer"
-    effect = "Allow"
-
-    actions = [
-      "logs:CreateLogStream",
-      "logs:DescribeLogStreams",
-      "logs:CreateLogGroup",
-      "logs:PutLogEvents"
-    ]
-
-    resources = ["*"]
-  }
-}
-
-resource "aws_iam_policy" "logging" {
-  name   = "${local.id}-logging"
-  policy = data.aws_iam_policy_document.logging.json
-}
-
