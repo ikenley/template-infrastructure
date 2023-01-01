@@ -104,3 +104,8 @@ output "ses_email_address" {
 output "ses_email_arn" {
   value = module.core.ses_email_arn
 }
+
+#SFTP
+output "s3_sftp_bucket_name" {
+  value = module.core.sftp_s3_bucket_name
+}
