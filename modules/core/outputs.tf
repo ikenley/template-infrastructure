@@ -122,6 +122,12 @@ resource "aws_ssm_parameter" "s3_artifacts_name" {
   value = module.s3_bucket_artifacts.s3_bucket_name
 }
 
+resource "aws_ssm_parameter" "s3_artifacts_arn" {
+  name  = "/${var.namespace}/${var.env}/core/s3_artifacts_arn"
+  type  = "String"
+  value = module.s3_bucket_artifacts.s3_bucket_arn
+}
+
 output "s3_install_name" {
   description = "S3 bucket used for install scripts bucket"
   value       = module.s3_bucket_install.s3_bucket_name
@@ -131,6 +137,12 @@ resource "aws_ssm_parameter" "s3_install_name" {
   name  = "/${var.namespace}/${var.env}/core/s3_install_name"
   type  = "String"
   value = module.s3_bucket_install.s3_bucket_name
+}
+
+resource "aws_ssm_parameter" "s3_install_arn" {
+  name  = "/${var.namespace}/${var.env}/core/s3_install_arn"
+  type  = "String"
+  value = module.s3_bucket_install.s3_bucket_arn
 }
 
 output "s3_public_static_name" {
@@ -144,6 +156,12 @@ resource "aws_ssm_parameter" "s3_public_static_name" {
   value = module.s3_bucket_public_static.s3_bucket_name
 }
 
+resource "aws_ssm_parameter" "s3_public_static_arn" {
+  name  = "/${var.namespace}/${var.env}/core/s3_public_static_arn"
+  type  = "String"
+  value = module.s3_bucket_public_static.s3_bucket_arn
+}
+
 output "logs_s3_bucket_name" {
   description = "S3 bucket used for logs"
   value       = module.s3_bucket_logs.s3_bucket_name
@@ -153,6 +171,12 @@ resource "aws_ssm_parameter" "logs_s3_bucket_name" {
   name  = "/${var.namespace}/${var.env}/core/logs_s3_bucket_name"
   type  = "String"
   value = module.s3_bucket_logs.s3_bucket_name
+}
+
+resource "aws_ssm_parameter" "logs_s3_bucket_arn" {
+  name  = "/${var.namespace}/${var.env}/core/logs_s3_bucket_arn"
+  type  = "String"
+  value = module.s3_bucket_logs.s3_bucket_arn
 }
 
 output "code_pipeline_s3_bucket_name" {
@@ -166,6 +190,12 @@ resource "aws_ssm_parameter" "code_pipeline_s3_bucket_name" {
   value = module.s3_bucket_codepipeline.s3_bucket_name
 }
 
+resource "aws_ssm_parameter" "code_pipeline_s3_bucket_arn" {
+  name  = "/${var.namespace}/${var.env}/core/code_pipeline_s3_bucket_arn"
+  type  = "String"
+  value = module.s3_bucket_codepipeline.s3_bucket_arn
+}
+
 output "data_lake_s3_bucket_name" {
   description = "S3 bucket used for data lake"
   value       = module.s3_bucket_data_lake.s3_bucket_name
@@ -175,6 +205,12 @@ resource "aws_ssm_parameter" "data_lake_s3_bucket_name" {
   name  = "/${var.namespace}/${var.env}/core/data_lake_s3_bucket_name"
   type  = "String"
   value = module.s3_bucket_data_lake.s3_bucket_name
+}
+
+resource "aws_ssm_parameter" "data_lake_s3_bucket_arn" {
+  name  = "/${var.namespace}/${var.env}/core/data_lake_s3_bucket_arn"
+  type  = "String"
+  value = module.s3_bucket_data_lake.s3_bucket_arn
 }
 
 # AWS ECS Fargate cluster

@@ -112,7 +112,7 @@ module "lambda_revisit_prediction_function" {
   function_name = "${var.namespace}-revisit-prediction"
   description   = "Check for Predictions that have a RevisitOn date"
   handler       = "index.handler"
-  runtime       = "nodejs12.x"
+  runtime       = "nodejs14.x"
   publish       = true
 
   source_path = "${path.module}/revisit_prediction_function"

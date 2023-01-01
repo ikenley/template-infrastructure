@@ -10,7 +10,7 @@ locals {
   domain_name = "ikenley.com"
 
   # Quick way to turn off expensive services
-  spend_money = false
+  spend_money = true
 }
 
 terraform {
