@@ -65,5 +65,7 @@ module "core" {
 
   ses_email_address = "predictions.ikenley@gmail.com"
 
+  codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
+
   tags = {}
 }

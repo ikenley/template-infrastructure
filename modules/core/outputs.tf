@@ -298,3 +298,10 @@ resource "aws_ssm_parameter" "sftp_s3_bucket_name" {
   type  = "String"
   value = module.s3_bucket_sftp.s3_bucket_name
 }
+
+# CICD shared resources
+resource "aws_ssm_parameter" "codestar_connection_arn" {
+  name  = "/${var.namespace}/${var.env}/core/codestar_connection_arn"
+  type  = "String"
+  value = var.codestar_connection_arn
+}

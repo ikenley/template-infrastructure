@@ -87,3 +87,6 @@ variable "docker_password" {
 
 # SES
 variable "ses_email_address" {}
+
+# CICD
+variable "codestar_connection_arn" {}
