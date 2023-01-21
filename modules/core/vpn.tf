@@ -16,6 +16,7 @@ module "ec2_client_vpn" {
 
   vpc_id             = module.vpc.vpc_id
   client_cidr        = var.vpc_client_cidr
+  dns_servers        = [var.dns_server_ip]
   organization_name  = var.organization_name
   retention_in_days  = 30
   associated_subnets = module.vpc.private_subnets
@@ -24,8 +25,8 @@ module "ec2_client_vpn" {
       authorize_all_groups = true
       description          = "Internet access"
       target_network_cidr  = "0.0.0.0/0"
-    },
-    {
+    }
+    ,{
       authorize_all_groups = true
       description          = "VPC access"
       target_network_cidr  = var.cidr

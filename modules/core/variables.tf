@@ -38,6 +38,10 @@ variable "cidr" {
   default     = "0.0.0.0/0"
 }
 
+variable "dns_server_ip" {
+  description = "The CIDR + 2 e.g. 10.0.0.2"
+}
+
 variable "azs" {
   description = "A list of availability zones names or ids in the region"
   type        = list(string)
