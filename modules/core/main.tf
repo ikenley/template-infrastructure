@@ -317,18 +317,18 @@ module "alb_public" {
 # Bastion host
 # ------------------------------------------------------------------------------
 
-module "bastion_host" {
-  count = var.enable_bastion_host ? 1 : 0
+# module "bastion_host" {
+#   count = var.enable_bastion_host ? 1 : 0
 
-  source = "../bastion_host"
+#   source = "../bastion_host"
 
-  namespace = var.namespace
-  env       = var.env
-  name      = var.name
+#   namespace = var.namespace
+#   env       = var.env
+#   name      = var.name
 
-  vpc_id          = module.vpc.vpc_id
-  private_subnets = module.vpc.private_subnets
-}
+#   vpc_id          = module.vpc.vpc_id
+#   private_subnets = module.vpc.private_subnets
+# }
 
 # ------------------------------------------------------------------------------
 # ECS Fargate Cluster

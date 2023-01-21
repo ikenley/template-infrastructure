@@ -21,6 +21,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "4.30.0"
     }
+    tls = {
+      source = "hashicorp/tls"
+      version = "3.4.0"
+    }
   }
 
   backend "s3" {
@@ -39,20 +43,24 @@ provider "aws" {
 module "core" {
   source = "../../modules/core"
 
-  namespace   = local.namespace
-  env         = local.env
-  name        = local.name
-  is_prod     = local.is_prod
-  domain_name = local.domain_name
+  namespace         = local.namespace
+  env               = local.env
+  name              = local.name
+  is_prod           = local.is_prod
+  domain_name       = local.domain_name
+  organization_name = "ikenley"
 
   spend_money = local.spend_money
 
-  cidr = "10.0.0.0/18"
+  cidr          = "10.0.0.0/18"
+  dns_server_ip = "10.0.0.2"
 
   azs              = ["us-east-1a", "us-east-1b", "us-east-1c"]
   private_subnets  = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24"]
   public_subnets   = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
   database_subnets = ["10.0.20.0/24", "10.0.21.0/24", "10.0.22.0/24"]
+
+  vpc_client_cidr = "10.1.0.0/22"
 
   enable_s3_endpoint = local.spend_money
 
@@ -64,6 +72,8 @@ module "core" {
   docker_password = var.docker_password
 
   ses_email_address = "predictions.ikenley@gmail.com"
+
+  codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
 
   tags = {}
 }

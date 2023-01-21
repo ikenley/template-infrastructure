@@ -38,6 +38,10 @@ variable "cidr" {
   default     = "0.0.0.0/0"
 }
 
+variable "dns_server_ip" {
+  description = "The CIDR + 2 e.g. 10.0.0.2"
+}
+
 variable "azs" {
   description = "A list of availability zones names or ids in the region"
   type        = list(string)
@@ -60,6 +64,10 @@ variable "database_subnets" {
   description = "A list of database subnets"
   type        = list(string)
   default     = []
+}
+
+variable "vpc_client_cidr" {
+  default = ""
 }
 
 variable "enable_s3_endpoint" {
@@ -87,3 +95,9 @@ variable "docker_password" {
 
 # SES
 variable "ses_email_address" {}
+
+# CICD
+variable "codestar_connection_arn" {}
+
+# vpn 
+variable "organization_name" {}
