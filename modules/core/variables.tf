@@ -62,6 +62,10 @@ variable "database_subnets" {
   default     = []
 }
 
+variable "vpc_client_cidr" {
+  default = ""
+}
+
 variable "enable_s3_endpoint" {
   type = bool
 }
@@ -90,3 +94,6 @@ variable "ses_email_address" {}
 
 # CICD
 variable "codestar_connection_arn" {}
+
+# vpn 
+variable "organization_name" {}

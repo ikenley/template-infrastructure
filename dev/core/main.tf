@@ -10,7 +10,7 @@ locals {
   domain_name = "ikenley.com"
 
   # Quick way to turn off expensive services
-  spend_money = true
+  spend_money = false
 }
 
 terraform {
@@ -20,6 +20,10 @@ terraform {
     aws = {
       source  = "hashicorp/aws"
       version = "4.30.0"
+    }
+    tls = {
+      source = "hashicorp/tls"
+      version = "3.4.0"
     }
   }
 
@@ -39,11 +43,12 @@ provider "aws" {
 module "core" {
   source = "../../modules/core"
 
-  namespace   = local.namespace
-  env         = local.env
-  name        = local.name
-  is_prod     = local.is_prod
-  domain_name = local.domain_name
+  namespace         = local.namespace
+  env               = local.env
+  name              = local.name
+  is_prod           = local.is_prod
+  domain_name       = local.domain_name
+  organization_name = "ikenley"
 
   spend_money = local.spend_money
 
@@ -53,6 +58,8 @@ module "core" {
   private_subnets  = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24"]
   public_subnets   = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
   database_subnets = ["10.0.20.0/24", "10.0.21.0/24", "10.0.22.0/24"]
+
+  vpc_client_cidr = "10.1.0.0/22"
 
   enable_s3_endpoint = local.spend_money
 
