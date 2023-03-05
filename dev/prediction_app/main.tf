@@ -4,8 +4,8 @@
 
 locals {
   name      = "prediction-app"
-  namespace = "prediction-app"
-  env       = "Development"
+  namespace = "ik"
+  env       = "dev"
   is_prod   = false
 
   domain_name   = "ikenley.com"

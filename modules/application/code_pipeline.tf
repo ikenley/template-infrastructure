@@ -178,7 +178,7 @@ resource "aws_codebuild_project" "this" {
 }
 
 resource "aws_iam_role" "codebuild_role" {
-  name = "${var.name}-codebuild-role"
+  name = "${var.name}-build-codebuild-role"
 
   assume_role_policy = <<EOF
 {
@@ -197,7 +197,7 @@ EOF
 }
 
 resource "aws_iam_policy" "codebuild_policy" {
-  name = "${var.name}-codebuild-policy"
+  name = "${var.name}-build-codebuild-policy"
 
   policy = templatefile("${path.module}/codebuild_policy.tpl", {
     account_id                   = local.account_id
@@ -273,7 +273,7 @@ resource "aws_codebuild_project" "e2e_test_codebuild" {
 }
 
 resource "aws_iam_role" "e2e_test_codebuild" {
-  name = "${local.e2e_project_name}-codebuild-role"
+  name = "${local.e2e_project_name}-e2e-codebuild-role"
 
   assume_role_policy = <<EOF
 {
@@ -292,7 +292,7 @@ EOF
 }
 
 resource "aws_iam_policy" "e2e_test_codebuild" {
-  name = "${var.name}-codebuild-policy"
+  name = "${var.name}-e2e-codebuild-policy"
 
   policy = templatefile("${path.module}/codebuild_policy.tpl", {
     account_id                   = local.account_id
