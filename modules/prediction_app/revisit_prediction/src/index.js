@@ -1,36 +1,64 @@
-import { SSMClient, GetParameterCommand } from "@aws-sdk/client-ssm";
+const { SSMClient, GetParameterCommand } = require("@aws-sdk/client-ssm");
+const { Pool } = require("pg")
 
-export const handler = async function (_event, _context) {
+let pool = null;
+
+exports.handler = async function (_event, _context) {
   const {
     AWS_REGION,
     PG_CONNECTION_PARAM_NAME,
     SES_EMAIL_ADDRESS,
   } = process.env;
 
-  const pgConfig = await getPgConfig(AWS_REGION, PG_CONNECTION_PARAM_NAME);
-  // TODO get connection with pg
-
   const todayDateIso = getTodayDateIso();
-  console.log(`todayDateIso: ${todayDateIso}`);
 
-  // const predictionItems = await getPredictionsByDate(todayDateIso);
+  const predictions = await getPredictionsByDate(AWS_REGION, PG_CONNECTION_PARAM_NAME, todayDateIso);
+  console.log("predictions: \n" + JSON.stringify(predictions, null, 2));
 
-  // const predictions = mapPredictionItems(predictionItems);
-  // console.log("predictions: \n" + JSON.stringify(predictions, null, 2));
-
-  // TODO consider moving this to SQS
+  // Long term, consider moving this to SQS
   // Probably fine at the current volume
+  for (let p of predictions) {
+    await sendEmail(p);
+  }
 
-  // const userMap = await getUserMap(predictions);
-  // console.log("userMap: \n" + JSON.stringify(userMap, null, 2));
-
-  // for (p of predictions) {
-  //   const user = userMap[p.UserId];
-  //   await sendEmail(p, user);
-  // }
-
-  // return context.logStreamName;
+  return context.logStreamName;
 };
+
+const getTodayDateIso = () => {
+  const d = new Date();
+  const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const todayIsoString = today.toISOString();
+  console.log("todayIsoString", todayIsoString);
+  return todayIsoString;
+};
+
+const getPredictionsByDate = async (awsRegion, pgConnectionParamName, todayDateIso) => {
+  if (!pool) {
+    pool = await getPool(awsRegion, pgConnectionParamName)
+  }
+
+  try {
+    const data = await pool.query(`
+select p.id
+    , p.name
+    , u.email
+from prediction.prediction p
+join iam.user u
+  on p.user_id = u.id
+where date_trunc('day', p.revisit_on) = date_trunc('day', $1::timestamp)
+;`, [todayDateIso]);
+    return data.rows;
+  } catch (err) {
+    console.error(err);
+  }
+};
+
+/** Gets Postgres connection pool */
+const getPool = async (awsRegion, pgConnectionParamName) => {
+  const config = await getPgConfig(awsRegion, pgConnectionParamName);
+  const pool = new Pool(config);
+  return pool;
+}
 
 /** Gets Postgres config information from SSM Parameter store */
 const getPgConfig = async (awsRegion, pgConnectionParamName) => {
@@ -45,114 +73,35 @@ const getPgConfig = async (awsRegion, pgConnectionParamName) => {
   return pgConfig;
 }
 
-const getTodayDateIso = () => {
-  const d = new Date();
-  const today = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  const todayIsoString = today.toISOString();
-  console.log("todayIsoString", todayIsoString);
-  return todayIsoString;
-};
-
-const getPredictionsByDate = async (todayDateIso) => {
-  var params = {
-    ExpressionAttributeValues: {
-      ":r": { S: todayDateIso },
+const sendEmail = async (prediction) => {
+  const params = {
+    Destination: {
+      ToAddresses: [prediction.email],
     },
-    ExpressionAttributeNames: {
-      "#n": "Name",
+    Message: {
+      Body: {
+        Html: {
+          Charset: "UTF-8",
+          Data: `<html><body>It's time to check back in on your prediction about <a href="https://predictions.ikenley.com/p/${prediction.id}">${prediction.name}</a></body></html>`,
+        },
+        Text: {
+          Charset: "UTF-8",
+          Data: `It's time to check back in on your prediction about ${prediction.name}: https://predictions.ikenley.com/p/${prediction.id}`,
+        },
+      },
+      Subject: {
+        Charset: "UTF-8",
+        Data: `Remember when you cared about ${prediction.name}?`,
+      },
     },
-    KeyConditionExpression: "RevisitOn = :r",
-    ProjectionExpression: "Id, UserId, #n",
-    //FilterExpression: "contains (Subtitle, :topic)",
-    TableName: PREDICTIONS_TABLE_NAME,
-    IndexName: "RevisitOn",
+    Source: SES_EMAIL_ADDRESS,
+    ReplyToAddresses: [SES_EMAIL_ADDRESS],
   };
 
   try {
-    const data = await dbClient.query(params).promise();
-    return data.Items;
+    const response = await sesClient.sendEmail(params).promise();
+    console.log("MessageId", response.MessageId);
   } catch (err) {
     console.error(err);
   }
 };
-
-// const mapPredictionItems = (predictionItems) => {
-//   let predictions = predictionItems.map((p) => {
-//     return {
-//       Id: p.Id.S,
-//       UserId: p.UserId.S,
-//       Name: p.Name.S,
-//     };
-//   });
-
-//   return predictions;
-// };
-
-// const getUserMap = async (predictions) => {
-//   const userMap = {};
-
-//   for (const p of predictions) {
-//     const userId = p.UserId;
-//     if (!userMap[userId]) {
-//       const userItem = await getUser(userId);
-
-//       const user = {
-//         Id: userItem.Id.S,
-//         Email: userItem.Email.S,
-//       };
-
-//       userMap[userId] = user;
-//     }
-//   }
-
-//   return userMap;
-// };
-
-// const getUser = async (userId) => {
-//   var params = {
-//     TableName: USERS_TABLE_NAME,
-//     Key: {
-//       Id: { S: userId },
-//     },
-//   };
-
-//   try {
-//     const data = await dbClient.getItem(params).promise();
-//     return data.Item;
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };
-
-// const sendEmail = async (prediction, user) => {
-//   const params = {
-//     Destination: {
-//       ToAddresses: [user.Email],
-//     },
-//     Message: {
-//       Body: {
-//         Html: {
-//           Charset: "UTF-8",
-//           Data: `<html><body>It's time to check back in on your prediction about <a href="https://predictions.ikenley.com/p/${prediction.Id}">${prediction.Name}</a></body></html>`,
-//         },
-//         Text: {
-//           Charset: "UTF-8",
-//           Data: `It's time to check back in on your prediction about ${prediction.Name}: https://predictions.ikenley.com/p/${prediction.Id}`,
-//         },
-//       },
-//       Subject: {
-//         Charset: "UTF-8",
-//         Data: `Remember when you cared about ${prediction.Name}?`,
-//       },
-//     },
-//     Source: SES_EMAIL_ADDRESS,
-//     ReplyToAddresses: [SES_EMAIL_ADDRESS],
-//   };
-
-//   try {
-//     const response = await sesClient.sendEmail(params).promise();
-//     console.log("MessageId", response.MessageId);
-//   } catch (err) {
-//     console.error(err);
-//   }
-// };

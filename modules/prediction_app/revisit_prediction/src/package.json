@@ -19,5 +19,7 @@
     "url": "https://github.com/ikenley/template-infrastructure/issues"
   },
   "homepage": "https://github.com/ikenley/template-infrastructure#readme",
-  "type": "module"
+  "dependencies": {
+    "pg": "^8.9.0"
+  }
 }

@@ -11,7 +11,7 @@ Note: Only `./src` is bundled in the lambda function. Everything else is for loc
 ## Local Debugging
 
 ```
-cd modules\prediction_app\revisit_prediction_function\src
+cd modules/prediction_app/revisit_prediction
 npm i
 npm run start
 ```
