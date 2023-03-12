@@ -1,27 +1,30 @@
 const { SSMClient, GetParameterCommand } = require("@aws-sdk/client-ssm");
-const { Pool } = require("pg")
+const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
+const { Pool } = require("pg");
 
 let pool = null;
 
 exports.handler = async function (_event, _context) {
-  const {
-    AWS_REGION,
-    PG_CONNECTION_PARAM_NAME,
-    SES_EMAIL_ADDRESS,
-  } = process.env;
+  const { AWS_REGION, PG_CONNECTION_PARAM_NAME, SES_EMAIL_ADDRESS } =
+    process.env;
 
   const todayDateIso = getTodayDateIso();
 
-  const predictions = await getPredictionsByDate(AWS_REGION, PG_CONNECTION_PARAM_NAME, todayDateIso);
+  const predictions = await getPredictionsByDate(
+    AWS_REGION,
+    PG_CONNECTION_PARAM_NAME,
+    todayDateIso
+  );
   console.log("predictions: \n" + JSON.stringify(predictions, null, 2));
 
   // Long term, consider moving this to SQS
   // Probably fine at the current volume
+  const sesClient = new SESClient({ region: AWS_REGION });
   for (let p of predictions) {
-    await sendEmail(p);
+    await sendEmail(sesClient, SES_EMAIL_ADDRESS, p);
   }
 
-  return context.logStreamName;
+  return _context.logStreamName;
 };
 
 const getTodayDateIso = () => {
@@ -32,13 +35,18 @@ const getTodayDateIso = () => {
   return todayIsoString;
 };
 
-const getPredictionsByDate = async (awsRegion, pgConnectionParamName, todayDateIso) => {
+const getPredictionsByDate = async (
+  awsRegion,
+  pgConnectionParamName,
+  todayDateIso
+) => {
   if (!pool) {
-    pool = await getPool(awsRegion, pgConnectionParamName)
+    pool = await getPool(awsRegion, pgConnectionParamName);
   }
 
   try {
-    const data = await pool.query(`
+    const data = await pool.query(
+      `
 select p.id
     , p.name
     , u.email
@@ -46,7 +54,9 @@ from prediction.prediction p
 join iam.user u
   on p.user_id = u.id
 where date_trunc('day', p.revisit_on) = date_trunc('day', $1::timestamp)
-;`, [todayDateIso]);
+;`,
+      [todayDateIso]
+    );
     return data.rows;
   } catch (err) {
     console.error(err);
@@ -58,22 +68,22 @@ const getPool = async (awsRegion, pgConnectionParamName) => {
   const config = await getPgConfig(awsRegion, pgConnectionParamName);
   const pool = new Pool(config);
   return pool;
-}
+};
 
 /** Gets Postgres config information from SSM Parameter store */
 const getPgConfig = async (awsRegion, pgConnectionParamName) => {
   const client = new SSMClient({ region: awsRegion });
   const command = new GetParameterCommand({
     Name: pgConnectionParamName,
-    WithDecryption: true
+    WithDecryption: true,
   });
 
   const response = await client.send(command);
   const pgConfig = JSON.parse(response.Parameter.Value);
   return pgConfig;
-}
+};
 
-const sendEmail = async (prediction) => {
+const sendEmail = async (sesClient, sourceEmailAddress, prediction) => {
   const params = {
     Destination: {
       ToAddresses: [prediction.email],
@@ -94,12 +104,13 @@ const sendEmail = async (prediction) => {
         Data: `Remember when you cared about ${prediction.name}?`,
       },
     },
-    Source: SES_EMAIL_ADDRESS,
-    ReplyToAddresses: [SES_EMAIL_ADDRESS],
+    Source: sourceEmailAddress,
+    ReplyToAddresses: [sourceEmailAddress],
   };
 
   try {
-    const response = await sesClient.sendEmail(params).promise();
+    const command = new SendEmailCommand(params);
+    const response = await sesClient.send(command);
     console.log("MessageId", response.MessageId);
   } catch (err) {
     console.error(err);

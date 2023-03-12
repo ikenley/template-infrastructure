@@ -12,6 +12,7 @@ Note: Only `./src` is bundled in the lambda function. Everything else is for loc
 
 ```
 cd modules/prediction_app/revisit_prediction
+cp .env.example .env
 npm i
 npm run start
 ```
