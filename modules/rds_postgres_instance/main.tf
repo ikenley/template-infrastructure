@@ -1,34 +1,25 @@
-################################################################################
+# -----------------------------------------------------------------------------
 # An RDS Postgres instance
 # https://github.com/terraform-aws-modules/terraform-aws-rds/tree/v2.34.0/examples/complete-postgres
-################################################################################
+# -----------------------------------------------------------------------------
+
+data "aws_caller_identity" "current" {}
 
 locals {
+  account_id       = data.aws_caller_identity.current.account_id
+
+  id            = "${var.namespace}-${var.env}-prediction"
+  output_prefix = "/${var.namespace}/${var.env}/prediction"
+
   tags = merge(var.tags, {
-    Terraform = true
+    Environment = var.env
+    is_prod     = var.is_prod
   })
 }
 
-################################################################################
+# -----------------------------------------------------------------------------
 # Supporting Resources
-################################################################################
-
-# module "vpc" {
-#   source  = "terraform-aws-modules/vpc/aws"
-#   version = "~> 2"
-
-#   name = local.name
-#   cidr = "10.99.0.0/18"
-
-#   azs              = ["${local.region}a", "${local.region}b", "${local.region}c"]
-#   public_subnets   = ["10.99.0.0/24", "10.99.1.0/24", "10.99.2.0/24"]
-#   private_subnets  = ["10.99.3.0/24", "10.99.4.0/24", "10.99.5.0/24"]
-#   database_subnets = ["10.99.7.0/24", "10.99.8.0/24", "10.99.9.0/24"]
-
-#   create_database_subnet_group = true
-
-#   tags = local.tags
-# }
+# -----------------------------------------------------------------------------
 
 module "security_group" {
   source  = "terraform-aws-modules/security-group/aws"
@@ -49,7 +40,15 @@ module "security_group" {
     },
   ]
 
-  egress_rules = ["all-all"]
+  egress_with_cidr_blocks = [
+    {
+      from_port   = 5432
+      to_port     = 5432
+      protocol    = "tcp"
+      description = "PostgreSQL access from within VPC"
+      cidr_blocks = var.vpc_cidr
+    },
+  ]
 
   tags = local.tags
 }
@@ -67,12 +66,13 @@ resource "aws_ssm_parameter" "admin_password" {
   tags = local.tags
 }
 
-################################################################################
+# -----------------------------------------------------------------------------
 # RDS Module
-################################################################################
+# -----------------------------------------------------------------------------
 
 module "db" {
   source = "terraform-aws-modules/rds/aws"
+  version = "5.6.0"
 
   identifier = var.name
 
@@ -119,9 +119,9 @@ module "db" {
   tags = local.tags
 }
 
-################################################################################
+# -----------------------------------------------------------------------------
 # Application user credentials
-################################################################################
+# -----------------------------------------------------------------------------
 
 resource "random_password" "app_user" {
   length  = 32
@@ -144,48 +144,48 @@ resource "aws_ssm_parameter" "main_connection_string" {
   tags = local.tags
 }
 
-################################################################################
+# -----------------------------------------------------------------------------
 # Setting up access to an Amazon S3 bucket
 # https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/PostgreSQL.Procedural.Importing.html
-################################################################################
+# -----------------------------------------------------------------------------
 
-resource "aws_iam_role" "etl_role" {
-  name = "${var.name}-rds-etl-role"
-  assume_role_policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = "sts:AssumeRole"
-        Effect = "Allow"
-        Principal = {
-          Service = "rds.amazonaws.com"
-        }
-      }
-    ]
-  })
+# resource "aws_iam_role" "etl_role" {
+#   name = "${var.name}-rds-etl-role"
+#   assume_role_policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action = "sts:AssumeRole"
+#         Effect = "Allow"
+#         Principal = {
+#           Service = "rds.amazonaws.com"
+#         }
+#       }
+#     ]
+#   })
 
-  tags = local.tags
-}
+#   tags = local.tags
+# }
 
-resource "aws_iam_policy" "etl_policy" {
-  name        = "${var.name}-rds-etl-policy"
-  description = "Policy enabling RDS s3 read writes"
+# resource "aws_iam_policy" "etl_policy" {
+#   name        = "${var.name}-rds-etl-policy"
+#   description = "Policy enabling RDS s3 read writes"
 
-  policy = templatefile("${path.module}/rds_etl_policy.tpl", {
-    data_lake_s3_bucket_name = var.data_lake_s3_bucket_name
-  })
-}
+#   policy = templatefile("${path.module}/rds_etl_policy.tpl", {
+#     data_lake_s3_bucket_name = var.data_lake_s3_bucket_name
+#   })
+# }
 
-resource "aws_iam_role_policy_attachment" "aws_iam_policy_attach" {
-  role       = aws_iam_role.etl_role.name
-  policy_arn = aws_iam_policy.etl_policy.arn
-}
+# resource "aws_iam_role_policy_attachment" "aws_iam_policy_attach" {
+#   role       = aws_iam_role.etl_role.name
+#   policy_arn = aws_iam_policy.etl_policy.arn
+# }
 
-resource "aws_db_instance_role_association" "s3_import" {
-  db_instance_identifier = module.db.this_db_instance_id
-  feature_name           = "s3Import"
-  role_arn               = aws_iam_role.etl_role.arn
-}
+# resource "aws_db_instance_role_association" "s3_import" {
+#   db_instance_identifier = module.db.this_db_instance_id
+#   feature_name           = "s3Import"
+#   role_arn               = aws_iam_role.etl_role.arn
+# }
 
 # resource "aws_db_instance_role_association" "s3_export" {
 #   db_instance_identifier = module.db.this_db_instance_id

@@ -4,8 +4,8 @@ variable "tags" {
   default     = {}
 }
 
-variable "name" {
-  description = "Project name to use as a base for most resources"
+variable "namespace" {
+  description = "Project namespace to use as a base for most resources"
 }
 
 variable "env" {
@@ -14,7 +14,11 @@ variable "env" {
 
 variable "is_prod" {
   description = ""
-  type = bool
+  type        = bool
+}
+
+variable "name" {
+  description = "Project name to use as a base for most resources"
 }
 
 # VPC
