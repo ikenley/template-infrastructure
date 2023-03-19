@@ -1,85 +1,79 @@
-output "db_instance_address" {
-  description = "The address of the RDS instance"
-  value       = module.db.this_db_instance_address
+resource "aws_ssm_parameter" "db_instance_address" {
+  name  = "${local.output_prefix}/db_instance_address"
+  type  = "SecureString"
+  value = module.db.db_instance_address
+
+  tags = local.tags
 }
 
-output "db_instance_arn" {
-  description = "The ARN of the RDS instance"
-  value       = module.db.this_db_instance_arn
+resource "aws_ssm_parameter" "db_instance_port" {
+  name  = "${local.output_prefix}/db_instance_port"
+  type  = "SecureString"
+  value = module.db.db_instance_port
+
+  tags = local.tags
 }
 
-output "db_instance_availability_zone" {
-  description = "The availability zone of the RDS instance"
-  value       = module.db.this_db_instance_availability_zone
+resource "aws_ssm_parameter" "db_instance_name" {
+  name  = "${local.output_prefix}/db_instance_name"
+  type  = "SecureString"
+  value = module.db.db_instance_name
+
+  tags = local.tags
 }
 
-output "db_instance_endpoint" {
-  description = "The connection endpoint"
-  value       = module.db.this_db_instance_endpoint
+resource "aws_ssm_parameter" "db_instance_username" {
+  name  = "${local.output_prefix}/db_instance_username"
+  type  = "SecureString"
+  value = module.db.db_instance_username
+
+  tags = local.tags
 }
 
-output "db_instance_hosted_zone_id" {
-  description = "The canonical hosted zone ID of the DB instance (to be used in a Route 53 Alias record)"
-  value       = module.db.this_db_instance_hosted_zone_id
+resource "aws_ssm_parameter" "db_instance_password" {
+  name  = "${local.output_prefix}/db_instance_password"
+  type  = "SecureString"
+  value = module.db.db_instance_password
+
+  tags = local.tags
 }
 
-output "db_instance_id" {
-  description = "The RDS instance ID"
-  value       = module.db.this_db_instance_id
+resource "aws_ssm_parameter" "db_instance_endpoint" {
+  name  = "${local.output_prefix}/db_instance_endpoint"
+  type  = "SecureString"
+  value = module.db.db_instance_endpoint
+
+  tags = local.tags
 }
 
-output "db_instance_resource_id" {
-  description = "The RDS Resource ID of this instance"
-  value       = module.db.this_db_instance_resource_id
+resource "aws_ssm_parameter" "db_instance_id" {
+  name  = "${local.output_prefix}/db_instance_id"
+  type  = "SecureString"
+  value = module.db.db_instance_id
+
+  tags = local.tags
 }
 
-output "db_instance_status" {
-  description = "The RDS instance status"
-  value       = module.db.this_db_instance_status
+resource "aws_ssm_parameter" "security_group_arn" {
+  name  = "${local.output_prefix}/security_group_arn"
+  type  = "SecureString"
+  value = module.security_group.security_group_arn
+
+  tags = local.tags
 }
 
-output "db_instance_name" {
-  description = "The database name"
-  value       = module.db.this_db_instance_name
+resource "aws_ssm_parameter" "security_group_id" {
+  name  = "${local.output_prefix}/security_group_id"
+  type  = "SecureString"
+  value = module.security_group.security_group_id
+
+  tags = local.tags
 }
 
-output "db_instance_username" {
-  description = "The master username for the database"
-  value       = module.db.this_db_instance_username
-}
+# resource "aws_ssm_parameter" "main_connection_string" {
+#   name  = "/${var.name}/main-connection-string"
+#   type  = "SecureString"
+#   value = "Host=${module.db.this_db_instance_address};Port=5432;Database=${var.default_db_name};Username=${var.app_username};Password=${random_password.app_user.result}"
 
-output "db_instance_password" {
-  description = "The database password (this password may be old, because Terraform doesn't track it after initial creation)"
-  value       = module.db.this_db_instance_password
-  sensitive   = true
-}
-
-output "db_instance_port" {
-  description = "The database port"
-  value       = module.db.this_db_instance_port
-}
-
-output "db_subnet_group_id" {
-  description = "The db subnet group name"
-  value       = module.db.this_db_subnet_group_id
-}
-
-output "db_subnet_group_arn" {
-  description = "The ARN of the db subnet group"
-  value       = module.db.this_db_subnet_group_arn
-}
-
-output "db_parameter_group_id" {
-  description = "The db parameter group id"
-  value       = module.db.this_db_parameter_group_id
-}
-
-output "db_parameter_group_arn" {
-  description = "The ARN of the db parameter group"
-  value       = module.db.this_db_parameter_group_arn
-}
-
-output "db_enhanced_monitoring_iam_role_arn" {
-  description = "The Amazon Resource Name (ARN) specifying the monitoring role"
-  value       = module.db.enhanced_monitoring_iam_role_arn
-}
+#   tags = local.tags
+# }

@@ -6,10 +6,10 @@
 data "aws_caller_identity" "current" {}
 
 locals {
-  account_id       = data.aws_caller_identity.current.account_id
+  account_id = data.aws_caller_identity.current.account_id
 
-  id            = "${var.namespace}-${var.env}-prediction"
-  output_prefix = "/${var.namespace}/${var.env}/prediction"
+  id            = "${var.namespace}-${var.env}-${var.name}"
+  output_prefix = "/${var.namespace}/${var.env}/${var.name}"
 
   tags = merge(var.tags, {
     Environment = var.env
@@ -21,12 +21,68 @@ locals {
 # Supporting Resources
 # -----------------------------------------------------------------------------
 
+
+
+# -----------------------------------------------------------------------------
+# RDS Module
+# -----------------------------------------------------------------------------
+
+module "db" {
+  source  = "terraform-aws-modules/rds/aws"
+  version = "5.6.0"
+
+  identifier = local.id
+
+  # All available versions: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
+  engine               = "postgres"
+  engine_version       = "14.7"
+  family               = "postgres14" # DB parameter group
+  major_engine_version = "14"         # DB option group
+  instance_class       = var.instance_class
+  option_group_name    = "default:postgres-14"
+  parameter_group_name = "postgres14"
+
+  allocated_storage                   = var.allocated_storage
+  max_allocated_storage               = var.max_allocated_storage
+  storage_encrypted                   = true
+  iam_database_authentication_enabled = true
+
+  # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
+  # "Error creating DB Instance: InvalidParameterValue: MasterUsername
+  # user cannot be used as it is a reserved word used by the engine"
+  db_name  = var.default_db_name
+  username = "rds_admin"
+  password = random_password.admin.result
+  port     = 5432
+
+  multi_az               = var.is_prod ? true : false
+  create_db_subnet_group = true
+  subnet_ids             = var.database_subnets
+  vpc_security_group_ids = [module.security_group.security_group_id]
+
+  maintenance_window              = "Mon:00:00-Mon:03:00"
+  backup_window                   = "03:00-06:00"
+  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
+
+  backup_retention_period = 7
+  skip_final_snapshot     = var.is_prod ? false : true
+  deletion_protection     = true
+
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
+  create_monitoring_role                = true
+  monitoring_role_name                  = "${var.name}-monitoring-role"
+  monitoring_interval                   = 60
+
+  tags = local.tags
+}
+
 module "security_group" {
   source  = "terraform-aws-modules/security-group/aws"
   version = "~> 3"
 
-  name        = "${var.name}-rds-sg"
-  description = "Complete PostgreSQL example security group"
+  name        = local.id
+  description = "${local.id} RDS postgres"
   vpc_id      = var.vpc_id
 
   # ingress
@@ -50,98 +106,18 @@ module "security_group" {
     },
   ]
 
-  tags = local.tags
+  tags = merge(local.tags, {
+    Name = local.id
+  })
 }
+
+# -----------------------------------------------------------------------------
+# Credentials
+# -----------------------------------------------------------------------------
 
 resource "random_password" "admin" {
-  length  = 32
-  special = false
-}
-
-resource "aws_ssm_parameter" "admin_password" {
-  name  = "/rds_admin/${var.name}-password"
-  type  = "SecureString"
-  value = random_password.admin.result
-
-  tags = local.tags
-}
-
-# -----------------------------------------------------------------------------
-# RDS Module
-# -----------------------------------------------------------------------------
-
-module "db" {
-  source = "terraform-aws-modules/rds/aws"
-  version = "5.6.0"
-
-  identifier = var.name
-
-  # All available versions: https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/CHAP_PostgreSQL.html#PostgreSQL.Concepts
-  engine               = "postgres"
-  engine_version       = "12.5"
-  family               = "postgres12" # DB parameter group
-  major_engine_version = "12"         # DB option group
-  instance_class       = var.instance_class
-  option_group_name    = "default:postgres-12"
-  parameter_group_name = "postgres12"
-
-  allocated_storage                   = var.allocated_storage
-  max_allocated_storage               = var.max_allocated_storage
-  storage_encrypted                   = true
-  iam_database_authentication_enabled = true
-
-  # NOTE: Do NOT use 'user' as the value for 'username' as it throws:
-  # "Error creating DB Instance: InvalidParameterValue: MasterUsername
-  # user cannot be used as it is a reserved word used by the engine"
-  name     = var.default_db_name
-  username = "rds_admin"
-  password = random_password.admin.result
-  port     = 5432
-
-  multi_az               = var.is_prod ? true : false
-  subnet_ids             = var.database_subnets
-  vpc_security_group_ids = [module.security_group.this_security_group_id]
-
-  maintenance_window              = "Mon:00:00-Mon:03:00"
-  backup_window                   = "03:00-06:00"
-  enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
-
-  backup_retention_period = 7
-  skip_final_snapshot     = var.is_prod ? false : true
-  deletion_protection     = var.is_prod ? true : false
-
-  performance_insights_enabled          = true
-  performance_insights_retention_period = 7
-  create_monitoring_role                = true
-  monitoring_role_name                  = "${var.name}-monitoring-role"
-  monitoring_interval                   = 60
-
-  tags = local.tags
-}
-
-# -----------------------------------------------------------------------------
-# Application user credentials
-# -----------------------------------------------------------------------------
-
-resource "random_password" "app_user" {
-  length  = 32
-  special = false
-}
-
-resource "aws_ssm_parameter" "app_user_password" {
-  name  = "/${var.name}/db-app-user-password"
-  type  = "SecureString"
-  value = random_password.app_user.result
-
-  tags = local.tags
-}
-
-resource "aws_ssm_parameter" "main_connection_string" {
-  name  = "/${var.name}/main-connection-string"
-  type  = "SecureString"
-  value = "Host=${module.db.this_db_instance_address};Database=${var.default_db_name};Username=${var.app_username};Password=${random_password.app_user.result}"
-
-  tags = local.tags
+  length           = 32
+  override_special = "_"
 }
 
 # -----------------------------------------------------------------------------

@@ -32,22 +32,22 @@ variable "vpc_cidr" {
   type        = string
 }
 
-variable "azs" {
-  description = "A list of availability zones names or ids in the region"
-  type = list(string)
-}
+# variable "azs" {
+#   description = "A list of availability zones names or ids in the region"
+#   type = list(string)
+# }
 
-variable "public_subnets" {
-  description = "A list of public subnets inside the VPC"
-  type        = list(string)
-  default     = []
-}
+# variable "public_subnets" {
+#   description = "A list of public subnets inside the VPC"
+#   type        = list(string)
+#   default     = []
+# }
 
-variable "private_subnets" {
-  description = "A list of private subnets inside the VPC"
-  type        = list(string)
-  default     = []
-}
+# variable "private_subnets" {
+#   description = "A list of private subnets inside the VPC"
+#   type        = list(string)
+#   default     = []
+# }
 
 variable "database_subnets" {
   description = "A list of database subnets"
@@ -56,24 +56,26 @@ variable "database_subnets" {
 }
 
 # DNS
-variable "domain_name" {
-  description = "Base domain name e.g. example.com"
-}
+# variable "domain_name" {
+#   description = "Base domain name e.g. example.com"
+# }
 
-variable "dns_subdomain" {
-  description = "Subdomain for creating a record e.g. my-subdomain"
-}
+# variable "dns_subdomain" {
+#   description = "Subdomain for creating a record e.g. my-subdomain"
+# }
 
 # DB
-variable "instance_class" {}
-variable "allocated_storage" {}
-variable "max_allocated_storage" {}
+variable "instance_class" {
+  default = "db.t3.micro"
+}
+variable "allocated_storage" {
+  default = 10
+}
+variable "max_allocated_storage" {
+  default = 100
+}
 variable "default_db_name" {}
 
-variable "app_username" {
-  description = "Username for the application user"
-}
-
-variable "data_lake_s3_bucket_name" {
-  description = "Bucket name used for data lake ETL"
-}
+# variable "data_lake_s3_bucket_name" {
+#   description = "Bucket name used for data lake ETL"
+# }
