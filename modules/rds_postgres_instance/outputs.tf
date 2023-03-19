@@ -14,8 +14,8 @@ resource "aws_ssm_parameter" "db_instance_port" {
   tags = local.tags
 }
 
-resource "aws_ssm_parameter" "db_instance_name" {
-  name  = "${local.output_prefix}/db_instance_name"
+resource "aws_ssm_parameter" "db_database_name" {
+  name  = "${local.output_prefix}/db_database_name"
   type  = "SecureString"
   value = module.db.db_instance_name
 

@@ -10,7 +10,9 @@ locals {
   domain_name = "ikenley.com"
 
   # Quick way to turn off expensive services
-  spend_money = false
+  spend_money         = true
+  enable_bastion_host = true
+  enable_client_vpn   = false
 }
 
 terraform {
@@ -22,7 +24,7 @@ terraform {
       version = "~> 4.0"
     }
     tls = {
-      source = "hashicorp/tls"
+      source  = "hashicorp/tls"
       version = "3.4.0"
     }
   }
@@ -64,7 +66,8 @@ module "core" {
 
   enable_s3_endpoint = local.spend_money
 
-  enable_bastion_host = local.spend_money
+  enable_bastion_host = local.spend_money && local.enable_bastion_host
+  enable_client_vpn   = local.spend_money && local.enable_client_vpn
 
   docker_username = "ikenley6"
   # This must be stored securely 

@@ -81,6 +81,11 @@ variable "enable_bastion_host" {
   default = false
 }
 
+variable "enable_client_vpn" {
+  type    = bool
+  default = false
+}
+
 # Docker credentials
 
 variable "docker_username" {
