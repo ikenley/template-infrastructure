@@ -7,7 +7,7 @@
 # MY_ENV=development
 EC2_INSTANCE_NAME=ik-dev-main-bastion-host
 KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
-INSTANCE_PARAM_NAME='//ik\dev\main\bastion-host\instance-id'
+INSTANCE_PARAM_NAME='/ik/dev/main/bastion-host/instance-id'
 SOURCE_PORT="5440"
 TARGET_HOST="ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com"
 TARGET_PORT="5432"
