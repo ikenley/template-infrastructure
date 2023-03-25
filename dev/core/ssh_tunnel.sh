@@ -35,12 +35,11 @@ echo "INSTANCE_ID=$INSTANCE_ID"
 # echo "DB_INSTANCE_ADDRESS=$DB_INSTANCE_ADDRESS"
 
 echo "Fetching key"
-KEY=$(get_parameter "$KEY_PARAM_NAME")
-echo "$KEY" #> $KEY_PATH
-exit
-chmod  400 $KEY_PATH
+RAW_KEY=$(get_parameter "$KEY_PARAM_NAME")
+chmod 700 $KEY_PATH
+echo "$RAW_KEY" | sed 's/\\n/\n/g' > "$KEY_PATH"
+chmod 400 $KEY_PATH
 
 # echo "Establishing SSH tunnel via..."
-# 
 echo "ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT"
 ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT

@@ -52,6 +52,19 @@ resource "aws_codepipeline" "this" {
         ProjectName = local.codebuild_project_name
       }
     }
+
+    action {
+      name             = "Migrations"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["SourceArtifact"]
+      version          = "1"
+
+      configuration = {
+        ProjectName = local.migration_id
+      }
+    }
   }
 
   stage {
@@ -320,13 +333,18 @@ resource "aws_codebuild_project" "migrations" {
   service_role = aws_iam_role.migrations.arn
 
   artifacts {
-    type = "CODEPIPELINE"
-    name = aws_codepipeline.this.name
+    type = "NO_ARTIFACTS"
   }
 
   cache {
     type  = "LOCAL"
     modes = ["LOCAL_DOCKER_LAYER_CACHE"]
+  }
+
+  vpc_config {
+    vpc_id = var.vpc_id
+    subnets = var.private_subnets
+    security_group_ids = [aws_security_group.migrations.id]
   }
 
   environment {
@@ -392,11 +410,30 @@ resource "aws_codebuild_project" "migrations" {
     type            = "GITHUB"
     location        = "https://github.com/ikenley/prediction-app"
     git_clone_depth = 1
+    buildspec       = "buildspec-migrations.yml"
   }
 
   source_version = var.source_branch_name
 
   tags = local.tags
+}
+
+resource "aws_security_group" "migrations" {
+  name        = local.migration_id
+  description = "${local.migration_id} sg"
+  vpc_id      = var.vpc_id
+
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = local.migration_id
+  }
 }
 
 resource "aws_iam_role" "migrations" {
@@ -424,6 +461,25 @@ resource "aws_iam_policy" "migrations" {
   policy = jsonencode({
     "Version": "2012-10-17",
     "Statement": [
+        {
+            "Sid": "AllowVpc",
+            "Effect": "Allow",
+            "Action": [
+                "ec2:CreateNetworkInterfacePermission",
+                "ec2:CreateNetworkInterface",
+                "ec2:DescribeDhcpOptions",
+                "ec2:DescribeNetworkInterfaces",
+                "ec2:DeleteNetworkInterface",
+                "ec2:DescribeSubnets",
+                "ec2:DescribeSecurityGroups",
+                "ec2:DescribeVpcs",
+                "iam:PassRole",
+                "logs:CreateLogGroup",
+                "logs:CreateLogStream",
+                "logs:PutLogEvents",
+            ],
+            "Resource": ["*"]
+        },
         {
             "Sid": "AllowS3",
             "Effect": "Allow",
@@ -483,8 +539,8 @@ resource "aws_iam_policy" "migrations" {
             "Resource": [
                 "arn:aws:ssm:*:*:parameter/docker/*",
                 "arn:aws:ssm:*:*:parameter/${var.name}/codebuild/*",
-                "arn:aws:ssm:*:*:parameter/${var.rds_output_prefix}/*",
-                "arn:aws:ssm:*:*:parameter/${var.app_output_prefix}/*"
+                "arn:aws:ssm:*:*:parameter${var.rds_output_prefix}/*",
+                "arn:aws:ssm:*:*:parameter${var.app_output_prefix}/*"
             ]
         }
     ]

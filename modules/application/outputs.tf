@@ -10,12 +10,12 @@ output "task_role_name" {
 }
 
 locals {
-  pghost = data.aws_ssm_parameter.db_instance_address
-  pgport = data.aws_ssm_parameter.db_instance_port
-  pgdatabase = data.aws_ssm_parameter.db_database_name
+  pghost = data.aws_ssm_parameter.db_instance_address.value
+  pgport = data.aws_ssm_parameter.db_instance_port.value
+  pgdatabase = data.aws_ssm_parameter.db_database_name.value
 }
 resource "aws_ssm_parameter" "flyway_url" {
-  name  = "${local.output_prefix}/flyway_url"
+  name  = "${var.app_output_prefix}/flyway_url"
   type  = "SecureString"
   value = "jdbc:postgresql://${local.pghost}:${local.pgport}/${local.pgdatabase}"
 }
