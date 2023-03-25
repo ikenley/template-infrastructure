@@ -404,6 +404,11 @@ resource "aws_codebuild_project" "migrations" {
       value = "${var.app_output_prefix}/prediction_app_user/pgpassword"
       type  = "PARAMETER_STORE"
     }
+    environment_variable {
+      name  = "FLYWAY_PLACEHOLDERS_REVISIT_PREDICTION_USER_PW"
+      value = "${var.app_output_prefix}/revisit_prediction/pgpassword"
+      type  = "PARAMETER_STORE"
+    }
   }
 
   source {

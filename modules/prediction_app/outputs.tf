@@ -13,6 +13,13 @@ resource "aws_ssm_parameter" "revisit_prediction__pg_connection" {
   })
 }
 
+resource "aws_ssm_parameter" "revisit_prediction__pgpassword" {
+  name  = "${local.output_prefix}/revisit_prediction/pgpassword"
+  type  = "SecureString"
+  overwrite = true 
+  value = random_password.revisit_prediction_user.result
+}
+
 # Used only for local dev
 resource "aws_ssm_parameter" "revisit_prediction_local__pg_connection" {
   name  = "${local.output_prefix}/revisit_prediction_local/pg_connection"
