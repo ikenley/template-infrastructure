@@ -3,7 +3,14 @@
 resource "aws_ssm_parameter" "revisit_prediction__pg_connection" {
   name  = "${local.output_prefix}/revisit_prediction/pg_connection"
   type  = "SecureString"
-  value = "TODO"
+  overwrite = true 
+  value = jsonencode({
+    "host":"${local.pghost}",
+    "port":"${local.pgport}",
+    "user":"revisit_prediction_user",
+    "password":"${random_password.revisit_prediction_user.result}",
+    "database":"${local.pgdatabase}"
+  })
 }
 
 # Used only for local dev
