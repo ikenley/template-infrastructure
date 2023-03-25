@@ -185,3 +185,11 @@ variable "auth_aud" {
   description = "Auth aud"
   sensitive   = true
 }
+
+# Flyway config
+variable "rds_output_prefix" {
+  description = "SSM param prefix for rds config"
+}
+variable "app_output_prefix" {
+  description = "SSM param prefix for application"
+}

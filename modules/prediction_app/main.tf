@@ -59,6 +59,9 @@ module "application" {
   auth_client_id             = var.auth_client_id
   auth_aud                   = var.auth_aud
 
+  rds_output_prefix = var.rds_output_prefix
+  app_output_prefix = local.output_prefix
+
   tags = var.tags
 }
 

@@ -10,7 +10,7 @@ locals {
   domain_name = "ikenley.com"
 
   # Quick way to turn off expensive services
-  spend_money         = true
+  spend_money         = false
   enable_bastion_host = true
   enable_client_vpn   = false
 }

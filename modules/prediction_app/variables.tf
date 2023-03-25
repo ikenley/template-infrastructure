@@ -192,3 +192,8 @@ variable "auth_aud" {
 # SES
 variable "ses_email_address" {}
 variable "ses_email_arn" {}
+
+
+variable "rds_output_prefix" {
+  description = "SSM param prefix for rds config"
+}

@@ -6,7 +6,9 @@
 # USERNAME=$USERNAME
 # MY_ENV=development
 EC2_INSTANCE_NAME=ik-dev-main-bastion-host
-KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
+#KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
+KEY_PATH=~/.ssh/ik-dev-main-bastion-host-ssh-key
+KEY_PARAM_NAME="/ik/dev/main/bastion-host/bastion_host_private_key"
 INSTANCE_PARAM_NAME='/ik/dev/main/bastion-host/instance-id'
 SOURCE_PORT="5440"
 TARGET_HOST="ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com"
@@ -31,6 +33,12 @@ echo "INSTANCE_ID=$INSTANCE_ID"
 # echo "LOCAL_PORT=$LOCAL_PORT"
 # DB_INSTANCE_ADDRESS=$(get_parameter "//\db-instance-address")
 # echo "DB_INSTANCE_ADDRESS=$DB_INSTANCE_ADDRESS"
+
+echo "Fetching key"
+KEY=$(get_parameter "$KEY_PARAM_NAME")
+echo "$KEY" #> $KEY_PATH
+exit
+chmod  400 $KEY_PATH
 
 # echo "Establishing SSH tunnel via..."
 # 
