@@ -536,7 +536,7 @@ resource "aws_iam_policy" "migrations" {
             "Resource": "*"
         },
         {
-            "Sid": "AllowSSMGetParametersDocker",
+            "Sid": "AllowSSMGetParameters",
             "Effect": "Allow",
             "Action": [
                 "ssm:GetParameters"
