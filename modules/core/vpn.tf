@@ -8,7 +8,7 @@ module "ec2_client_vpn" {
   source  = "cloudposse/ec2-client-vpn/aws"
   version = "0.14.0"
 
-  enabled = var.spend_money
+  enabled = var.enable_client_vpn
 
   namespace   = var.namespace
   environment = var.env

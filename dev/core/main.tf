@@ -10,7 +10,9 @@ locals {
   domain_name = "ikenley.com"
 
   # Quick way to turn off expensive services
-  spend_money = true
+  spend_money         = false
+  enable_bastion_host = true
+  enable_client_vpn   = false
 }
 
 terraform {
@@ -19,7 +21,11 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "4.30.0"
+      version = "~> 4.0"
+    }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "3.4.0"
     }
     tls = {
       source = "hashicorp/tls"
@@ -55,16 +61,19 @@ module "core" {
   cidr          = "10.0.0.0/18"
   dns_server_ip = "10.0.0.2"
 
-  azs              = ["us-east-1a", "us-east-1b", "us-east-1c"]
-  private_subnets  = ["10.0.0.0/24", "10.0.1.0/24", "10.0.2.0/24"]
-  public_subnets   = ["10.0.10.0/24", "10.0.11.0/24", "10.0.12.0/24"]
-  database_subnets = ["10.0.20.0/24", "10.0.21.0/24", "10.0.22.0/24"]
+  azs              = ["us-east-1a", "us-east-1b"]
+  private_subnets  = ["10.0.0.0/24", "10.0.1.0/24"]
+  public_subnets   = ["10.0.10.0/24", "10.0.11.0/24"]
+  database_subnets = ["10.0.20.0/24", "10.0.21.0/24"]
+
+  vpc_client_cidr = "10.1.0.0/22"
 
   vpc_client_cidr = "10.1.0.0/22"
 
   enable_s3_endpoint = local.spend_money
 
-  enable_bastion_host = local.spend_money
+  enable_bastion_host = local.spend_money && local.enable_bastion_host
+  enable_client_vpn   = local.spend_money && local.enable_client_vpn
 
   docker_username = "ikenley6"
   # This must be stored securely 

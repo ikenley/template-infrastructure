@@ -123,6 +123,12 @@ variable "container_cpu" {
   default     = 0
 }
 
+variable "container_secrets" {
+  type = list(object({name: string, valueFrom: string}))
+  description = "list(object({ name = string valueFrom = string }))"
+  default = []
+}
+
 # ECS Service
 
 variable "desired_count" {
@@ -184,4 +190,12 @@ variable "auth_client_id" {
 variable "auth_aud" {
   description = "Auth aud"
   sensitive   = true
+}
+
+# Flyway config
+variable "rds_output_prefix" {
+  description = "SSM param prefix for rds config"
+}
+variable "app_output_prefix" {
+  description = "SSM param prefix for application"
 }

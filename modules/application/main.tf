@@ -173,6 +173,7 @@ module "ecs_container_definition" {
   container_name   = aws_ecr_repository.this[count.index].name
   container_image  = "${aws_ecr_repository.this[count.index].repository_url}:latest"
   container_memory = var.container_memory / length(var.container_names)
+  secrets          = var.container_secrets
   port_mappings = [
     {
       containerPort = var.container_ports[count.index]
@@ -204,12 +205,12 @@ resource "aws_ecs_task_definition" "this" {
     module.ecs_container_definition.*.json_map_object
   )
 
-  lifecycle {
-    ignore_changes = [
-      # Ignore container_definitions b/c this will be managed by CodePipeline
-      container_definitions,
-    ]
-  }
+  # lifecycle {
+  #   ignore_changes = [
+  #     # Ignore container_definitions b/c this will be managed by CodePipeline
+  #     container_definitions,
+  #   ]
+  # }
 
   tags = local.tags
 }

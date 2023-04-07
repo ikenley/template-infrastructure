@@ -2,6 +2,21 @@
 # Prediction application
 # ------------------------------------------------------------------------------
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  account_id = data.aws_caller_identity.current.account_id
+
+  id            = "${var.namespace}-${var.env}-prediction"
+  output_prefix = "/${var.namespace}/${var.env}/prediction"
+
+  tags = merge(var.tags, {
+    Terraform   = true
+    Environment = var.env
+    is_prod     = var.is_prod
+  })
+}
+
 module "application" {
   source = "../application"
 
@@ -30,6 +45,12 @@ module "application" {
   container_ports  = var.container_ports
   container_cpu    = var.container_cpu
   container_memory = var.container_memory
+  container_secrets = [
+    {
+      name      = "ConnectionStrings__main"
+      valueFrom = "${aws_ssm_parameter.prediction_app_user__connection_string.arn}"
+    }
+  ]
 
   code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
   source_full_repository_id    = var.source_full_repository_id
@@ -44,7 +65,46 @@ module "application" {
   auth_client_id             = var.auth_client_id
   auth_aud                   = var.auth_aud
 
+  rds_output_prefix = var.rds_output_prefix
+  app_output_prefix = local.output_prefix
+
   tags = var.tags
+}
+
+resource "aws_iam_policy" "ecs_task_execution_role" {
+  name        = "${local.id}-ecs-task-execution-role"
+  description = "Additional permissions for ${local.id} ECS task execution role"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "AllowSSMDescribeParameters",
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:DescribeParameters"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "AllowSSMGetParameters",
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:GetParameter",
+          "ssm:GetParameters",
+          "ssm:GetParametersByPath"
+        ],
+        "Resource" : [
+          aws_ssm_parameter.prediction_app_user__connection_string.arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
+  role       = module.application.task_execution_role_name
+  policy_arn = aws_iam_policy.ecs_task_execution_role.arn
 }
 
 # ------------------------------------------------------------------------------

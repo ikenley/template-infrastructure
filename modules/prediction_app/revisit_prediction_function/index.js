@@ -26,7 +26,7 @@ exports.handler = async function (event, context) {
   const userMap = await getUserMap(predictions);
   console.log("userMap: \n" + JSON.stringify(userMap, null, 2));
 
-  for (p of predictions) {
+  for (let p of predictions) {
     const user = userMap[p.UserId];
     await sendEmail(p, user);
   }

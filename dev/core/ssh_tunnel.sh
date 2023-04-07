@@ -6,11 +6,13 @@
 # USERNAME=$USERNAME
 # MY_ENV=development
 EC2_INSTANCE_NAME=ik-dev-main-bastion-host
-KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
-INSTANCE_PARAM_NAME='//ik\dev\main\bastion-host\instance-id'
-SOURCE_PORT="5439"
-TARGET_HOST="924586450630.us-east-1.redshift-serverless.amazonaws.com"
-TARGET_PORT="5439"
+#KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
+KEY_PATH=~/.ssh/ik-dev-main-bastion-host-ssh-key
+KEY_PARAM_NAME="/ik/dev/main/bastion-host/bastion_host_private_key"
+INSTANCE_PARAM_NAME='/ik/dev/main/bastion-host/instance-id'
+SOURCE_PORT="5440"
+TARGET_HOST="ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com"
+TARGET_PORT="5432"
 
 # echo "AWS_PROFILE=$AWS_PROFILE"
 # export AWS_PROFILE=$AWS_PROFILE
@@ -18,7 +20,7 @@ TARGET_PORT="5439"
 # export AWS_REGION=$AWS_REGION
 # echo "KEY_PATH=$KEY_PATH"
 
-# # Function to fetch SSM parameter
+# Function to fetch SSM parameter
 get_parameter () {
   local func_result=$(aws ssm get-parameter --name $1 --with-decryption --query "Parameter.Value" | tr -d '"')
   echo "$func_result"
@@ -32,12 +34,12 @@ echo "INSTANCE_ID=$INSTANCE_ID"
 # DB_INSTANCE_ADDRESS=$(get_parameter "//\db-instance-address")
 # echo "DB_INSTANCE_ADDRESS=$DB_INSTANCE_ADDRESS"
 
-# INSTANCE_ID=$(aws ec2 describe-instances \
-#   --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME" \
-#   --output text --query 'Reservations[*].Instances[*].InstanceId')
-# echo INSTANCE_ID=$INSTANCE_ID
+echo "Fetching key"
+RAW_KEY=$(get_parameter "$KEY_PARAM_NAME")
+chmod 700 $KEY_PATH
+echo "$RAW_KEY" | sed 's/\\n/\n/g' > "$KEY_PATH"
+chmod 400 $KEY_PATH
 
 # echo "Establishing SSH tunnel via..."
-# 
 echo "ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT"
 ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT
