@@ -27,6 +27,10 @@ terraform {
       source  = "hashicorp/tls"
       version = "3.4.0"
     }
+    tls = {
+      source = "hashicorp/tls"
+      version = "3.4.0"
+    }
   }
 
   backend "s3" {
@@ -61,6 +65,8 @@ module "core" {
   private_subnets  = ["10.0.0.0/24", "10.0.1.0/24"]
   public_subnets   = ["10.0.10.0/24", "10.0.11.0/24"]
   database_subnets = ["10.0.20.0/24", "10.0.21.0/24"]
+
+  vpc_client_cidr = "10.1.0.0/22"
 
   vpc_client_cidr = "10.1.0.0/22"
 
