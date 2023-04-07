@@ -123,6 +123,12 @@ variable "container_cpu" {
   default     = 0
 }
 
+variable "container_secrets" {
+  type = list(object({name: string, valueFrom: string}))
+  description = "list(object({ name = string valueFrom = string }))"
+  default = []
+}
+
 # ECS Service
 
 variable "desired_count" {

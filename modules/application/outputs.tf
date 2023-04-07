@@ -9,6 +9,16 @@ output "task_role_name" {
   value       = aws_iam_role.ecs_task_role.name
 }
 
+output "task_execution_role_arn" {
+  description = "The ARN of the Task Execution role"
+  value       = aws_iam_role.ecs_task_execution_role.arn
+}
+
+output "task_execution_role_name" {
+  description = "The ARN of the Task Execution role"
+  value       = aws_iam_role.ecs_task_execution_role.name
+}
+
 locals {
   pghost = data.aws_ssm_parameter.db_instance_address.value
   pgport = data.aws_ssm_parameter.db_instance_port.value

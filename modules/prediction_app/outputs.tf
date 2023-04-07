@@ -1,5 +1,3 @@
-
-
 resource "aws_ssm_parameter" "revisit_prediction__pg_connection" {
   name  = local.pg_connection_parm_name
   type  = "SecureString"
@@ -56,6 +54,12 @@ resource "aws_ssm_parameter" "prediction_app_user__pgpassword" {
   name  = "${local.output_prefix}/prediction_app_user/pgpassword"
   type  = "SecureString"
   value = random_password.prediction_app_user.result
+}
+
+resource "aws_ssm_parameter" "prediction_app_user__connection_string" {
+  name  = "${local.output_prefix}/prediction_app_user/connection_string"
+  type  = "SecureString"
+  value = "Host=${local.pghost};Port=${local.pgport};Database=${local.pgdatabase};Username=prediction_app_user;Password=${random_password.prediction_app_user.result}"
 }
 
 # ------------------------------------------------------------------------------
