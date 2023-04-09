@@ -1,0 +1,40 @@
+# ------------------------------------------------------------------------------
+# Sanbox AI application. 
+# Also a demo of an cheap full-stack application
+# It will likely involve:
+# - Data layer: Existing reserved RDS Postgres instance
+# - API layer: Express.js hosted inside a Lambda function behind an ALB
+# - Front-end: Static React application on S3 behind Cloudfront CDN
+# ------------------------------------------------------------------------------
+
+terraform {
+  required_version = ">= 0.14"
+
+  backend "s3" {
+    profile = "terraform-dev"
+    region  = "us-east-1"
+    bucket  = "924586450630-terraform-state"
+    key     = "ai_app/terraform.tfstate.json"
+  }
+}
+
+provider "aws" {
+  region  = "us-east-1"
+  profile = "terraform-dev"
+}
+
+# ------------------------------------------------------------------------------
+# Resources
+# ------------------------------------------------------------------------------
+
+module "ai_app" {
+  source = "../../modules/ai_app"
+
+  name          = local.name
+  namespace     = local.namespace
+  env           = local.env
+  is_prod       = local.is_prod
+  
+  domain_name = "static.ikenley.com"
+
+}

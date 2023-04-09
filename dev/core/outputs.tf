@@ -66,11 +66,6 @@ output "s3_install_name" {
   value       = module.core.s3_install_name
 }
 
-output "s3_public_static_name" {
-  description = "S3 bucket for CDN-based static files (public)"
-  value       = module.core.s3_public_static_name
-}
-
 output "logs_s3_bucket_name" {
   description = "S3 bucket used for logs"
   value       = module.core.logs_s3_bucket_name

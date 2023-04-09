@@ -224,17 +224,6 @@ module "s3_bucket_install" {
   tags = local.tags
 }
 
-# Publicly-accessible static files, typically served via Cloudfront
-module "s3_bucket_public_static" {
-  source = "../s3_bucket"
-
-  bucket_name_suffix = "public-static"
-
-  skip_create_policy = true
-
-  tags = local.tags
-}
-
 # ------------------------------------------------------------------------------
 # Docker credentials
 # ------------------------------------------------------------------------------

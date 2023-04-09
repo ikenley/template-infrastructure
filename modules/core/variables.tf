@@ -32,6 +32,10 @@ variable "domain_name" {
   description = "Base domain name e.g. example.com"
 }
 
+variable "static_s3_domain" {
+  description = "Domain for static S3 website"
+}
+
 variable "cidr" {
   description = "The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden"
   type        = string
