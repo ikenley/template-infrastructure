@@ -30,10 +30,13 @@ provider "aws" {
 module "ai_app" {
   source = "../../modules/ai_app"
 
-  namespace = "ik"
-  env       = "dev"
-  is_prod   = false
+  namespace    = "ik"
+  env          = "dev"
+  is_prod      = false
   project_name = "ai"
+
+  git_repo   = "ikenley/ai-app"
+  git_branch = "api-mvp" # TODO revert to "main"
 
   parent_domain_name = "ikenley.com"
   domain_name        = "ai.ikenley.com"

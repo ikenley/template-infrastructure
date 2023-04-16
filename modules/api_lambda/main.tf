@@ -8,7 +8,7 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
 
   id            = "${var.namespace}-${var.env}-${var.project_name}"
-  output_prefix = "/${var.namespace}/${var.env}/${var.project_name}"
+  output_prefix = "/${var.namespace}/${var.env}/${var.project_name}/api_lambda"
 
   tags = merge(var.tags, {
     Terraform   = true
