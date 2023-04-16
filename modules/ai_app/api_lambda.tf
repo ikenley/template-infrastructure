@@ -2,18 +2,17 @@
 # Front-end: Static React application on S3 behind Cloudfront CDN
 # ------------------------------------------------------------------------------
 
-module "frontend" {
-  source = "../static_s3_website"
+module "api_lambda" {
+  source = "../api_lambda"
 
   namespace    = var.namespace
   env          = var.env
   is_prod      = var.is_prod
-  project_name = var.project_name
+  project_name = "ai"
+
 
   parent_domain_name = var.parent_domain_name
-  domain_name        = var.domain_name
-
-  logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
+  domain_name      = "api.${var.domain_name}"
 
   tags = var.tags
 }

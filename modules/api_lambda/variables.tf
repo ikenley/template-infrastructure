@@ -12,15 +12,14 @@ variable "env" {
   description = "Environment used for tagging images etc."
 }
 
-variable "is_prod" {
-  description = ""
-  type        = bool
-}
-
 variable "project_name" {
   description = "Project name to use as a base for most resources"
 }
 
+variable "is_prod" {
+  description = ""
+  type        = bool
+}
 
 # variable "vpc_id" {
 #   description = "VPC to deploy resources into"
@@ -56,9 +55,12 @@ variable "project_name" {
 
 # DNS
 variable "parent_domain_name" {}
+
 variable "domain_name" {
-  description = "domain name e.g. example.com"
+  description = "Base domain name e.g. example.com"
 }
+
+#variable "logs_bucket_name" {}
 
 # variable "dns_subdomain" {
 #   description = "Subdomain for creating a record e.g. my-subdomain"

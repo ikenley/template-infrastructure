@@ -30,11 +30,12 @@ provider "aws" {
 module "ai_app" {
   source = "../../modules/ai_app"
 
-  name          = local.name
-  namespace     = local.namespace
-  env           = local.env
-  is_prod       = local.is_prod
-  
-  domain_name = "static.ikenley.com"
+  namespace = "ik"
+  env       = "dev"
+  is_prod   = false
+  project_name = "ai"
+
+  parent_domain_name = "ikenley.com"
+  domain_name        = "ai.ikenley.com"
 
 }
