@@ -14,7 +14,13 @@ resource "aws_cloudfront_distribution" "this" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Managed by Terraform"
-  default_root_object = "index.html"
+  default_root_object = "${var.path_prefix}/index.html"
+
+  custom_error_response {
+    error_code         = 404
+    response_code      = 200
+    response_page_path = "/${var.path_prefix}/index.html"
+  }
 
   logging_config {
     include_cookies = false
@@ -55,8 +61,8 @@ resource "aws_cloudfront_distribution" "this" {
   tags = local.tags
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate.static.arn
-    ssl_support_method = "sni-only"
+    acm_certificate_arn            = aws_acm_certificate.static.arn
+    ssl_support_method             = "sni-only"
     cloudfront_default_certificate = false
   }
 

@@ -356,6 +356,26 @@ resource "aws_codebuild_project" "codebuild_main" {
       name  = "FUNCTION_NAME"
       value = module.api_lambda.lambda_function_name
     }
+
+    environment_variable {
+      name  = "SITE_S3_BUCKET_NAME"
+      value = module.frontend.bucket_id
+    }
+
+    environment_variable {
+      name  = "SITE_S3_KEY_PREFIX"
+      value = "ai"
+    }
+
+    environment_variable {
+      name  = "CDN_DISTRIBUTION_ID"
+      value = module.frontend.cdn_distribution_id
+    }
+
+    environment_variable {
+      name = "REACT_APP_API_URL_PREFIX"
+      value = "https://${var.domain_name}/ai/api"
+    }
   }
 
   source {
@@ -517,6 +537,27 @@ resource "aws_iam_policy" "codebuild_main" {
         "Resource" : [
           "arn:aws:ssm:*:*:parameter/docker/*",
           "arn:aws:ssm:*:*:parameter/${local.id}/codebuild/*",
+        ]
+      },
+      {
+        "Sid" : "AllowS3Site",
+        "Effect" : "Allow",
+        "Action" : [
+          "s3:*"
+        ],
+        "Resource" : [
+          "arn:aws:s3:::${module.frontend.bucket_id}",
+          "arn:aws:s3:::${module.frontend.bucket_id}/*"
+        ]
+      },
+      {
+        "Sid" : "AllowCDN",
+        "Effect" : "Allow",
+        "Action" : [
+          "cloudfront:*"
+        ],
+        "Resource" : [
+          "arn:aws:cloudfront::${local.account_id}:distribution/${module.frontend.cdn_distribution_id}"
         ]
       }
     ]

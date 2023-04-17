@@ -13,6 +13,8 @@ module "frontend" {
   parent_domain_name = var.parent_domain_name
   domain_name        = var.domain_name
 
+  path_prefix = "ai"
+
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
   tags = var.tags

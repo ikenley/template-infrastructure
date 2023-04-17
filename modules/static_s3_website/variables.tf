@@ -60,6 +60,10 @@ variable "domain_name" {
   description = "Base domain name e.g. example.com"
 }
 
+variable "path_prefix" {
+  description = "Default path prefix for site e.g. my-prefix"
+}
+
 variable "logs_bucket_name" {}
 
 # variable "dns_subdomain" {
