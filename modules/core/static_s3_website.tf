@@ -14,5 +14,7 @@ module "static_s3_website" {
   domain_name        = var.static_s3_domain
   logs_bucket_name   = module.s3_bucket_logs.s3_bucket_name
 
+  path_prefix = ""
+
   tags = local.tags
 }

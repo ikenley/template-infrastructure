@@ -20,6 +20,7 @@ module "revisit_prediction_lambda" {
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   publish       = true
+  timeout       = 180 # 3 minutes
 
   source_path = "${path.module}/revisit_prediction/src"
 
