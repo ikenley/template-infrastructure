@@ -64,7 +64,7 @@ module "db" {
   backup_window                   = "03:00-06:00"
   enabled_cloudwatch_logs_exports = ["postgresql", "upgrade"]
 
-  backup_retention_period = 7
+  backup_retention_period = var.backup_retention_period
   skip_final_snapshot     = var.is_prod ? false : true
   deletion_protection     = true
 

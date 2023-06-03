@@ -76,6 +76,9 @@ variable "max_allocated_storage" {
 }
 variable "default_db_name" {}
 
+variable "backup_retention_period" {
+  default = 1
+}
 # variable "data_lake_s3_bucket_name" {
 #   description = "Bucket name used for data lake ETL"
 # }
