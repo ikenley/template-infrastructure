@@ -16,7 +16,7 @@ phases:
       - echo "PROJECT_PATH=$PROJECT_PATH"
       - cd $PROJECT_PATH
       - terraform init
-      > 
+      - > 
         if [ "$TERRAFORM_ACTION" = apply ]
         then
           terraform $TERRAFORM_ACTION -auto-approve
