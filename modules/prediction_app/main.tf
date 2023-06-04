@@ -125,7 +125,7 @@ module "dynamo_users" {
 
   role_names = [
     module.application.task_role_name,
-    module.lambda_revisit_prediction_function.lambda_role_name
+    //module.lambda_revisit_prediction_function.lambda_role_name
   ]
 }
 
@@ -142,7 +142,7 @@ module "dynamo_predictions" {
 
   role_names = [
     module.application.task_role_name,
-    module.lambda_revisit_prediction_function.lambda_role_name
+    //module.lambda_revisit_prediction_function.lambda_role_name
   ]
 
   attributes = [
@@ -166,72 +166,72 @@ module "dynamo_predictions" {
 # Revisit Prediction Lambda Function
 # ------------------------------------------------------------------------------
 
-module "lambda_revisit_prediction_function" {
-  source = "terraform-aws-modules/lambda/aws"
+# module "lambda_revisit_prediction_function" {
+#   source = "terraform-aws-modules/lambda/aws"
 
-  function_name = "${var.namespace}-revisit-prediction"
-  description   = "Check for Predictions that have a RevisitOn date"
-  handler       = "index.handler"
-  runtime       = "nodejs14.x"
-  publish       = true
+#   function_name = "${var.namespace}-revisit-prediction"
+#   description   = "Check for Predictions that have a RevisitOn date"
+#   handler       = "index.handler"
+#   runtime       = "nodejs14.x"
+#   publish       = true
 
-  source_path = "${path.module}/revisit_prediction_function"
+#   source_path = "${path.module}/revisit_prediction_function"
 
-  environment_variables = {
-    Serverless             = "Terraform"
-    USERS_TABLE_NAME       = module.dynamo_users.table_name
-    PREDICTIONS_TABLE_NAME = module.dynamo_predictions.table_name
-    SES_EMAIL_ADDRESS      = var.ses_email_address
-  }
+#   environment_variables = {
+#     Serverless             = "Terraform"
+#     USERS_TABLE_NAME       = module.dynamo_users.table_name
+#     PREDICTIONS_TABLE_NAME = module.dynamo_predictions.table_name
+#     SES_EMAIL_ADDRESS      = var.ses_email_address
+#   }
 
-  tags = var.tags
-}
+#   tags = var.tags
+# }
 
-resource "aws_iam_policy" "revisit_prediction_function" {
-  name = "${var.name}-revisit-prediction-function-policy"
+# resource "aws_iam_policy" "revisit_prediction_function" {
+#   name = "${var.name}-revisit-prediction-function-policy"
 
-  policy = templatefile("${path.module}/revisit_prediction_function_policy.json", {
-    ses_email_arn = var.ses_email_arn
-  })
-}
+#   policy = templatefile("${path.module}/revisit_prediction_function_policy.json", {
+#     ses_email_arn = var.ses_email_arn
+#   })
+# }
 
-resource "aws_iam_role_policy_attachment" "revisit_prediction_function_attach" {
-  role       = module.lambda_revisit_prediction_function.lambda_role_name
-  policy_arn = aws_iam_policy.revisit_prediction_function.arn
-}
+# resource "aws_iam_role_policy_attachment" "revisit_prediction_function_attach" {
+#   role       = module.lambda_revisit_prediction_function.lambda_role_name
+#   policy_arn = aws_iam_policy.revisit_prediction_function.arn
+# }
 
-module "eventbridge_revisit_prediction_function" {
-  source  = "terraform-aws-modules/eventbridge/aws"
-  version = "1.4.0"
+# module "eventbridge_revisit_prediction_function" {
+#   source  = "terraform-aws-modules/eventbridge/aws"
+#   version = "1.4.0"
 
-  #bus_name = "${var.namespace}-bus"
-  create_bus = false
+#   #bus_name = "${var.namespace}-bus"
+#   create_bus = false
 
-  rules = {
-    predictions = {
-      name                = "daily-revisit-predictions"
-      description         = "Check predictions once daily"
-      schedule_expression = "cron(0 10 ? * * *)"
-      enabled             = true
-    }
-  }
+#   rules = {
+#     predictions = {
+#       name                = "daily-revisit-predictions"
+#       description         = "Check predictions once daily"
+#       schedule_expression = "cron(0 10 ? * * *)"
+#       enabled             = true
+#     }
+#   }
 
-  targets = {
-    predictions = [
-      {
-        name = "trigger-revisit-prediction-function"
-        arn  = module.lambda_revisit_prediction_function.lambda_function_arn
-      }
-    ]
-  }
+#   # targets = {
+#   #   predictions = [
+#   #     {
+#   #       name = "trigger-revisit-prediction-function"
+#   #       arn  = module.lambda_revisit_prediction_function.lambda_function_arn
+#   #     }
+#   #   ]
+#   # }
 
-  tags = var.tags
-}
+#   tags = var.tags
+# }
 
-resource "aws_lambda_permission" "allow_eventbridge_revisit_prediction_function" {
-  statement_id  = "AllowExecutionFromCloudWatch"
-  action        = "lambda:InvokeFunction"
-  function_name = module.lambda_revisit_prediction_function.lambda_function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = module.eventbridge_revisit_prediction_function.eventbridge_rule_arns["predictions"]
-}
+# resource "aws_lambda_permission" "allow_eventbridge_revisit_prediction_function" {
+#   statement_id  = "AllowExecutionFromCloudWatch"
+#   action        = "lambda:InvokeFunction"
+#   function_name = module.lambda_revisit_prediction_function.lambda_function_name
+#   principal     = "events.amazonaws.com"
+#   source_arn    = module.eventbridge_revisit_prediction_function.eventbridge_rule_arns["predictions"]
+# }
