@@ -11,7 +11,7 @@ phases:
       - sudo yum install -y yum-utils
       - sudo yum-config-manager --add-repo https://rpm.releases.hashicorp.com/AmazonLinux/hashicorp.repo
       - sudo yum --showduplicate list terraform
-      - sudo yum -y install terraform-0.14.0-2.x86_64
+      - sudo yum -y install terraform-0.14.11-1.x86_64
       - echo "Configuring project"
       - echo "PROJECT_PATH=$PROJECT_PATH"
       - cd $PROJECT_PATH
