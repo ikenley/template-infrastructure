@@ -16,5 +16,4 @@ phases:
       - echo "PROJECT_PATH=$PROJECT_PATH"
       - cd $PROJECT_PATH
       - terraform init
-      - terraform plan
-      - # terraform $TERRAFORM_ACTION -auto-approve
+      - terraform $TERRAFORM_ACTION -auto-approve
