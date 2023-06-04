@@ -26,17 +26,17 @@ resource "aws_codebuild_project" "codebuild_terraform" {
     modes = ["LOCAL_DOCKER_LAYER_CACHE"]
   }
 
-  vpc_config {
-    vpc_id = module.vpc.vpc_id
-    # This must run in a public subnet. This project creates the NAT gateway.
-    subnets            = module.vpc.public_subnets
-    security_group_ids = [aws_security_group.codebuild_terraform.id]
-  }
+  # vpc_config {
+  #   vpc_id = module.vpc.vpc_id
+  #   # This must run in a public subnet. This project creates the NAT gateway.
+  #   subnets            = module.vpc.public_subnets
+  #   security_group_ids = [aws_security_group.codebuild_terraform.id]
+  # }
 
   environment {
     type                        = "LINUX_CONTAINER"
     compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/standard:5.0"
+    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
 
