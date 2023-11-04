@@ -111,3 +111,7 @@ variable "source_branch_name" {}
 
 # vpn 
 variable "organization_name" {}
+
+# cognito
+variable "google_client_id" {}
+variable "google_client_secret" {}

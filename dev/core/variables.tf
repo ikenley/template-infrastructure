@@ -8,3 +8,7 @@ variable "spend_money" {
   description = "Whether to enable expensive services that can be safely turned off and on"
   default     = false
 }
+
+# cognito
+variable "google_client_id" {}
+variable "google_client_secret" {}

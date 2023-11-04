@@ -288,3 +288,37 @@ resource "aws_ssm_parameter" "codestar_connection_arn" {
   type  = "String"
   value = var.codestar_connection_arn
 }
+
+#------------------------------------------------------------------------------
+# cognito.tf
+#------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "cognito_user_pool_arn" {
+  name  = "/${var.namespace}/${var.env}/core/cognito/user_pool_arn"
+  type  = "String"
+  value = aws_cognito_user_pool.this.arn
+}
+
+resource "aws_ssm_parameter" "cognito_user_pool_domain" {
+  name  = "/${var.namespace}/${var.env}/core/cognito/user_pool_domain"
+  type  = "String"
+  value = local.auth_domain
+}
+
+resource "aws_ssm_parameter" "cognito_user_pool_id" {
+  name  = "/${var.namespace}/${var.env}/core/cognito/user_pool_id"
+  type  = "SecureString"
+  value = aws_cognito_user_pool.this.id
+}
+
+resource "aws_ssm_parameter" "cognito_client_id" {
+  name  = "/${var.namespace}/${var.env}/core/cognito/client_id"
+  type  = "SecureString"
+  value = aws_cognito_user_pool_client.main.id
+}
+
+resource "aws_ssm_parameter" "cognito_client_secret" {
+  name  = "/${var.namespace}/${var.env}/core/cognito/client_secret"
+  type  = "SecureString"
+  value = aws_cognito_user_pool_client.main.client_secret
+}

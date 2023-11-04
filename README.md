@@ -24,3 +24,18 @@ remote_state_bucket=924586450630-terraform-state
 CIDR=10.0.64.0/18
 
 
+---
+
+## auth-service TODO
+
+- cognito
+    - add google_client_id and google_client_secret to codebuild_tf
+- pg credentials
+- refactor to load ssm params into env vars
+- ci/cd 
+- lambda function
+
+```
+aws cognito-idp describe-user-pool --user-pool-id us-east-1_47ncTVgu5
+aws cognito-idp describe-user-pool-client --user-pool-id us-east-1_47ncTVgu5 --client-id 4l0inln46dnf4plvgjmu9b1523 > client.json
+```
