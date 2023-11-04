@@ -77,6 +77,18 @@ resource "aws_codebuild_project" "codebuild_terraform" {
       name  = "TF_VAR_spend_money"
       value = "false"
     }
+
+    environment_variable {
+      name  = "TF_VAR_google_client_id"
+      value = "/${var.namespace}/${var.env}/core/cognito/google_client_id"
+      type  = "PARAMETER_STORE"
+    }
+
+    environment_variable {
+      name  = "TF_VAR_google_client_secret"
+      value = "/${var.namespace}/${var.env}/core/cognito/google_client_secret"
+      type  = "PARAMETER_STORE"
+    }
   }
 
   source {

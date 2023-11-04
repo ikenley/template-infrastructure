@@ -74,7 +74,7 @@ module "prediction_app" {
 
   code_pipeline_s3_bucket_name = data.terraform_remote_state.core.outputs.code_pipeline_s3_bucket_name
   source_full_repository_id    = "ikenley/prediction-app"
-  source_branch_name           = "main"
+  source_branch_name           = "auth-service" # TODO revert "main"
   codestar_connection_arn      = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
   create_e2e_tests             = true
   e2e_codebuild_buildspec_path = "buildspec-e2e.yml"

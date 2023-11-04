@@ -11,7 +11,7 @@ locals {
 
   # Quick way to turn off expensive services
   # see also var.spend_money
-  enable_bastion_host = false
+  enable_bastion_host = true
   enable_client_vpn   = false
 }
 
@@ -38,7 +38,7 @@ terraform {
 }
 
 provider "aws" {
-  region  = "us-east-1"
+  region = "us-east-1"
   #profile = "terraform-dev"
 }
 
@@ -79,7 +79,10 @@ module "core" {
   ses_email_address = "predictions.ikenley@gmail.com"
 
   codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
-  source_branch_name      = "codebuild-terraform"
+  source_branch_name      = "main"
+
+  google_client_id     = var.google_client_id
+  google_client_secret = var.google_client_secret
 
   tags = {}
 }
