@@ -62,6 +62,40 @@ resource "aws_ssm_parameter" "prediction_app_user__connection_string" {
   value = "Host=${local.pghost};Port=${local.pgport};Database=${local.pgdatabase};Username=prediction_app_user;Password=${random_password.prediction_app_user.result}"
 }
 
+resource "aws_ssm_parameter" "auth_service__pg_connection" {
+  name  = "${local.output_prefix}/auth_service/pg_connection"
+  type  = "SecureString"
+  overwrite = true 
+  value = jsonencode({
+    "host":"${local.pghost}",
+    "port":"${local.pgport}",
+    "user":"auth_service_user",
+    "password":"${random_password.auth_service_user.result}",
+    "database":"${local.pgdatabase}"
+  })
+}
+
+resource "aws_ssm_parameter" "auth_service__pgpassword" {
+  name  = "${local.output_prefix}/auth_service/pgpassword"
+  type  = "SecureString"
+  overwrite = true 
+  value = random_password.auth_service_user.result
+}
+
+# Used only for local dev
+resource "aws_ssm_parameter" "auth_service_local__pg_connection" {
+  name  = "${local.output_prefix}/auth_service_local/pg_connection"
+  type  = "SecureString"
+  value = "TODO"
+
+  overwrite = false 
+
+  # TODO populate this via data sources
+  lifecycle {  
+    ignore_changes = [value]
+  }
+}
+
 # ------------------------------------------------------------------------------
 # revisit_prediction.tf
 # ------------------------------------------------------------------------------

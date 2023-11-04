@@ -322,3 +322,15 @@ resource "aws_ssm_parameter" "cognito_client_secret" {
   type  = "SecureString"
   value = aws_cognito_user_pool_client.main.client_secret
 }
+
+resource "aws_ssm_parameter" "cognito_google_client_id" {
+  name  = "/${var.namespace}/${var.env}/core/cognito/google_client_id"
+  type  = "SecureString"
+  value = var.google_client_id
+}
+
+resource "aws_ssm_parameter" "cognito_google_client_secret" {
+  name  = "/${var.namespace}/${var.env}/core/cognito/google_client_secret"
+  type  = "SecureString"
+  value = var.google_client_secret
+}
