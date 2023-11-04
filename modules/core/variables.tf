@@ -107,6 +107,7 @@ variable "ses_email_address" {}
 
 # CICD
 variable "codestar_connection_arn" {}
+variable "source_branch_name" {}
 
 # vpn 
 variable "organization_name" {}

@@ -7,6 +7,11 @@ let pool = null;
 exports.handler = async function (_event, _context) {
   const { AWS_REGION, PG_CONNECTION_PARAM_NAME, SES_EMAIL_ADDRESS } =
     process.env;
+  console.log("revisit-prediction started", {
+    AWS_REGION,
+    PG_CONNECTION_PARAM_NAME,
+    SES_EMAIL_ADDRESS,
+  });
 
   const todayDateIso = getTodayDateIso();
 

@@ -10,8 +10,8 @@ locals {
   domain_name = "ikenley.com"
 
   # Quick way to turn off expensive services
-  spend_money         = false
-  enable_bastion_host = true
+  # see also var.spend_money
+  enable_bastion_host = false
   enable_client_vpn   = false
 }
 
@@ -39,7 +39,7 @@ terraform {
 
 provider "aws" {
   region  = "us-east-1"
-  profile = "terraform-dev"
+  #profile = "terraform-dev"
 }
 
 module "core" {
@@ -54,7 +54,7 @@ module "core" {
 
   static_s3_domain = "static.ikenley.com"
 
-  spend_money = local.spend_money
+  spend_money = var.spend_money
 
   cidr          = "10.0.0.0/18"
   dns_server_ip = "10.0.0.2"
@@ -66,10 +66,10 @@ module "core" {
 
   vpc_client_cidr = "10.1.0.0/22"
 
-  enable_s3_endpoint = local.spend_money
+  enable_s3_endpoint = var.spend_money
 
-  enable_bastion_host = local.spend_money && local.enable_bastion_host
-  enable_client_vpn   = local.spend_money && local.enable_client_vpn
+  enable_bastion_host = var.spend_money && local.enable_bastion_host
+  enable_client_vpn   = var.spend_money && local.enable_client_vpn
 
   docker_username = "ikenley6"
   # This must be stored securely 
@@ -79,6 +79,7 @@ module "core" {
   ses_email_address = "predictions.ikenley@gmail.com"
 
   codestar_connection_arn = "arn:aws:codestar-connections:us-east-1:924586450630:connection/73e9e607-3dc4-4a4d-9f81-a82c0030de6d"
+  source_branch_name      = "codebuild-terraform"
 
   tags = {}
 }

@@ -20,11 +20,11 @@ module "revisit_prediction_lambda" {
   handler       = "index.handler"
   runtime       = "nodejs18.x"
   publish       = true
-  timeout       = 180 # 3 minutes
+  timeout       = 10 # 30 seconds
 
   source_path = "${path.module}/revisit_prediction/src"
 
-  vpc_subnet_ids         = var.private_subnets
+  vpc_subnet_ids         = var.private_subnets # var.public_subnets #
   vpc_security_group_ids = [aws_security_group.revisit_prediction.id]
   attach_network_policy  = true
 
@@ -108,7 +108,7 @@ module "revisit_prediction_eventbridge" {
 
   rules = {
     predictions = {
-      name                = "daily-revisit-predictions"
+      name                = local.revisit_prediction_id
       description         = "Check predictions once daily"
       schedule_expression = "cron(0 10 ? * * *)"
       enabled             = true
@@ -118,7 +118,7 @@ module "revisit_prediction_eventbridge" {
   targets = {
     predictions = [
       {
-        name = "trigger-revisit-prediction-function"
+        name = local.revisit_prediction_id
         arn  = module.revisit_prediction_lambda.lambda_function_arn
       }
     ]
