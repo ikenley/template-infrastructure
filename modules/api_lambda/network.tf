@@ -62,7 +62,7 @@ resource "aws_lb_listener_certificate" "example" {
 
 resource "aws_lb_listener_rule" "this" {
   listener_arn = data.aws_lb_listener.prod.arn
-  priority     = 25000
+  priority     = var.aws_lb_listener_rule_priority
 
   action {
     type             = "forward"
@@ -95,3 +95,49 @@ resource "aws_lb_target_group_attachment" "this" {
   depends_on       = [aws_lambda_permission.this]
 }
 
+#------------------------------------------------------------------------------
+# Lambda security group
+#------------------------------------------------------------------------------
+
+resource "aws_security_group" "api_lambda" {
+  name        = "${local.id}-lambda"
+  description = "Allow inbound traffic from ALB and outbound to all"
+  vpc_id      = data.aws_ssm_parameter.vpc_id.value
+}
+
+resource "aws_security_group_rule" "api_lambda_ingress" {
+  security_group_id = aws_security_group.api_lambda.id
+  type              = "ingress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+
+  source_security_group_id = data.aws_ssm_parameter.alb_public_sg_id.value
+}
+
+resource "aws_security_group_rule" "api_lambda_egress_http" {
+  security_group_id = aws_security_group.api_lambda.id
+  type              = "egress"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "api_lambda_egress_https" {
+  security_group_id = aws_security_group.api_lambda.id
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_security_group_rule" "api_lambda_egress_pg" {
+  security_group_id = aws_security_group.api_lambda.id
+  type              = "egress"
+  from_port         = 5432
+  to_port           = 5432
+  protocol          = "tcp"
+  cidr_blocks       = [data.aws_ssm_parameter.vpc_cidr.value]
+}

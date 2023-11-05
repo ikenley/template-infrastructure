@@ -28,11 +28,14 @@ CIDR=10.0.64.0/18
 
 ## auth-service TODO
 
-- refactor to load ssm params into env vars
-- ci/cd 
 - lambda function
+    - status 
+    - login workflow
 
 ```
 aws cognito-idp describe-user-pool --user-pool-id us-east-1_47ncTVgu5
 aws cognito-idp describe-user-pool-client --user-pool-id us-east-1_47ncTVgu5 --client-id 4l0inln46dnf4plvgjmu9b1523 > client.json
 ```
+
+https://api.auth-service.ikenley.com/auth/api/login?r=https://api.auth-service.ikenley.com/api/status
+https://api.auth-service.ikenley.com/api/status

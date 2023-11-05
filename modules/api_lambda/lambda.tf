@@ -4,20 +4,22 @@
 
 resource "aws_lambda_function" "this" {
   function_name = local.id
+  description   = var.lambda_description
   role          = aws_iam_role.lambda.arn
 
   # Placeholder image uri
-  image_uri    = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-ai-lambda-test:0.0.6"
+  image_uri    = var.image_uri
   package_type = "Image"
 
-  #source_code_hash = data.archive_file.lambda.output_base64sha256
-
-  #runtime = "nodejs16.x"
+  timeout = var.lambda_timeout
 
   environment {
-    variables = {
-      foo = "bar"
-    }
+    variables = var.environment_variables
+  }
+
+  vpc_config {
+    subnet_ids         = local.private_subnets
+    security_group_ids = [aws_security_group.api_lambda.id]
   }
 
   lifecycle {
@@ -66,11 +68,22 @@ resource "aws_iam_policy" "lambda" {
     "Version" : "2012-10-17",
     "Statement" : [
       {
+        "Sid": "AllowLogging",
         "Effect" : "Allow",
         "Action" : [
           "logs:CreateLogGroup",
           "logs:CreateLogStream",
           "logs:PutLogEvents"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Sid": "AllowVpcAccess",
+        "Effect" : "Allow",
+        "Action" : [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface"
         ],
         "Resource" : "*"
       }
