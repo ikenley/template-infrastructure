@@ -115,3 +115,11 @@ variable "organization_name" {}
 # cognito
 variable "google_client_id" {}
 variable "google_client_secret" {}
+variable "cognito_callback_urls" {
+  type = list(string)
+  default = []
+}
+variable "cognito_logout_urls" {
+  type = list(string)
+  default = []
+}

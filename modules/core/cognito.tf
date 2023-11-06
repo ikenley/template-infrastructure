@@ -172,14 +172,8 @@ resource "aws_cognito_user_pool_client" "main" {
   prevent_user_existence_errors = "ENABLED"
   enable_token_revocation       = true
 
-  callback_urls = [
-    "http://localhost:8088/auth/api/login/callback",
-    "https://auth-api.ikenley.com/callback"
-  ]
-
-  logout_urls = [
-    "http://localhost:8088/auth/api/status"
-  ]
+  callback_urls = var.cognito_callback_urls
+  logout_urls = var.cognito_logout_urls
 
   refresh_token_validity = 30
   access_token_validity  = 1
