@@ -28,12 +28,8 @@ CIDR=10.0.64.0/18
 
 ## auth-service TODO
 
-- cognito
-    - add google_client_id and google_client_secret to codebuild_tf
-- pg credentials
-- refactor to load ssm params into env vars
-- ci/cd 
 - lambda function
+    - login workflow
 
 ```
 aws cognito-idp describe-user-pool --user-pool-id us-east-1_47ncTVgu5

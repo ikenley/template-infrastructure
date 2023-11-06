@@ -12,24 +12,26 @@ variable "env" {
   description = "Environment used for tagging images etc."
 }
 
-variable "project_name" {
-  description = "Project name to use as a base for most resources"
-}
-
 variable "is_prod" {
   description = ""
   type        = bool
 }
 
+variable "project_name" {
+  description = "Project name to use as a base for most resources"
+}
+
+variable "url_path_prefix" {
+  description = "e.g. auth"
+}
+
+variable "git_repo" {}
+variable "git_branch" {}
+
 # DNS
 variable "parent_domain_name" {}
-
 variable "domain_name" {
-  description = "Base domain name e.g. example.com"
+  description = "domain name e.g. example.com"
 }
 
-variable "path_prefix" {
-  description = "Default path prefix for site e.g. my-prefix"
-}
-
-variable "logs_bucket_name" {}
+variable "description" {}

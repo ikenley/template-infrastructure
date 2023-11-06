@@ -172,14 +172,8 @@ resource "aws_cognito_user_pool_client" "main" {
   prevent_user_existence_errors = "ENABLED"
   enable_token_revocation       = true
 
-  callback_urls = [
-    "http://localhost:8088/auth/api/login/callback",
-    "https://auth-api.ikenley.com/callback"
-  ]
-
-  logout_urls = [
-    "http://localhost:8088/auth/api/status"
-  ]
+  callback_urls = var.cognito_callback_urls
+  logout_urls = var.cognito_logout_urls
 
   refresh_token_validity = 30
   access_token_validity  = 1
@@ -195,6 +189,13 @@ resource "aws_cognito_identity_provider" "google" {
     authorize_scopes = "email"
     client_id        = var.google_client_id
     client_secret    = var.google_client_secret
+
+    attributes_url                = "https://people.googleapis.com/v1/people/me?personFields="
+    attributes_url_add_attributes = "true"
+    authorize_url                 = "https://accounts.google.com/o/oauth2/v2/auth"
+    oidc_issuer                   = "https://accounts.google.com"
+    token_request_method          = "POST"
+    token_url                     = "https://www.googleapis.com/oauth2/v4/token"
   }
 
   attribute_mapping = {
