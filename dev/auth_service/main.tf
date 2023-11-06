@@ -32,7 +32,7 @@ module "auth_service" {
   project_name = "auth"
 
   git_repo   = "ikenley/auth-service"
-  git_branch = "login" # TODO revert to "main"
+  git_branch = "main"
 
   parent_domain_name = "ikenley.com"
   domain_name        = "auth-service.ikenley.com"
