@@ -55,3 +55,6 @@ variable "lambda_description" {
 variable "lambda_timeout" {
   default = 3
 }
+variable "lambda_memory_size" {
+  default = 128
+}

@@ -25,6 +25,7 @@ module "api_lambda" {
   image_uri = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-auth-api:b7aecb7"
   lambda_description = var.description
   lambda_timeout = 30
+  lambda_memory_size = 1024
 
   environment_variables = {
     APP_ENV = var.env
