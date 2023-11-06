@@ -11,7 +11,8 @@ resource "aws_lambda_function" "this" {
   image_uri    = var.image_uri
   package_type = "Image"
 
-  timeout = var.lambda_timeout
+  timeout     = var.lambda_timeout
+  memory_size = var.lambda_memory_size
 
   environment {
     variables = var.environment_variables
@@ -68,7 +69,7 @@ resource "aws_iam_policy" "lambda" {
     "Version" : "2012-10-17",
     "Statement" : [
       {
-        "Sid": "AllowLogging",
+        "Sid" : "AllowLogging",
         "Effect" : "Allow",
         "Action" : [
           "logs:CreateLogGroup",
@@ -78,7 +79,7 @@ resource "aws_iam_policy" "lambda" {
         "Resource" : "*"
       },
       {
-        "Sid": "AllowVpcAccess",
+        "Sid" : "AllowVpcAccess",
         "Effect" : "Allow",
         "Action" : [
           "ec2:CreateNetworkInterface",
