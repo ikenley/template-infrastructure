@@ -6,7 +6,7 @@ locals {
   codebuild_project_name = "${local.id}-codebuild-main"
 }
 
-resource "aws_ecr_repository" "this" {
+resource "aws_ecr_repository" "api" {
   name                 = "${local.id}-api"
   image_tag_mutability = "IMMUTABLE"
 
@@ -412,6 +412,11 @@ resource "aws_codebuild_project" "codebuild_main" {
     environment_variable {
       name = "REACT_APP_API_URL_PREFIX"
       value = "https://api.${var.domain_name}/ai/api"
+    }
+
+    environment_variable {
+      name = "REACT_APP_AUTH_API_URL_PREFIX"
+      value = "https://${data.aws_ssm_parameter.auth_domain_name.value}/auth/api"
     }
   }
 
