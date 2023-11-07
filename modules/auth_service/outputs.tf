@@ -13,7 +13,7 @@ resource "aws_ssm_parameter" "auth_service_domain_name" {
   name      = "${local.output_prefix}/domain_name"
   type      = "String"
   overwrite = true
-  value = var.domain_name
+  value = local.api_domain_name
 }
 
 resource "aws_ssm_parameter" "lambda_config" {
