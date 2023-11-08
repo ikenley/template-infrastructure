@@ -84,10 +84,12 @@ module "core" {
   google_client_id     = var.google_client_id
   google_client_secret = var.google_client_secret
   cognito_callback_urls = [
+    "http://localhost:8085/auth/api/login/callback",
     "http://localhost:8088/auth/api/login/callback",
     "https://api.auth-service.ikenley.com/auth/api/login/callback"
   ]
   cognito_logout_urls = [
+    "http://localhost:8085/auth/api/status",
     "http://localhost:8088/auth/api/status",
     "https://api.auth-service.ikenley.com/auth/api/status"
   ]

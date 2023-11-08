@@ -6,7 +6,7 @@ locals {
   codebuild_project_name = "${local.id}-codebuild-main"
 }
 
-resource "aws_ecr_repository" "this" {
+resource "aws_ecr_repository" "api" {
   name                 = "${local.id}-api"
   image_tag_mutability = "IMMUTABLE"
 
@@ -15,8 +15,37 @@ resource "aws_ecr_repository" "this" {
   }
 }
 
-resource "aws_ecr_repository_policy" "this" {
-  repository = aws_ecr_repository.this.name
+resource "aws_ecr_repository_policy" "api" {
+  repository = aws_ecr_repository.api.name
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "LambdaECRImageRetrievalPolicy",
+        "Effect" : "Allow",
+        "Principal" : {
+          "Service" : "lambda.amazonaws.com"
+        },
+        "Action" : [
+          "ecr:BatchGetImage",
+          "ecr:GetDownloadUrlForLayer"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_ecr_repository" "lambda" {
+  name                 = "${local.id}-lambda"
+  image_tag_mutability = "IMMUTABLE"
+
+  image_scanning_configuration {
+    scan_on_push = true
+  }
+}
+
+resource "aws_ecr_repository_policy" "lambda" {
+  repository = aws_ecr_repository.lambda.name
   policy = jsonencode({
     "Version" : "2012-10-17",
     "Statement" : [
@@ -343,13 +372,21 @@ resource "aws_codebuild_project" "codebuild_main" {
     }
 
     environment_variable {
-      name  = "REPOSITORY_URL"
-      value = aws_ecr_repository.this.repository_url
+      name  = "API_REPOSITORY_URL"
+      value = aws_ecr_repository.api.repository_url
+    }
+    environment_variable {
+      name  = "API_REPOSITORY_NAME"
+      value = aws_ecr_repository.api.name
     }
 
     environment_variable {
-      name  = "REPOSITORY_NAME"
-      value = aws_ecr_repository.this.name
+      name  = "LAMBDA_REPOSITORY_URL"
+      value = aws_ecr_repository.lambda.repository_url
+    }
+    environment_variable {
+      name  = "LAMBDA_REPOSITORY_NAME"
+      value = aws_ecr_repository.lambda.name
     }
 
     environment_variable {

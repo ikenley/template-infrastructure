@@ -50,6 +50,12 @@ resource "aws_iam_policy" "api_lambda" {
         Effect   = "Allow"
         Resource = [aws_ssm_parameter.lambda_config.arn]
       },
+      {
+        Sid: "AllowCognito", 
+        Action = ["cognito-idp:AdminInitiateAuth"],
+        Effect = "Allow"
+        Resource = ["*"] # TODO narrow scope
+      }
     ]
   })
 }

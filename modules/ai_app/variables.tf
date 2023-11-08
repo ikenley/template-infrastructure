@@ -24,6 +24,8 @@ variable "project_name" {
 variable "git_repo" {}
 variable "git_branch" {}
 
+variable "description" {}
+
 # DNS
 variable "parent_domain_name" {}
 variable "domain_name" {
