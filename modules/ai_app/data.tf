@@ -7,6 +7,9 @@ locals {
 data "aws_ssm_parameter" "logs_s3_bucket_name" {
   name  = "${local.core_output_prefix}/logs_s3_bucket_name"
 }
+data "aws_ssm_parameter" "ses_email_address" {
+  name  = "${local.core_output_prefix}/ses_email_address"
+}
 
 # Network
 locals {

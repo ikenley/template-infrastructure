@@ -24,6 +24,8 @@ resource "aws_lambda_function" "job_runner" {
       APP_ENV               = var.env
       BASE_DOMAIN           = var.parent_domain_name
       CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
+      IMAGE_S3_BUCKET_NAME  = module.frontend.bucket_id
+      FROM_EMAIL_ADDRESS    = data.aws_ssm_parameter.ses_email_address.value
     }
   }
 
@@ -127,16 +129,16 @@ resource "aws_iam_policy" "job_runner" {
         Resource = "*"
       },
       {
-        "Sid": "ListObjectsInBucket",
-        "Effect": "Allow",
-        "Action": ["s3:ListBucket"],
-        "Resource": ["arn:aws:s3:::${module.frontend.bucket_id}"]
+        "Sid" : "ListObjectsInBucket",
+        "Effect" : "Allow",
+        "Action" : ["s3:ListBucket"],
+        "Resource" : ["arn:aws:s3:::${module.frontend.bucket_id}"]
       },
       {
-        "Sid": "AllObjectActions",
-        "Effect": "Allow",
-        "Action": "s3:PutObject",
-        "Resource": ["arn:aws:s3:::${module.frontend.bucket_id}/img/*"]
+        "Sid" : "AllObjectActions",
+        "Effect" : "Allow",
+        "Action" : "s3:PutObject",
+        "Resource" : ["arn:aws:s3:::${module.frontend.bucket_id}/img/*"]
       },
       {
         Sid = "SesSend"
