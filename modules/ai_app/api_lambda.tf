@@ -8,7 +8,7 @@ module "api_lambda" {
   namespace    = var.namespace
   env          = var.env
   is_prod      = var.is_prod
-  project_name = "ai"
+  project_name = "ai-api"
 
   git_repo   = var.git_repo
   git_branch = var.git_branch
@@ -16,7 +16,7 @@ module "api_lambda" {
   parent_domain_name = var.parent_domain_name
   domain_name      = "api.${var.domain_name}"
 
-  image_uri = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-auth-api:b7aecb7"
+  image_uri = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-ai-lambda:da35cbb"
   lambda_description = var.description
   lambda_timeout = 30
   lambda_memory_size = 1024

@@ -16,7 +16,9 @@ locals {
 data "aws_ssm_parameter" "vpc_id" {
   name  = "${local.core_output_prefix}/vpc_id"
 }
-
+data "aws_ssm_parameter" "vpc_cidr" {
+  name  = "${local.core_output_prefix}/vpc_cidr"
+}
 data "aws_ssm_parameter" "private_subnets" {
   name  = "${local.core_output_prefix}/private_subnets"
 }
