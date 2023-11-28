@@ -38,11 +38,20 @@ resource "aws_iam_policy" "api_lambda" {
     Version = "2012-10-17"
     Statement = [
       {
+        Sid = "GetSSMParams"
         Action = [
           "ssm:GetParameter",
         ]
         Effect   = "Allow"
         Resource = [aws_ssm_parameter.lambda_config.arn]
+      },
+      {
+        Sid = "SendSQSMessage"
+        Action = [
+          "sqs:SendMessage",
+        ]
+        Effect   = "Allow"
+        Resource = [aws_sqs_queue.job_runner.arn]
       },
     ]
   })
