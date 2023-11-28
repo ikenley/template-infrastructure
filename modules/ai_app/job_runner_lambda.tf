@@ -109,11 +109,39 @@ resource "aws_iam_policy" "job_runner" {
         Resource = [aws_ssm_parameter.lambda_config.arn]
       },
       {
-        Sid = ""
+        Sid = "ConsumeSQS"
         Action = [
           "sqs:DeleteMessage",
           "sqs:GetQueueAttributes",
           "sqs:ReceiveMessage",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        Sid = "Bedrock"
+        Action = [
+          "bedrock:InvokeModel"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+      {
+        "Sid": "ListObjectsInBucket",
+        "Effect": "Allow",
+        "Action": ["s3:ListBucket"],
+        "Resource": ["arn:aws:s3:::${module.frontend.bucket_id}"]
+      },
+      {
+        "Sid": "AllObjectActions",
+        "Effect": "Allow",
+        "Action": "s3:PutObject",
+        "Resource": ["arn:aws:s3:::${module.frontend.bucket_id}/img/*"]
+      },
+      {
+        Sid = "SesSend"
+        Action = [
+          "ses:SendEmail"
         ]
         Effect   = "Allow"
         Resource = "*"
