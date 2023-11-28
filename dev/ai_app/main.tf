@@ -36,7 +36,7 @@ module "ai_app" {
   project_name = "ai"
 
   git_repo   = "ikenley/ai-app"
-  git_branch = "main"
+  git_branch = "image" #"main"
 
   parent_domain_name = "ikenley.com"
   domain_name        = "ai.ikenley.com"
