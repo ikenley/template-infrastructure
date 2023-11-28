@@ -390,8 +390,12 @@ resource "aws_codebuild_project" "codebuild_main" {
     }
 
     environment_variable {
-      name  = "FUNCTION_NAME"
+      name  = "API_FUNCTION_NAME"
       value = module.api_lambda.lambda_function_name
+    }
+    environment_variable {
+      name  = "JOB_RUNNER_FUNCTION_NAME"
+      value = aws_lambda_function.job_runner.function_name
     }
 
     environment_variable {
