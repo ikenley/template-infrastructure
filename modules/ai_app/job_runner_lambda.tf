@@ -17,7 +17,7 @@ resource "aws_lambda_function" "job_runner" {
   package_type = "Image"
 
   timeout     = 30
-  memory_size = 512
+  memory_size = 1024
 
   environment {
     variables = {
