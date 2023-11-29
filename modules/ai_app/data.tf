@@ -10,6 +10,9 @@ data "aws_ssm_parameter" "logs_s3_bucket_name" {
 data "aws_ssm_parameter" "ses_email_address" {
   name  = "${local.core_output_prefix}/ses_email_address"
 }
+data "aws_ssm_parameter" "authorized_emails" {
+  name  = "${local.core_output_prefix}/authorized_emails"
+}
 
 # Network
 locals {

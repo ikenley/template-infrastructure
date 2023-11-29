@@ -334,3 +334,14 @@ resource "aws_ssm_parameter" "cognito_google_client_secret" {
   type  = "SecureString"
   value = var.google_client_secret
 }
+
+resource "aws_ssm_parameter" "authorized_emails" {
+  name      = "/${var.namespace}/${var.env}/core/authorized_emails"
+  type      = "SecureString"
+  overwrite = true
+  value = jsonencode(["user@example.com"])
+
+  lifecycle {
+    ignore_changes = [ value ]
+  }
+}
