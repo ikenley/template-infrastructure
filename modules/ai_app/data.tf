@@ -7,6 +7,12 @@ locals {
 data "aws_ssm_parameter" "logs_s3_bucket_name" {
   name  = "${local.core_output_prefix}/logs_s3_bucket_name"
 }
+data "aws_ssm_parameter" "ses_email_address" {
+  name  = "${local.core_output_prefix}/ses_email_address"
+}
+data "aws_ssm_parameter" "authorized_emails" {
+  name  = "${local.core_output_prefix}/authorized_emails"
+}
 
 # Network
 locals {
@@ -16,7 +22,9 @@ locals {
 data "aws_ssm_parameter" "vpc_id" {
   name  = "${local.core_output_prefix}/vpc_id"
 }
-
+data "aws_ssm_parameter" "vpc_cidr" {
+  name  = "${local.core_output_prefix}/vpc_cidr"
+}
 data "aws_ssm_parameter" "private_subnets" {
   name  = "${local.core_output_prefix}/private_subnets"
 }

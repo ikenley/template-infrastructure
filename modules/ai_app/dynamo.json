@@ -1,0 +1,36 @@
+{
+    "Table": {
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "imageId",
+                "AttributeType": "S"
+            }
+        ],
+        "TableName": "test_image_metadata",
+        "KeySchema": [
+            {
+                "AttributeName": "imageId",
+                "KeyType": "HASH"
+            }
+        ],
+        "TableStatus": "ACTIVE",
+        "CreationDateTime": "2023-12-01T06:16:37.680000-05:00",
+        "ProvisionedThroughput": {
+            "NumberOfDecreasesToday": 0,
+            "ReadCapacityUnits": 0,
+            "WriteCapacityUnits": 0
+        },
+        "TableSizeBytes": 0,
+        "ItemCount": 0,
+        "TableArn": "arn:aws:dynamodb:us-east-1:924586450630:table/test_image_metadata",
+        "TableId": "b5194d4b-3595-41a9-aacf-158e2490472f",
+        "BillingModeSummary": {
+            "BillingMode": "PAY_PER_REQUEST",
+            "LastUpdateToPayPerRequestDateTime": "2023-12-01T06:16:37.680000-05:00"
+        },
+        "TableClassSummary": {
+            "TableClass": "STANDARD_INFREQUENT_ACCESS"
+        },
+        "DeletionProtectionEnabled": false
+    }
+}
