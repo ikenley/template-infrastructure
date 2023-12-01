@@ -148,6 +148,25 @@ resource "aws_iam_policy" "job_runner" {
         ]
         Effect   = "Allow"
         Resource = "*"
+      },
+      {
+        "Sid" : "AllowDynamoImageMetadata",
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:GetItem",
+          "dynamodb:BatchGetItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:ConditionCheckItem"
+        ],
+        "Resource" : [
+          aws_dynamodb_table.image_metadata.arn,
+          "${aws_dynamodb_table.image_metadata.arn}/index/*"
+        ]
       }
     ]
   })
