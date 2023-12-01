@@ -26,6 +26,7 @@ resource "aws_lambda_function" "job_runner" {
       CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
       IMAGE_S3_BUCKET_NAME  = module.frontend.bucket_id
       FROM_EMAIL_ADDRESS    = data.aws_ssm_parameter.ses_email_address.value
+      IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
     }
   }
 

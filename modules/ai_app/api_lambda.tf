@@ -22,11 +22,12 @@ module "api_lambda" {
   lambda_memory_size = 1024
 
   environment_variables = {
-    APP_ENV               = var.env
-    BASE_DOMAIN           = var.parent_domain_name
-    CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
-    AUTHORIZED_EMAILS     = data.aws_ssm_parameter.authorized_emails.value
-    JOB_QUEUE_URL         = aws_sqs_queue.job_runner.url
+    APP_ENV                   = var.env
+    BASE_DOMAIN               = var.parent_domain_name
+    CONFIG_SSM_PARAM_NAME     = aws_ssm_parameter.lambda_config.name
+    AUTHORIZED_EMAILS         = data.aws_ssm_parameter.authorized_emails.value
+    JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
+    IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
   }
 
   tags = var.tags
@@ -62,4 +63,26 @@ resource "aws_iam_policy" "api_lambda" {
 resource "aws_iam_role_policy_attachment" "api_lambda" {
   role       = module.api_lambda.lambda_role_name
   policy_arn = aws_iam_policy.api_lambda.arn
+}
+
+
+#------------------------------------------------------------------------------
+# Dynamo table for logging image metadata
+#------------------------------------------------------------------------------
+
+resource "aws_dynamodb_table" "image_metadata" {
+  name         = "image_metadata"
+  billing_mode = "PAY_PER_REQUEST"
+
+  hash_key = "imageId"
+
+  deletion_protection_enabled = true
+  table_class                 = "STANDARD_INFREQUENT_ACCESS"
+
+  attribute {
+    name = "imageId"
+    type = "S"
+  }
+
+  tags = local.tags
 }
