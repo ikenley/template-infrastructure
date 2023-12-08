@@ -345,3 +345,19 @@ resource "aws_ssm_parameter" "authorized_emails" {
     ignore_changes = [ value ]
   }
 }
+
+#------------------------------------------------------------------------------
+# event.tf
+#------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "event_bus_arn" {
+  name  = "/${var.namespace}/${var.env}/core/event_bus_arn"
+  type  = "String"
+  value = aws_cloudwatch_event_bus.main.arn
+}
+
+resource "aws_ssm_parameter" "event_bus_name" {
+  name  = "/${var.namespace}/${var.env}/core/event_bus_name"
+  type  = "String"
+  value = aws_cloudwatch_event_bus.main.name
+}
