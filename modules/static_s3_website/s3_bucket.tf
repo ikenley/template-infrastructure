@@ -47,3 +47,17 @@ resource "aws_s3_bucket_policy" "allow_cdn_access" {
     }
   )
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    id = "rule-1"
+
+    status = "Enabled"
+
+    transition {
+      storage_class = "INTELLIGENT_TIERING"
+    }
+  }
+}

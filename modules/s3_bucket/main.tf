@@ -50,6 +50,20 @@ resource "aws_s3_bucket_public_access_block" "this" {
   restrict_public_buckets = true
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "this" {
+  bucket = aws_s3_bucket.this.id
+
+  rule {
+    id = "rule-1"
+
+    status = "Enabled"
+
+    transition {
+      storage_class = "INTELLIGENT_TIERING"
+    }
+  }
+}
+
 resource "aws_kms_key" "this" {
   count = var.kms_alias == "" ? 0 : 1
 
