@@ -59,7 +59,7 @@ module "template_java_app" {
   private_subnets  = data.terraform_remote_state.core.outputs.private_subnets
   database_subnets = data.terraform_remote_state.core.outputs.database_subnets
 
-  host_in_public_subnets = true
+  host_in_public_subnets = false
 
   alb_arn   = data.terraform_remote_state.core.outputs.alb_public_arn
   alb_sg_id = data.terraform_remote_state.core.outputs.alb_public_sg_id
