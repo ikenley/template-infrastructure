@@ -63,10 +63,10 @@ resource "aws_apigatewayv2_deployment" "this" {
 # DNS record
 #------------------------------------------------------------------------------
 
-# data "aws_route53_zone" "this" {
-#   name         = "${var.parent_domain_name}."
-#   private_zone = false
-# }
+data "aws_route53_zone" "this" {
+  name         = "${var.parent_domain_name}."
+  private_zone = false
+}
 
 resource "aws_apigatewayv2_api_mapping" "example" {
   api_id      = aws_apigatewayv2_api.this.id
@@ -75,7 +75,7 @@ resource "aws_apigatewayv2_api_mapping" "example" {
 }
 
 resource "aws_apigatewayv2_domain_name" "api_gateway" {
-  domain_name = "test.${var.domain_name}"
+  domain_name = var.domain_name
 
   domain_name_configuration {
     certificate_arn = aws_acm_certificate.api_gateway.arn
@@ -112,7 +112,7 @@ resource "aws_route53_record" "api_gateway" {
 # }
 
 resource "aws_acm_certificate" "api_gateway" {
-  domain_name       = "test.${var.domain_name}"
+  domain_name       = var.domain_name
   validation_method = "DNS"
 }
 
