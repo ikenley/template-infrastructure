@@ -63,19 +63,27 @@ resource "aws_apigatewayv2_deployment" "this" {
 # DNS record
 #------------------------------------------------------------------------------
 
-data "aws_route53_zone" "this" {
-  name         = "${var.parent_domain_name}."
-  private_zone = false
+# data "aws_route53_zone" "this" {
+#   name         = "${var.parent_domain_name}."
+#   private_zone = false
+# }
+
+resource "aws_apigatewayv2_api_mapping" "example" {
+  api_id      = aws_apigatewayv2_api.this.id
+  domain_name = aws_apigatewayv2_domain_name.api_gateway.id
+  stage       = aws_apigatewayv2_stage.default.id
 }
 
 resource "aws_apigatewayv2_domain_name" "api_gateway" {
   domain_name = "test.${var.domain_name}"
 
   domain_name_configuration {
-    certificate_arn = aws_acm_certificate.example.arn
+    certificate_arn = aws_acm_certificate.api_gateway.arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
+
+  depends_on = [ aws_acm_certificate_validation.api_gateway ]
 }
 
 resource "aws_route53_record" "api_gateway" {
