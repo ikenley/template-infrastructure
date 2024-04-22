@@ -411,7 +411,7 @@ resource "aws_codebuild_project" "codebuild_main" {
 
     environment_variable {
       name = "REACT_APP_API_URL_PREFIX"
-      value = "https://api.${var.domain_name}/api/prediction"
+      value = "https://api.${local.app_domain}/api/prediction"
     }
 
     environment_variable {

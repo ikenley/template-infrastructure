@@ -10,6 +10,8 @@ locals {
   id            = "${var.namespace}-${var.env}-prediction"
   output_prefix = "/${var.namespace}/${var.env}/prediction"
 
+  app_domain    = "${var.dns_subdomain}.${var.domain_name}"
+
   tags = merge(var.tags, {
     Terraform   = true
     Environment = var.env
