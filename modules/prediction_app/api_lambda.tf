@@ -55,7 +55,8 @@ resource "aws_iam_policy" "api_lambda" {
           "ssm:GetParametersByPath"
         ],
         "Resource" : [
-          aws_ssm_parameter.prediction_app_user__connection_string.arn
+          aws_ssm_parameter.prediction_app_user__connection_string.arn,
+          "arn:aws:ssm:*:${local.account_id}:parameter/prediction-app/app"
         ]
       }
     ]
