@@ -399,10 +399,10 @@ resource "aws_codebuild_project" "codebuild_main" {
       value = module.frontend.bucket_id
     }
 
-    environment_variable {
-      name  = "SITE_S3_KEY_PREFIX"
-      value = "prediction"
-    }
+    # environment_variable {
+    #   name  = "SITE_S3_KEY_PREFIX"
+    #   value = "prediction"
+    # }
 
     environment_variable {
       name  = "CDN_DISTRIBUTION_ID"

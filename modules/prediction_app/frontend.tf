@@ -13,8 +13,6 @@ module "frontend" {
   parent_domain_name = var.domain_name
   domain_name        = "test.${var.dns_subdomain}.${var.domain_name}" # TODO remove test prefix
 
-  path_prefix = "prediction"
-
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
   tags = var.tags
