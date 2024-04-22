@@ -11,7 +11,7 @@ module "frontend" {
   project_name = var.name
 
   parent_domain_name = var.domain_name
-  domain_name        = "test.${var.dns_subdomain}" # TODO remove test prefix
+  domain_name        = "test.${var.dns_subdomain}.${var.domain_name}" # TODO remove test prefix
 
   path_prefix = "prediction"
 
