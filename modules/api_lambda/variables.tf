@@ -43,6 +43,10 @@ variable "image_uri" {
   default     = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-ai-lambda-test:0.0.6"
 }
 
+variable "lambda_image_command" {
+  default = null
+}
+
 variable "environment_variables" {
   type        = map(string)
   default     = {}
