@@ -30,6 +30,8 @@ module "s3_bucket_codepipeline" {
 
   bucket_name_suffix = "code-pipeline"
 
+  enable_archive = true
+
   tags = local.tags
 }
 
@@ -49,6 +51,8 @@ module "s3_bucket_artifacts" {
   source = "../s3_bucket"
 
   bucket_name_suffix = "artifacts"
+
+  enable_archive = true
 
   tags = local.tags
 }
@@ -100,6 +104,8 @@ module "s3_bucket_logs" {
   source = "../s3_bucket"
 
   bucket_name_suffix = "logs"
+
+  enable_archive = true
 
   bucket_policy = templatefile("${path.module}/bucket_policy.tpl", {
     bucket_name                 = local.lb_log_bucket_name

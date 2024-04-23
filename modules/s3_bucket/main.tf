@@ -68,7 +68,7 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
   count = var.enable_archive ? 1 : 0
 
   bucket = aws_s3_bucket.this.id
-  name   = "archive_policy"
+  name   = "archive-policy"
 
   
   tiering {
