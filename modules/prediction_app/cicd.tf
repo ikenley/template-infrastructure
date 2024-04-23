@@ -85,7 +85,7 @@ resource "aws_codepipeline" "this" {
       output_artifacts = ["SourceArtifact"]
 
       configuration = {
-        "BranchName" : "prediction-api-gateway" # TODO change to var.git_branch
+        "BranchName" : var.source_branch_name
         "ConnectionArn" : data.aws_ssm_parameter.codestar_connection_arn.value
         "FullRepositoryId" : var.source_full_repository_id
         "OutputArtifactFormat" : "CODE_ZIP"

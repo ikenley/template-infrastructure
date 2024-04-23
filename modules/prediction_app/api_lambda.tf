@@ -11,7 +11,7 @@ module "api_lambda" {
   project_name = var.name
 
   git_repo   = var.source_full_repository_id
-  git_branch = "prediction-api-gateway" # TODO change to var.git_branch
+  git_branch = var.source_branch_name
 
   parent_domain_name = var.domain_name 
   domain_name        = "api.${var.dns_subdomain}.${var.domain_name}"

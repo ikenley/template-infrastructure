@@ -23,3 +23,9 @@ variable "skip_create_policy" {
   type        = bool
   default     = false
 }
+
+variable "enable_archive" {
+  description = "Whether to enable archive policy"
+  type        = bool
+  default     = false
+}
