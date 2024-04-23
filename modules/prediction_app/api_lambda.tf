@@ -8,12 +8,12 @@ module "api_lambda" {
   namespace    = var.namespace
   env          = var.env
   is_prod      = var.is_prod
-  project_name = "test-${var.name}"
+  project_name = var.name
 
   git_repo   = var.source_full_repository_id
   git_branch = "prediction-api-gateway" # TODO change to var.git_branch
 
-  parent_domain_name = var.domain_name # TODO remove test subdomain
+  parent_domain_name = var.domain_name 
   domain_name        = "api.${var.dns_subdomain}.${var.domain_name}"
 
   image_uri            = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-test-prediction-lambda:3"

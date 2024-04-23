@@ -79,26 +79,26 @@ resource "aws_ssm_parameter" "nat_public_ips" {
 }
 
 # ALB
-output "alb_public_arn" {
-  value = module.alb_public.aws_lb_lb_arn
-}
+# output "alb_public_arn" {
+#   value = module.alb_public.aws_lb_lb_arn
+# }
 
-resource "aws_ssm_parameter" "alb_public_arn" {
-  name  = "/${var.namespace}/${var.env}/core/alb_public_arn"
-  type  = "String"
-  value = module.alb_public.aws_lb_lb_arn
-}
+# resource "aws_ssm_parameter" "alb_public_arn" {
+#   name  = "/${var.namespace}/${var.env}/core/alb_public_arn"
+#   type  = "String"
+#   value = module.alb_public.aws_lb_lb_arn
+# }
 
-output "alb_public_sg_id" {
-  description = "The ID of the ALB security group"
-  value       = module.alb_public.aws_security_group_lb_access_sg_id
-}
+# output "alb_public_sg_id" {
+#   description = "The ID of the ALB security group"
+#   value       = module.alb_public.aws_security_group_lb_access_sg_id
+# }
 
-resource "aws_ssm_parameter" "alb_public_sg_id" {
-  name  = "/${var.namespace}/${var.env}/core/alb_public_sg_id"
-  type  = "String"
-  value = module.alb_public.aws_security_group_lb_access_sg_id
-}
+# resource "aws_ssm_parameter" "alb_public_sg_id" {
+#   name  = "/${var.namespace}/${var.env}/core/alb_public_sg_id"
+#   type  = "String"
+#   value = module.alb_public.aws_security_group_lb_access_sg_id
+# }
 
 # output "alb_private_arn" {
 #   value = module.alb_private.aws_lb_lb_arn

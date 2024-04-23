@@ -37,14 +37,14 @@ output "nat_public_ips" {
 }
 
 # ALB
-output "alb_public_arn" {
-  value = module.core.alb_public_arn
-}
+# output "alb_public_arn" {
+#   value = module.core.alb_public_arn
+# }
 
-output "alb_public_sg_id" {
-  description = "The ID of the ALB security group"
-  value       = module.core.alb_public_sg_id
-}
+# output "alb_public_sg_id" {
+#   description = "The ID of the ALB security group"
+#   value       = module.core.alb_public_sg_id
+# }
 
 # output "alb_private_arn" {
 #   value = module.core.alb_private_arn

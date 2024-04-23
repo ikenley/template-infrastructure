@@ -22,11 +22,11 @@ resource "aws_ssm_parameter" "revisit_prediction__pgpassword" {
 resource "aws_ssm_parameter" "revisit_prediction_local__pg_connection" {
   name  = "${local.output_prefix}/revisit_prediction_local/pg_connection"
   type  = "SecureString"
-  value = "TODO"
+  value = "SET_FOR_LOCAL_ENV"
 
   overwrite = false 
 
-  # TODO populate this via data sources
+  # populate this via data sources
   lifecycle {  
     ignore_changes = [value]
   }
@@ -86,11 +86,11 @@ resource "aws_ssm_parameter" "auth_service__pgpassword" {
 resource "aws_ssm_parameter" "auth_service_local__pg_connection" {
   name  = "${local.output_prefix}/auth_service_local/pg_connection"
   type  = "SecureString"
-  value = "TODO"
+  value = "SET_FOR_LOCAL_VALUES"
 
   overwrite = false 
 
-  # TODO populate this via data sources
+  # populate this via data sources
   lifecycle {  
     ignore_changes = [value]
   }
@@ -110,4 +110,38 @@ resource "aws_ssm_parameter" "revisit_prediction__function_name" {
   name  = "${local.output_prefix}/revisit_prediction/function_name"
   type  = "SecureString"
   value = module.revisit_prediction_lambda.lambda_function_name
+}
+
+#------------------------------------------------------------------------------
+# Configuration parameters
+#------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "auth_jwt_authority" {
+  name      = "/${var.name}/app/auth/jwt-authority"
+  type      = "SecureString"
+  value     = var.auth_jwt_authority
+  overwrite = true
+
+  tags = local.tags
+}
+
+resource "aws_ssm_parameter" "auth_cognito_users_pool_id" {
+  name      = "/${var.name}/app/auth/pool-id"
+  type      = "SecureString"
+  value     = var.auth_cognito_users_pool_id
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "auth_client_id" {
+  name      = "/${var.name}/app/auth/client-id"
+  type      = "SecureString"
+  value     = var.auth_client_id
+  overwrite = true
+}
+
+resource "aws_ssm_parameter" "auth_aud" {
+  name      = "/${var.name}/app/auth/aud"
+  type      = "SecureString"
+  value     = var.auth_aud
+  overwrite = true
 }

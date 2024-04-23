@@ -19,95 +19,95 @@ locals {
   })
 }
 
-module "application" {
-  source = "../application"
+# module "application" {
+#   source = "../application"
 
-  name          = var.name
-  env           = var.env
-  is_prod       = var.is_prod
-  domain_name   = var.domain_name
-  dns_subdomain = var.dns_subdomain
+#   name          = var.name
+#   env           = var.env
+#   is_prod       = var.is_prod
+#   domain_name   = var.domain_name
+#   dns_subdomain = var.dns_subdomain
 
-  vpc_id           = var.vpc_id
-  vpc_cidr         = var.vpc_cidr
-  azs              = var.azs
-  public_subnets   = var.public_subnets
-  private_subnets  = var.private_subnets
-  database_subnets = var.database_subnets
+#   vpc_id           = var.vpc_id
+#   vpc_cidr         = var.vpc_cidr
+#   azs              = var.azs
+#   public_subnets   = var.public_subnets
+#   private_subnets  = var.private_subnets
+#   database_subnets = var.database_subnets
 
-  host_in_public_subnets = var.host_in_public_subnets
+#   host_in_public_subnets = var.host_in_public_subnets
 
-  alb_arn   = var.alb_arn
-  alb_sg_id = var.alb_sg_id
+#   alb_arn   = var.alb_arn
+#   alb_sg_id = var.alb_sg_id
 
-  ecs_cluster_arn  = var.ecs_cluster_arn
-  ecs_cluster_name = var.ecs_cluster_name
+#   ecs_cluster_arn  = var.ecs_cluster_arn
+#   ecs_cluster_name = var.ecs_cluster_name
 
-  container_names  = var.container_names
-  container_ports  = var.container_ports
-  container_cpu    = var.container_cpu
-  container_memory = var.container_memory
-  container_secrets = [
-    {
-      name      = "ConnectionStrings__main"
-      valueFrom = "${aws_ssm_parameter.prediction_app_user__connection_string.arn}"
-    }
-  ]
+#   container_names  = var.container_names
+#   container_ports  = var.container_ports
+#   container_cpu    = var.container_cpu
+#   container_memory = var.container_memory
+#   container_secrets = [
+#     {
+#       name      = "ConnectionStrings__main"
+#       valueFrom = "${aws_ssm_parameter.prediction_app_user__connection_string.arn}"
+#     }
+#   ]
 
-  code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
-  source_full_repository_id    = var.source_full_repository_id
-  source_branch_name           = var.source_branch_name
-  codestar_connection_arn      = var.codestar_connection_arn
-  create_e2e_tests             = var.create_e2e_tests
-  e2e_codebuild_buildspec_path = var.e2e_codebuild_buildspec_path
-  e2e_codebuild_env_vars       = var.e2e_codebuild_env_vars
+#   code_pipeline_s3_bucket_name = var.code_pipeline_s3_bucket_name
+#   source_full_repository_id    = var.source_full_repository_id
+#   source_branch_name           = var.source_branch_name
+#   codestar_connection_arn      = var.codestar_connection_arn
+#   create_e2e_tests             = var.create_e2e_tests
+#   e2e_codebuild_buildspec_path = var.e2e_codebuild_buildspec_path
+#   e2e_codebuild_env_vars       = var.e2e_codebuild_env_vars
 
-  auth_jwt_authority         = var.auth_jwt_authority
-  auth_cognito_users_pool_id = var.auth_cognito_users_pool_id
-  auth_client_id             = var.auth_client_id
-  auth_aud                   = var.auth_aud
+#   auth_jwt_authority         = var.auth_jwt_authority
+#   auth_cognito_users_pool_id = var.auth_cognito_users_pool_id
+#   auth_client_id             = var.auth_client_id
+#   auth_aud                   = var.auth_aud
 
-  rds_output_prefix = var.rds_output_prefix
-  app_output_prefix = local.output_prefix
+#   rds_output_prefix = var.rds_output_prefix
+#   app_output_prefix = local.output_prefix
 
-  tags = var.tags
-}
+#   tags = var.tags
+# }
 
-resource "aws_iam_policy" "ecs_task_execution_role" {
-  name        = "${local.id}-ecs-task-execution-role"
-  description = "Additional permissions for ${local.id} ECS task execution role"
+# resource "aws_iam_policy" "ecs_task_execution_role" {
+#   name        = "${local.id}-ecs-task-execution-role"
+#   description = "Additional permissions for ${local.id} ECS task execution role"
 
-  policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement" : [
-      {
-        "Sid" : "AllowSSMDescribeParameters",
-        "Effect" : "Allow",
-        "Action" : [
-          "ssm:DescribeParameters"
-        ],
-        "Resource" : "*"
-      },
-      {
-        "Sid" : "AllowSSMGetParameters",
-        "Effect" : "Allow",
-        "Action" : [
-          "ssm:GetParameter",
-          "ssm:GetParameters",
-          "ssm:GetParametersByPath"
-        ],
-        "Resource" : [
-          aws_ssm_parameter.prediction_app_user__connection_string.arn
-        ]
-      }
-    ]
-  })
-}
+#   policy = jsonencode({
+#     "Version" : "2012-10-17",
+#     "Statement" : [
+#       {
+#         "Sid" : "AllowSSMDescribeParameters",
+#         "Effect" : "Allow",
+#         "Action" : [
+#           "ssm:DescribeParameters"
+#         ],
+#         "Resource" : "*"
+#       },
+#       {
+#         "Sid" : "AllowSSMGetParameters",
+#         "Effect" : "Allow",
+#         "Action" : [
+#           "ssm:GetParameter",
+#           "ssm:GetParameters",
+#           "ssm:GetParametersByPath"
+#         ],
+#         "Resource" : [
+#           aws_ssm_parameter.prediction_app_user__connection_string.arn
+#         ]
+#       }
+#     ]
+#   })
+# }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
-  role       = module.application.task_execution_role_name
-  policy_arn = aws_iam_policy.ecs_task_execution_role.arn
-}
+# resource "aws_iam_role_policy_attachment" "ecs_task_execution_role" {
+#   role       = module.application.task_execution_role_name
+#   policy_arn = aws_iam_policy.ecs_task_execution_role.arn
+# }
 
 # ------------------------------------------------------------------------------
 # Dynamo tables
@@ -126,7 +126,7 @@ module "dynamo_users" {
   attributes = [{ "name" : "Id", "type" : "S" }]
 
   role_names = [
-    module.application.task_role_name,
+    module.api_lambda.lambda_role_name,
     //module.lambda_revisit_prediction_function.lambda_role_name
   ]
 }
@@ -143,7 +143,7 @@ module "dynamo_predictions" {
   range_key = "Id"
 
   role_names = [
-    module.application.task_role_name,
+    module.api_lambda.lambda_role_name,
     //module.lambda_revisit_prediction_function.lambda_role_name
   ]
 
