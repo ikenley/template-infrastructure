@@ -26,10 +26,7 @@ CIDR=10.0.64.0/18
 
 ---
 
-## auth-service TODO
-
-- lambda function
-    - login workflow
+## auth-service 
 
 ```
 aws cognito-idp describe-user-pool --user-pool-id us-east-1_47ncTVgu5

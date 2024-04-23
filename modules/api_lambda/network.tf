@@ -105,15 +105,15 @@ resource "aws_security_group" "api_lambda" {
   vpc_id      = data.aws_ssm_parameter.vpc_id.value
 }
 
-resource "aws_security_group_rule" "api_lambda_ingress" {
-  security_group_id = aws_security_group.api_lambda.id
-  type              = "ingress"
-  from_port         = 80
-  to_port           = 80
-  protocol          = "tcp"
+# resource "aws_security_group_rule" "api_lambda_ingress" {
+#   security_group_id = aws_security_group.api_lambda.id
+#   type              = "ingress"
+#   from_port         = 80
+#   to_port           = 80
+#   protocol          = "tcp"
 
-  source_security_group_id = data.aws_ssm_parameter.alb_public_sg_id.value
-}
+#   source_security_group_id = data.aws_ssm_parameter.alb_public_sg_id.value
+# }
 
 resource "aws_security_group_rule" "api_lambda_egress_http" {
   security_group_id = aws_security_group.api_lambda.id

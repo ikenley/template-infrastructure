@@ -61,9 +61,6 @@ module "prediction_app" {
 
   host_in_public_subnets = false
 
-  alb_arn   = data.terraform_remote_state.core.outputs.alb_public_arn
-  alb_sg_id = data.terraform_remote_state.core.outputs.alb_public_sg_id
-
   ecs_cluster_arn  = data.terraform_remote_state.core.outputs.ecs_cluster_arn
   ecs_cluster_name = data.terraform_remote_state.core.outputs.ecs_cluster_name
 

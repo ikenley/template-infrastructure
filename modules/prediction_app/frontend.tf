@@ -8,12 +8,10 @@ module "frontend" {
   namespace    = var.namespace
   env          = var.env
   is_prod      = var.is_prod
-  project_name = var.project_name
+  project_name = var.name
 
-  parent_domain_name = var.parent_domain_name
-  domain_name        = var.domain_name
-
-  path_prefix = "${var.url_path_prefix}/"
+  parent_domain_name = var.domain_name
+  domain_name        = "${var.dns_subdomain}.${var.domain_name}"
 
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 

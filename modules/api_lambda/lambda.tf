@@ -11,6 +11,10 @@ resource "aws_lambda_function" "this" {
   image_uri    = var.image_uri
   package_type = "Image"
 
+  image_config {
+    command = var.lambda_image_command
+  }
+
   timeout     = var.lambda_timeout
   memory_size = var.lambda_memory_size
 

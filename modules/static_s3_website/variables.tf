@@ -29,6 +29,7 @@ variable "domain_name" {
 }
 
 variable "path_prefix" {
+  default = ""
   description = "Default path prefix for site e.g. my-prefix"
 }
 

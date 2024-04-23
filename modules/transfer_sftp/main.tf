@@ -39,7 +39,7 @@ resource "aws_transfer_server" "this" {
   protocols              = ["SFTP"]
   domain                 = "S3"
   endpoint_type          = "PUBLIC"
-  force_destroy          = false # TODO set to true for production
+  force_destroy          = false # set to true for production
   security_policy_name   = "TransferSecurityPolicy-2022-03"
   logging_role           = aws_iam_role.logging.arn
 

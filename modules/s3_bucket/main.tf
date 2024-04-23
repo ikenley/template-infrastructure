@@ -64,6 +64,23 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
   }
 }
 
+resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
+  count = var.enable_archive ? 1 : 0
+
+  bucket = aws_s3_bucket.this.id
+  name   = "archive_policy"
+
+  
+  tiering {
+    access_tier = "ARCHIVE_ACCESS"
+    days        = 90
+  }
+  tiering {
+    access_tier = "DEEP_ARCHIVE_ACCESS"
+    days        = 180
+  }
+}
+
 resource "aws_kms_key" "this" {
   count = var.kms_alias == "" ? 0 : 1
 

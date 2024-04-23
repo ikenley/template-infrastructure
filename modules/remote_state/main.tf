@@ -13,6 +13,8 @@ module "s3_bucket" {
 
   bucket_name_suffix = var.s3_bucket_suffix
 
+  enable_archive = true
+
   tags = local.tags
 }
 

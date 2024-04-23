@@ -3,7 +3,7 @@
 #------------------------------------------------------------------------------
 
 /*
-TODO
+Next up
     Redshift
         https://docs.aws.amazon.com/redshift/latest/mgmt/security-server-side-encryption.html
         KMS + Key rotation

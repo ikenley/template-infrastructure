@@ -108,21 +108,21 @@ module "s3_bucket_logs" {
   })
 }
 
-module "alb_public" {
-  source = "../ecs_alb"
+# module "alb_public" {
+#   source = "../ecs_alb"
 
-  name_prefix = "${var.name}-public"
-  vpc_id      = module.vpc.vpc_id
+#   name_prefix = "${var.name}-public"
+#   vpc_id      = module.vpc.vpc_id
 
-  log_s3_bucket_name = module.s3_bucket_logs.s3_bucket_name
+#   log_s3_bucket_name = module.s3_bucket_logs.s3_bucket_name
 
-  internal        = false
-  private_subnets = module.vpc.private_subnets
-  public_subnets  = module.vpc.public_subnets
+#   internal        = false
+#   private_subnets = module.vpc.private_subnets
+#   public_subnets  = module.vpc.public_subnets
 
-  dns_zone_id     = aws_route53_zone.public.zone_id
-  dns_domain_name = "xyz.${var.domain_name}"
-}
+#   dns_zone_id     = aws_route53_zone.public.zone_id
+#   dns_domain_name = "xyz.${var.domain_name}"
+# }
 
 # module "alb_private" {
 #   source = "../ecs_alb"

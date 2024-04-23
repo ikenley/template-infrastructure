@@ -14,18 +14,18 @@ resource "aws_cloudfront_distribution" "this" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Managed by Terraform"
-  default_root_object = "${var.path_prefix}/index.html"
+  default_root_object = "${var.path_prefix}index.html"
 
   custom_error_response {
     error_code         = 403
     response_code      = 200
-    response_page_path = "/${var.path_prefix}/index.html"
+    response_page_path = "/${var.path_prefix}index.html"
   }
 
   custom_error_response {
     error_code         = 404
     response_code      = 200
-    response_page_path = "/${var.path_prefix}/index.html"
+    response_page_path = "/${var.path_prefix}index.html"
   }
 
   logging_config {
