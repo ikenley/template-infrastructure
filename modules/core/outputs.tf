@@ -361,3 +361,25 @@ resource "aws_ssm_parameter" "event_bus_name" {
   type  = "String"
   value = aws_cloudwatch_event_bus.main.name
 }
+
+#------------------------------------------------------------------------------
+# oidc_github.tf
+#------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "oidc_github_provider_arn" {
+  name  = "/${var.namespace}/${var.env}/core/oidc_github_provider_arn"
+  type  = "String"
+  value = aws_iam_openid_connect_provider.github.arn
+}
+
+resource "aws_ssm_parameter" "oidc_github_role_arn" {
+  name  = "/${var.namespace}/${var.env}/core/oidc_github_role_arn"
+  type  = "String"
+  value = aws_iam_role.github.arn
+}
+
+resource "aws_ssm_parameter" "oidc_github_role_name" {
+  name  = "/${var.namespace}/${var.env}/core/oidc_github_role_name"
+  type  = "String"
+  value = aws_iam_role.github.name
+}
