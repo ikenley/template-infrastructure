@@ -123,3 +123,7 @@ variable "cognito_logout_urls" {
   type = list(string)
   default = []
 }
+
+variable "github_org" {
+  description = "Github org used to configure OIDC provider"
+}

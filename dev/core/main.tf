@@ -71,6 +71,8 @@ module "core" {
   enable_bastion_host = var.spend_money && local.enable_bastion_host
   enable_client_vpn   = var.spend_money && local.enable_client_vpn
 
+  github_org = "ikenley"
+
   docker_username = "ikenley6"
   # This must be stored securely 
   # https://learn.hashicorp.com/tutorials/terraform/sensitive-variables

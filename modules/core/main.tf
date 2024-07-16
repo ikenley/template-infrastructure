@@ -192,6 +192,19 @@ resource "aws_codeartifact_domain" "this" {
 resource "aws_codeartifact_repository" "this" {
   repository = "main"
   domain     = aws_codeartifact_domain.this.domain
+
+  upstream {
+    repository_name = aws_codeartifact_repository.upstream_npm.repository
+  }
+}
+
+resource "aws_codeartifact_repository" "upstream_npm" {
+  repository = "${local.id}-npm"
+  domain     = aws_codeartifact_domain.this.domain
+
+  external_connections {
+    external_connection_name = "public:npmjs"
+  }
 }
 
 # ------------------------------------------------------------------------------
