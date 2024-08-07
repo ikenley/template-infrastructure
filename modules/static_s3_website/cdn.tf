@@ -53,6 +53,11 @@ resource "aws_cloudfront_distribution" "this" {
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
+
+    function_association {
+      event_type   = "viewer-request"
+      function_arn = aws_cloudfront_function.index_html.arn
+    }
   }
 
   price_class = "PriceClass_200"
@@ -83,4 +88,28 @@ resource "aws_cloudfront_origin_access_control" "default" {
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+}
+
+resource "aws_cloudfront_function" "index_html" {
+  name    = "${local.id}-index-html"
+  runtime = "cloudfront-js-2.0"
+  comment = "Function whihc adds index.html to the request if needed"
+  publish = true
+  code    = <<EOF
+function handler(event) {
+    var request = event.request;
+    var uri = request.uri;
+
+    // Check whether the URI is missing a file name.
+    if (uri.endsWith('/')) {
+        request.uri += 'index.html';
+    }
+    // Check whether the URI is missing a file extension.
+    else if (!uri.includes('.')) {
+        request.uri += '/index.html';
+    }
+
+    return request;
+}
+EOF
 }
