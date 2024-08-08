@@ -60,10 +60,7 @@ resource "aws_iam_policy" "send_lambda_main" {
         "Action" : [
           "SNS:Publish"
         ],
-        "Resource" : concat(
-          [aws_sns_topic.sns_human_approval_email_topic.arn],
-          [for arn in local.sns_topic_arns : arn]
-        ),
+        "Resource" : ["*"],
         "Effect" : "Allow"
       }
     ]
