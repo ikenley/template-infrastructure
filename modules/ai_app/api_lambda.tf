@@ -28,6 +28,7 @@ module "api_lambda" {
     AUTHORIZED_EMAILS         = data.aws_ssm_parameter.authorized_emails.value
     JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
     IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
+    STATE_FUNCTION_ARN        = data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value
   }
 
   tags = var.tags
@@ -74,6 +75,14 @@ resource "aws_iam_policy" "api_lambda" {
           aws_dynamodb_table.image_metadata.arn,
           "${aws_dynamodb_table.image_metadata.arn}/index/*"
         ]
+      },
+      {
+        "Sid" : "AllowStepFunction",
+        "Effect" : "Allow",
+        "Action" : [
+          "states:StartExecution"
+        ],
+        "Resource" : [data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value]
       }
     ]
   })
