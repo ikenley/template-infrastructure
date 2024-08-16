@@ -82,7 +82,7 @@ resource "aws_iam_policy" "api_lambda" {
         "Action" : [
           "states:StartExecution"
         ],
-        "Resource" : [data.aws_ssm_parameter.storybook_sfn_state_machine_arn.arn]
+        "Resource" : [data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value]
       }
     ]
   })
