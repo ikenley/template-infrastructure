@@ -38,12 +38,24 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
-  #profile = "terraform-dev"
+  alias   = "primary"
+  region  = "us-east-1"
+  profile = "terraform-dev"
+}
+
+provider "aws" {
+  alias   = "failover"
+  region  = "us-west-2"
+  profile = "terraform-dev"
 }
 
 module "core" {
   source = "../../modules/core"
+
+  providers = {
+    aws.primary  = aws.primary
+    aws.failover = aws.failover
+  }
 
   namespace         = local.namespace
   env               = local.env
