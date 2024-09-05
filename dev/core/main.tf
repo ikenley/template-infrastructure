@@ -78,6 +78,16 @@ module "core" {
 
   vpc_client_cidr = "10.1.0.0/22"
 
+  failover_cidr          = "10.2.0.0/18"
+  failover_dns_server_ip = "10.2.0.2"
+
+  failover_azs              = ["us-west-2a", "us-west-2b"]
+  failover_private_subnets  = ["10.2.0.0/24", "10.2.1.0/24"]
+  failover_public_subnets   = ["10.2.10.0/24", "10.2.11.0/24"]
+  failover_database_subnets = ["10.2.20.0/24", "10.2.21.0/24"]
+
+  failover_vpc_client_cidr = "10.1.0.4/22"
+
   enable_s3_endpoint = var.spend_money
 
   enable_bastion_host = var.spend_money && local.enable_bastion_host
