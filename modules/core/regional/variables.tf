@@ -26,23 +26,12 @@ variable "spend_money" {
   type        = bool
 }
 
-# DNS
-
-variable "domain_name" {
-  description = "Base domain name e.g. example.com"
-}
-
-variable "static_s3_domain" {
-  description = "Domain for static S3 website"
-}
-
 #------------------------------------------------------------------------------
-# Primary region network
+# network
 #------------------------------------------------------------------------------
 variable "cidr" {
   description = "The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden"
   type        = string
-  default     = "0.0.0.0/0"
 }
 
 variable "dns_server_ip" {
@@ -74,46 +63,6 @@ variable "database_subnets" {
 }
 
 variable "vpc_client_cidr" {
-  default = ""
-}
-
-#------------------------------------------------------------------------------
-# Failover region network
-#------------------------------------------------------------------------------
-variable "failover_cidr" {
-  description = "The CIDR block for the VPC. Default value is a valid CIDR, but not acceptable by AWS and should be overridden"
-  type        = string
-}
-
-variable "failover_dns_server_ip" {
-  description = "The CIDR + 2 e.g. 10.0.0.2"
-}
-
-variable "failover_azs" {
-  description = "A list of availability zones names or ids in the region"
-  type        = list(string)
-  default     = []
-}
-
-variable "failover_public_subnets" {
-  description = "A list of public subnets inside the VPC"
-  type        = list(string)
-  default     = []
-}
-
-variable "failover_private_subnets" {
-  description = "A list of private subnets inside the VPC"
-  type        = list(string)
-  default     = []
-}
-
-variable "failover_database_subnets" {
-  description = "A list of database subnets"
-  type        = list(string)
-  default     = []
-}
-
-variable "failover_vpc_client_cidr" {
   default = ""
 }
 
@@ -149,24 +98,5 @@ variable "docker_password" {
 variable "ses_email_address" {}
 
 # CICD
-variable "codestar_connection_arn" {}
 variable "source_branch_name" {}
 
-# vpn 
-variable "organization_name" {}
-
-# cognito
-variable "google_client_id" {}
-variable "google_client_secret" {}
-variable "cognito_callback_urls" {
-  type    = list(string)
-  default = []
-}
-variable "cognito_logout_urls" {
-  type    = list(string)
-  default = []
-}
-
-variable "github_org" {
-  description = "Github org used to configure OIDC provider"
-}
