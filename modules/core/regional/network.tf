@@ -41,7 +41,7 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  enable_nat_gateway = var.spend_money ? true : false
+  enable_nat_gateway = true #var.spend_money ? true : false
   single_nat_gateway = true
 
   # VPC endpoint for S3
@@ -69,17 +69,18 @@ module "vpc" {
   tags = local.tags
 }
 
+# TODO fix IAM globals
 # module "nat_instance" {
-#   source = "../nat_instance"
+#   source = "../../nat_instance"
 
 #   namespace = var.namespace
 #   env       = var.env
 #   name      = "core"
 
-#   aws_vpc_id        = module.vpc.vpc_id
-#   nat_instance_type = "t3.nano"
-#   number_of_azs     = 1
-#   public_subnets_ids = module.vpc.public_subnets
+#   aws_vpc_id              = module.vpc.vpc_id
+#   nat_instance_type       = "t3.nano"
+#   number_of_azs           = 1
+#   public_subnets_ids      = module.vpc.public_subnets
 #   private_route_table_ids = module.vpc.private_route_table_ids
 
 #   tags = local.tags
