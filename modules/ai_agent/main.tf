@@ -29,8 +29,8 @@ locals {
   aws_region_primary  = data.aws_region.primary.name
   aws_region_failover = data.aws_region.failover.name
 
-  id            = "${var.namespace}-${var.env}-${var.project}-ai-agent"
-  output_prefix = "/${var.namespace}/${var.env}/${var.project}/ai-agent"
+  id            = "${var.namespace}-${var.env}-${var.project}-agent"
+  output_prefix = "/${var.namespace}/${var.env}/${var.project}/agent"
 
   tags = merge(var.tags, {
     Terraform   = true
