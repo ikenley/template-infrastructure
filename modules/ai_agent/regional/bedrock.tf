@@ -21,3 +21,8 @@ resource "aws_bedrockagent_agent_alias" "current" {
   agent_id         = aws_bedrockagent_agent.this.agent_id
   description      = "Current alias"
 }
+
+#-------------------------------------------------------------------------------
+# Action groups
+# https://docs.aws.amazon.com/bedrock/latest/userguide/agents-action-create.html
+#-------------------------------------------------------------------------------

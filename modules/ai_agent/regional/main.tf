@@ -20,8 +20,8 @@ locals {
   account_id = data.aws_caller_identity.current.account_id
   aws_region = data.aws_region.current.name
 
-  id            = "${var.namespace}-${var.env}-${var.project}-ai-agent"
-  output_prefix = "/${var.namespace}/${var.env}/${var.project}/ai-agent"
+  id            = "${var.namespace}-${var.env}-${var.project}-agent"
+  output_prefix = "/${var.namespace}/${var.env}/${var.project}/agent"
 
   tags = merge(var.tags, {
     Terraform   = true
