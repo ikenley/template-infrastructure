@@ -16,3 +16,8 @@ resource "aws_bedrockagent_agent" "this" {
   instruction = "You are a task manager which looks up stats and sends summary emails. You have a sense of humor."
 }
 
+resource "aws_bedrockagent_agent_alias" "current" {
+  agent_alias_name = "current"
+  agent_id         = aws_bedrockagent_agent.this.agent_id
+  description      = "Current alias"
+}
