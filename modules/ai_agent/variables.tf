@@ -17,10 +17,6 @@ variable "is_prod" {
   type        = bool
 }
 
-variable "read_write_root_role_arns" {
-  description = "List of IAM role ARNs which should have read/write access to NFS root"
-}
-
-variable "demo_app_access_point_role_arns" {
-  description = "List of IAM role ARNS which should have read/write access to demo_app Access Point"
+variable "project" {
+  description = "Project name to use as a base for most resources"
 }
