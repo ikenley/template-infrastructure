@@ -40,7 +40,7 @@ module "main" {
 
   namespace = "ik"
   env       = "dev"
-  project   = "demo"
+  project   = "ai"
   is_prod   = false
 
 }
