@@ -76,6 +76,15 @@ module "s3_bucket_install" {
   tags = local.tags
 }
 
+# Internal "knowledge base" information
+module "s3_bucket_knowledge_base" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "knowledge-base"
+
+  tags = local.tags
+}
+
 # ------------------------------------------------------------------------------
 # Docker credentials
 # ------------------------------------------------------------------------------

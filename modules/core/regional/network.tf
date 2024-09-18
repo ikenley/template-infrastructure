@@ -41,7 +41,7 @@ module "vpc" {
   enable_dns_hostnames = true
   enable_dns_support   = true
 
-  enable_nat_gateway = true #var.spend_money ? true : false
+  enable_nat_gateway = var.spend_money ? true : false
   single_nat_gateway = true
 
   # VPC endpoint for S3
