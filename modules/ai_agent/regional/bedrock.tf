@@ -4,14 +4,18 @@
 #-------------------------------------------------------------------------------
 
 locals {
-  foundation_model = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+  agent_foundation_model = "anthropic.claude-3-5-sonnet-20240620-v1:0"
+}
+
+data "aws_bedrock_foundation_model" "agent" {
+  model_id = "amazon.titan-embed-text-v2:0"
 }
 
 resource "aws_bedrockagent_agent" "this" {
   agent_name                  = local.id
   agent_resource_role_arn     = local.agent_resource_role_arn
   idle_session_ttl_in_seconds = 500
-  foundation_model            = local.foundation_model
+  foundation_model            = local.agent_foundation_model
 
   instruction = "You are a task manager which looks up stats and sends summary emails. You have a sense of humor."
 }

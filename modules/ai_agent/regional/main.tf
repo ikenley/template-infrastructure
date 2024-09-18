@@ -9,6 +9,10 @@ terraform {
       version               = ">= 5.65.0"
       configuration_aliases = [aws]
     }
+    opensearch = {
+      source  = "opensearch-project/opensearch"
+      version = "= 2.2.0"
+    }
   }
 }
 

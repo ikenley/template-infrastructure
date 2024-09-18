@@ -10,3 +10,7 @@ This will ulimately be consumed by [ai-app](https://github.com/ikenley/ai-app) o
 Special thanks to [acwwat for this steller example which provided the base scaffolding for some of the Terraform resources](https://github.com/acwwat/terraform-amazon-bedrock-agent-example/tree/main)
 
 ---
+
+```
+aws bedrock list-foundation-models
+```

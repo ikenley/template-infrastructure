@@ -36,19 +36,21 @@ data "aws_iam_policy_document" "bedrock_agent_policy" {
   statement {
     actions = ["bedrock:InvokeModel"]
     resources = [
-      "arn:${data.aws_partition.current.partition}:bedrock:${data.aws_region.current.name}::foundation-model/${local.foundation_model}",
+      data.aws_bedrock_foundation_model.agent.model_arn,
     ]
   }
 }
 
 resource "aws_iam_role" "bedrock_agent" {
-  count              = var.create_globals ? 1 : 0
+  count = var.create_globals ? 1 : 0
+
   assume_role_policy = data.aws_iam_policy_document.bedrock_agent_trust.json
   name               = "${local.id}-bedrock-execution"
 }
 
 resource "aws_iam_role_policy" "bedrock_agent" {
-  count  = var.create_globals ? 1 : 0
+  count = var.create_globals ? 1 : 0
+
   name   = "${local.id}-bedrock-execution"
   policy = data.aws_iam_policy_document.bedrock_agent_policy.json
   role   = local.agent_resource_role_name
@@ -80,55 +82,77 @@ data "aws_iam_policy_document" "knowledge_base_trust" {
 
 data "aws_iam_policy_document" "knowledge_base_policy" {
   statement {
+    sid     = "BedrockInvokeModel"
+    effect  = "Allow"
     actions = ["bedrock:InvokeModel"]
     resources = [
-      "arn:${data.aws_partition.current.partition}:bedrock:${data.aws_region.current.name}::foundation-model/${local.foundation_model}",
+      data.aws_bedrock_foundation_model.kb.model_arn,
     ]
   }
-}
-/* TODO add
-https://blog.avangards.io/how-to-manage-an-amazon-bedrock-knowledge-base-using-terraform
-resource "aws_iam_role_policy" "bedrock_kb_forex_kb_s3" {
-  name = "AmazonBedrockS3PolicyForKnowledgeBase_${var.kb_name}"
-  role = aws_iam_role.bedrock_kb_forex_kb.name
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid      = "S3ListBucketStatement"
-        Action   = "s3:ListBucket"
-        Effect   = "Allow"
-        Resource = aws_s3_bucket.forex_kb.arn
-        Condition = {
-          StringEquals = {
-            "aws:PrincipalAccount" = local.account_id
-          }
-      } },
-      {
-        Sid      = "S3GetObjectStatement"
-        Action   = "s3:GetObject"
-        Effect   = "Allow"
-        Resource = "${aws_s3_bucket.forex_kb.arn}/*"
-        Condition = {
-          StringEquals = {
-            "aws:PrincipalAccount" = local.account_id
-          }
-        }
-      }
+
+  statement {
+    sid     = "S3ListBucket"
+    effect  = "Allow"
+    actions = ["s3:ListBucket"]
+    resources = [
+      data.aws_ssm_parameter.s3_knowledge_base_arn.value
     ]
-  })
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+
+      values = [
+        local.account_id
+      ]
+    }
+  }
+
+  statement {
+    sid     = "S3GetObject"
+    effect  = "Allow"
+    actions = ["s3:ListBucket"]
+    resources = [
+      "${data.aws_ssm_parameter.s3_knowledge_base_arn.value}/*"
+    ]
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalAccount"
+
+      values = [
+        local.account_id
+      ]
+    }
+  }
 }
-*/
 
 resource "aws_iam_role" "knowledge_base" {
-  count              = var.create_globals ? 1 : 0
+  count = var.create_globals ? 1 : 0
+
   assume_role_policy = data.aws_iam_policy_document.knowledge_base_trust.json
   name               = "${local.id}-knowledge-base"
 }
 
 resource "aws_iam_role_policy" "knowledge_base" {
-  count  = var.create_globals ? 1 : 0
+  count = var.create_globals ? 1 : 0
+
   name   = "${local.id}-knowledge-base"
   policy = data.aws_iam_policy_document.knowledge_base_policy.json
   role   = local.knowledge_base_role_name
+}
+
+resource "aws_iam_role_policy" "knowledge_base_open_search" {
+  count = var.create_globals ? 1 : 0
+
+  name = "${local.id}-kb-open-search"
+  role = local.knowledge_base_role_name
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action   = "aoss:APIAccessAll"
+        Effect   = "Allow"
+        Resource = aws_opensearchserverless_collection.knowledge_base.arn
+      }
+    ]
+  })
 }
