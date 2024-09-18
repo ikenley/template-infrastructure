@@ -1,5 +1,5 @@
 #-------------------------------------------------------------------------------
-# AWS Bedrock Agent
+# AWS Bedrock Agent + Action Group
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/bedrockagent_agent
 #-------------------------------------------------------------------------------
 
