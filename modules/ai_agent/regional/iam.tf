@@ -49,6 +49,7 @@ resource "aws_iam_role" "bedrock_agent" {
 
 resource "aws_iam_role_policy" "bedrock_agent" {
   count  = var.create_globals ? 1 : 0
+  name   = "${local.id}-bedrock-execution"
   policy = data.aws_iam_policy_document.bedrock_agent_policy.json
   role   = local.agent_resource_role_name
 }
@@ -127,6 +128,7 @@ resource "aws_iam_role" "knowledge_base" {
 
 resource "aws_iam_role_policy" "knowledge_base" {
   count  = var.create_globals ? 1 : 0
+  name   = "${local.id}-knowledge-base"
   policy = data.aws_iam_policy_document.knowledge_base_policy.json
   role   = local.knowledge_base_role_name
 }
