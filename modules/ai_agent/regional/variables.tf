@@ -31,3 +31,10 @@ variable "agent_resource_role_arn" {
 variable "agent_resource_role_name" {
   default = ""
 }
+
+variable "knowledge_base_role_arn" {
+  default = ""
+}
+variable "knowledge_base_role_name" {
+  default = ""
+}

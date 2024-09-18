@@ -34,10 +34,10 @@ data "aws_ssm_parameter" "private_subnets" {
   name = "${local.core_output_prefix}/private_subnets"
 }
 
-# # Data environment
-# data "aws_ssm_parameter" "data_lake_s3_bucket_arn" {
-#   name  = "${local.core_output_prefix}/data_lake_s3_bucket_arn"
-# }
-# data "aws_ssm_parameter" "data_lake_s3_bucket_name" {
-#   name  = "${local.core_output_prefix}/data_lake_s3_bucket_name"
-# }
+# Data environment
+data "aws_ssm_parameter" "s3_knowledge_base_arn" {
+  name = "${local.core_output_prefix}/s3_knowledge_base_arn"
+}
+data "aws_ssm_parameter" "s3_knowledge_base_name" {
+  name = "${local.core_output_prefix}/s3_knowledge_base_name"
+}
