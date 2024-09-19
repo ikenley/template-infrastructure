@@ -34,9 +34,20 @@ data "aws_iam_policy_document" "bedrock_agent_trust" {
 
 data "aws_iam_policy_document" "bedrock_agent_policy" {
   statement {
+    sid     = "InvokeModel"
+    effect  = "Allow"
     actions = ["bedrock:InvokeModel"]
     resources = [
       data.aws_bedrock_foundation_model.agent.model_arn,
+    ]
+  }
+
+  statement {
+    sid     = "RetrieveKnowledgeBase"
+    effect  = "Allow"
+    actions = ["bedrock:Retrieve"]
+    resources = [
+      aws_bedrockagent_knowledge_base.knowledge_base.arn
     ]
   }
 }
@@ -110,7 +121,7 @@ data "aws_iam_policy_document" "knowledge_base_policy" {
   statement {
     sid     = "S3GetObject"
     effect  = "Allow"
-    actions = ["s3:ListBucket"]
+    actions = ["s3:GetObject"]
     resources = [
       "${data.aws_ssm_parameter.s3_knowledge_base_arn.value}/*"
     ]

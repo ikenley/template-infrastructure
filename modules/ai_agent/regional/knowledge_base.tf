@@ -40,6 +40,25 @@ resource "aws_bedrockagent_knowledge_base" "knowledge_base" {
   ]
 }
 
+resource "aws_bedrockagent_data_source" "knowledge_base" {
+  knowledge_base_id = aws_bedrockagent_knowledge_base.knowledge_base.id
+  name              = "${local.id}-data-source"
+
+  data_source_configuration {
+    type = "S3"
+    s3_configuration {
+      bucket_arn = data.aws_ssm_parameter.s3_knowledge_base_arn.value
+    }
+  }
+}
+
+resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
+  agent_id             = aws_bedrockagent_agent.this.id
+  description          = file("${path.module}/prompt_templates/kb_instruction.txt")
+  knowledge_base_id    = aws_bedrockagent_knowledge_base.knowledge_base.id
+  knowledge_base_state = "ENABLED"
+}
+
 
 #-------------------------------------------------------------------------------
 # OpenSearch Serverless

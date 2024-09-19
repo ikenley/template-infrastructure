@@ -8,7 +8,7 @@ locals {
 }
 
 data "aws_bedrock_foundation_model" "agent" {
-  model_id = "amazon.titan-embed-text-v2:0"
+  model_id = local.agent_foundation_model
 }
 
 resource "aws_bedrockagent_agent" "this" {
@@ -75,6 +75,7 @@ resource "null_resource" "prepare_email_summary_change" {
   triggers = {
     agent_state                      = sha256(jsonencode(aws_bedrockagent_agent.this))
     action_group_email_summary_state = sha256(jsonencode(aws_bedrockagent_agent_action_group.email_summary))
+    knowledge_base                   = sha256(jsonencode(aws_bedrockagent_knowledge_base.knowledge_base))
   }
   provisioner "local-exec" {
     command = <<EOF
@@ -88,6 +89,7 @@ EOF
 
   depends_on = [
     aws_bedrockagent_agent.this,
-    aws_bedrockagent_agent_action_group.email_summary
+    aws_bedrockagent_agent_action_group.email_summary,
+    aws_bedrockagent_knowledge_base.knowledge_base
   ]
 }
