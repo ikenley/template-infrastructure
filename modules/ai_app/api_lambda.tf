@@ -29,6 +29,8 @@ module "api_lambda" {
     JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
     IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
     STATE_FUNCTION_ARN        = data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value
+    BEDROCK_AGENT_ID          = data.aws_ssm_parameter.agent_id.value
+    BEDROCK_AGENT_ALIAS_ID    = data.aws_ssm_parameter.agent_alias_id.value
   }
 
   tags = var.tags
@@ -83,6 +85,14 @@ resource "aws_iam_policy" "api_lambda" {
           "states:StartExecution"
         ],
         "Resource" : [data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value]
+      },
+      {
+        "Sid" : "InvokeBedrockAgent",
+        "Effect" : "Allow",
+        "Action" : [
+          "bedrock:InvokeAgent"
+        ],
+        "Resource" : ["arn:aws:bedrock:*:${local.account_id}:agent-alias/${local.agent_id}/${local.agent_alias_id}"]
       }
     ]
   })
