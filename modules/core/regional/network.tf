@@ -69,17 +69,18 @@ module "vpc" {
   tags = local.tags
 }
 
+# TODO fix IAM globals
 # module "nat_instance" {
-#   source = "../nat_instance"
+#   source = "../../nat_instance"
 
 #   namespace = var.namespace
 #   env       = var.env
 #   name      = "core"
 
-#   aws_vpc_id        = module.vpc.vpc_id
-#   nat_instance_type = "t3.nano"
-#   number_of_azs     = 1
-#   public_subnets_ids = module.vpc.public_subnets
+#   aws_vpc_id              = module.vpc.vpc_id
+#   nat_instance_type       = "t3.nano"
+#   number_of_azs           = 1
+#   public_subnets_ids      = module.vpc.public_subnets
 #   private_route_table_ids = module.vpc.private_route_table_ids
 
 #   tags = local.tags

@@ -22,12 +22,16 @@ module "api_lambda" {
   lambda_memory_size = 1024
 
   environment_variables = {
-    APP_ENV                   = var.env
-    BASE_DOMAIN               = var.parent_domain_name
-    CONFIG_SSM_PARAM_NAME     = aws_ssm_parameter.lambda_config.name
+    APP_ENV               = var.env
+    BASE_DOMAIN           = var.parent_domain_name
+    CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
+
     AUTHORIZED_EMAILS         = data.aws_ssm_parameter.authorized_emails.value
-    JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
+    BEDROCK_AGENT_ID          = data.aws_ssm_parameter.agent_id.value
+    BEDROCK_AGENT_ALIAS_ID    = data.aws_ssm_parameter.agent_alias_id.value
+    FROM_EMAIL_ADDRESS        = data.aws_ssm_parameter.ses_email_address.value
     IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
+    JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
     STATE_FUNCTION_ARN        = data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value
   }
 
@@ -83,6 +87,22 @@ resource "aws_iam_policy" "api_lambda" {
           "states:StartExecution"
         ],
         "Resource" : [data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value]
+      },
+      {
+        "Sid" : "InvokeBedrockAgent",
+        "Effect" : "Allow",
+        "Action" : [
+          "bedrock:InvokeAgent"
+        ],
+        "Resource" : ["arn:aws:bedrock:*:${local.account_id}:agent-alias/${local.agent_id}/${local.agent_alias_id}"]
+      },
+      {
+        Sid = "SesSend"
+        Action = [
+          "ses:SendEmail"
+        ]
+        Effect   = "Allow"
+        Resource = "*"
       }
     ]
   })

@@ -2,6 +2,7 @@ locals {
   core_output_prefix      = "/${var.namespace}/${var.env}/core"
   auth_output_prefix      = "/${var.namespace}/${var.env}/auth"
   storybook_output_prefix = "/${var.namespace}/${var.env}/storybook"
+  ai_agent_output_prefix  = "/${var.namespace}/${var.env}/ai/agent"
 }
 
 # Core management
@@ -60,4 +61,22 @@ data "aws_ssm_parameter" "auth_domain_name" {
 # storybook
 data "aws_ssm_parameter" "storybook_sfn_state_machine_arn" {
   name = "${local.storybook_output_prefix}/sfn_state_machine_arn"
+}
+
+# ai agent
+locals {
+  agent_id       = data.aws_ssm_parameter.agent_id.value
+  agent_alias_id = data.aws_ssm_parameter.agent_alias_id.value
+}
+
+data "aws_ssm_parameter" "agent_arn" {
+  name = "${local.ai_agent_output_prefix}/agent_arn"
+}
+
+data "aws_ssm_parameter" "agent_id" {
+  name = "${local.ai_agent_output_prefix}/agent_id"
+}
+
+data "aws_ssm_parameter" "agent_alias_id" {
+  name = "${local.ai_agent_output_prefix}/agent_alias_id"
 }

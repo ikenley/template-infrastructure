@@ -145,6 +145,23 @@ resource "aws_ssm_parameter" "s3_install_arn" {
   value = module.s3_bucket_install.s3_bucket_arn
 }
 
+output "s3_knowledge_base_name" {
+  description = "S3 bucket used for knowledge_base scripts bucket"
+  value       = module.s3_bucket_knowledge_base.s3_bucket_name
+}
+
+resource "aws_ssm_parameter" "s3_knowledge_base_name" {
+  name  = "/${var.namespace}/${var.env}/core/s3_knowledge_base_name"
+  type  = "String"
+  value = module.s3_bucket_knowledge_base.s3_bucket_name
+}
+
+resource "aws_ssm_parameter" "s3_knowledge_base_arn" {
+  name  = "/${var.namespace}/${var.env}/core/s3_knowledge_base_arn"
+  type  = "String"
+  value = module.s3_bucket_knowledge_base.s3_bucket_arn
+}
+
 output "logs_s3_bucket_name" {
   description = "S3 bucket used for logs"
   value       = module.s3_bucket_logs.s3_bucket_name
@@ -339,10 +356,10 @@ resource "aws_ssm_parameter" "authorized_emails" {
   name      = "/${var.namespace}/${var.env}/core/authorized_emails"
   type      = "SecureString"
   overwrite = true
-  value = jsonencode(["user@example.com"])
+  value     = jsonencode(["user@example.com"])
 
   lifecycle {
-    ignore_changes = [ value ]
+    ignore_changes = [value]
   }
 }
 
