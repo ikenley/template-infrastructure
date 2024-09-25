@@ -37,14 +37,8 @@ resource "aws_bedrockagent_agent_action_group" "email_summary" {
   agent_version              = "DRAFT"
   skip_resource_in_use_check = true
 
-  # TODO switch to RETURN_CONTROL
-  # action_group_executor {
-  #   custom_control = "RETURN_CONTROL"
-  # }
-
-  # TODO switch to RETURN_CONTROL
   action_group_executor {
-    lambda = "arn:aws:lambda:us-east-1:924586450630:function:action-group-quick-start-rljn8-a1403"
+    custom_control = "RETURN_CONTROL"
   }
 
   function_schema {
@@ -52,12 +46,6 @@ resource "aws_bedrockagent_agent_action_group" "email_summary" {
       functions {
         name        = "SendSumaryEmail"
         description = "Sends an email with a summary of the conversation"
-        parameters {
-          map_block_key = "emailAddress"
-          type          = "string"
-          description   = "The email address to send the summary to"
-          required      = true
-        }
         parameters {
           map_block_key = "summary"
           type          = "string"
@@ -80,10 +68,10 @@ resource "null_resource" "prepare_email_summary_change" {
   provisioner "local-exec" {
     command = <<EOF
 aws bedrock-agent prepare-agent --agent-id ${aws_bedrockagent_agent.this.agent_id}
-aws bedrock-agent update-agent-alias \
---agent-id ${aws_bedrockagent_agent.this.agent_id} \
---agent-alias-id ${aws_bedrockagent_agent_alias.current.agent_alias_id} \
---agent-alias-name ${aws_bedrockagent_agent_alias.current.agent_alias_name}
+# aws bedrock-agent update-agent-alias \
+# --agent-id ${aws_bedrockagent_agent.this.agent_id} \
+# --agent-alias-id ${aws_bedrockagent_agent_alias.current.agent_alias_id} \
+# --agent-alias-name ${aws_bedrockagent_agent_alias.current.agent_alias_name}
 EOF
   }
 
