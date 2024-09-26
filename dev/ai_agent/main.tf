@@ -43,4 +43,6 @@ module "main" {
   project   = "ai"
   is_prod   = false
 
+  base_domain = "ikenley.com"
+
 }

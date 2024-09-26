@@ -78,6 +78,12 @@ resource "aws_ssm_parameter" "nat_public_ips" {
   value = join(",", module.vpc.nat_public_ips)
 }
 
+resource "aws_ssm_parameter" "nat_instance_id" {
+  name  = "/${var.namespace}/${var.env}/core/nat_instance_id"
+  type  = "String"
+  value = module.nat_instance.nat_instance_id
+}
+
 # ALB
 # output "alb_public_arn" {
 #   value = module.alb_public.aws_lb_lb_arn

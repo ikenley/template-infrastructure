@@ -20,3 +20,8 @@ variable "is_prod" {
 variable "project" {
   description = "Project name to use as a base for most resources"
 }
+
+variable "base_domain" {
+  type        = string
+  description = "e.g. example.com"
+}

@@ -13,4 +13,8 @@ Special thanks to [acwwat for this steller example which provided the base scaff
 
 ```
 aws bedrock list-foundation-models
+aws rds describe-db-engine-versions --engine aurora-postgresql --query '*[].[EngineVersion]' --output text --region us-east-1
+aws rds describe-db-cluster-parameters --db-cluster-parameter-group-name default.aurora-postgresql16
+aws rds describe-db-engine-versions --query "DBEngineVersions[].DBParameterGroupFamily"
+
 ```
