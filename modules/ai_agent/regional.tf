@@ -15,4 +15,7 @@ module "regional_primary" {
   project   = var.project
 
   create_globals = true
+
+  rds_cluster_arn         = aws_rds_cluster.this.arn
+  bedrock_user_secret_arn = aws_secretsmanager_secret.bedrock_user.arn
 }

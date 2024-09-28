@@ -38,3 +38,6 @@ variable "knowledge_base_role_arn" {
 variable "knowledge_base_role_name" {
   default = ""
 }
+
+variable "rds_cluster_arn" {}
+variable "bedrock_user_secret_arn" {}

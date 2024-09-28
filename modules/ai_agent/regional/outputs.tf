@@ -1,5 +1,5 @@
 #------------------------------------------------------------------------------
-# iam.tf
+# agent_iam.tf
 #------------------------------------------------------------------------------
 
 resource "aws_ssm_parameter" "agent_resource_role_arn" {
@@ -22,25 +22,29 @@ output "agent_resource_role_name" {
   value = local.agent_resource_role_name
 }
 
-# resource "aws_ssm_parameter" "knowledge_base_role_arn" {
-#   name  = "${local.output_prefix}/knowledge_base_role_arn"
-#   type  = "String"
-#   value = local.knowledge_base_role_arn
-# }
+#------------------------------------------------------------------------------
+# agent_rds.tf
+#------------------------------------------------------------------------------
 
-# output "knowledge_base_role_arn" {
-#   value = local.knowledge_base_role_arn
-# }
+resource "aws_ssm_parameter" "knowledge_base_role_arn" {
+  name  = "${local.output_prefix}/knowledge_base_role_arn"
+  type  = "String"
+  value = local.knowledge_base_role_arn
+}
 
-# resource "aws_ssm_parameter" "knowledge_base_role_name" {
-#   name  = "${local.output_prefix}/knowledge_base_role_name"
-#   type  = "String"
-#   value = local.knowledge_base_role_name
-# }
+output "knowledge_base_role_arn" {
+  value = local.knowledge_base_role_arn
+}
 
-# output "knowledge_base_role_name" {
-#   value = local.knowledge_base_role_name
-# }
+resource "aws_ssm_parameter" "knowledge_base_role_name" {
+  name  = "${local.output_prefix}/knowledge_base_role_name"
+  type  = "String"
+  value = local.knowledge_base_role_name
+}
+
+output "knowledge_base_role_name" {
+  value = local.knowledge_base_role_name
+}
 
 #------------------------------------------------------------------------------
 # bedrock.tf
