@@ -18,9 +18,9 @@ locals {
 
 # Network
 locals {
-  private_subnets  = split(",", data.aws_ssm_parameter.private_subnets.value)
-  database_subnets = split(",", data.aws_ssm_parameter.database_subnets.value)
-  azs              = split(",", data.aws_ssm_parameter.azs.value)
+  private_subnets  = split(",", nonsensitive(data.aws_ssm_parameter.private_subnets.value))
+  database_subnets = split(",", nonsensitive(data.aws_ssm_parameter.database_subnets.value))
+  azs              = split(",", nonsensitive(data.aws_ssm_parameter.azs.value))
 }
 
 data "aws_ssm_parameter" "vpc_id" {

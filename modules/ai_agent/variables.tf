@@ -25,3 +25,5 @@ variable "base_domain" {
   type        = string
   description = "e.g. example.com"
 }
+
+variable "primary_rds_availability_zones" {}

@@ -13,12 +13,15 @@ terraform {
 }
 
 data "aws_caller_identity" "primary" {}
+
 data "aws_partition" "primary" {
   provider = aws.primary
 }
+
 data "aws_region" "primary" {
   provider = aws.primary
 }
+
 data "aws_region" "failover" {
   provider = aws.failover
 }

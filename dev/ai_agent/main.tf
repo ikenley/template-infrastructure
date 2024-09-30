@@ -45,4 +45,10 @@ module "main" {
 
   base_domain = "ikenley.com"
 
+  primary_rds_availability_zones = [
+    "us-east-1a",
+    "us-east-1b",
+    "us-east-1c"
+  ]
+
 }

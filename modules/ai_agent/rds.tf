@@ -41,7 +41,7 @@ resource "aws_rds_cluster" "this" {
   engine                          = "aurora-postgresql"
   engine_version                  = "16.4"
 
-  availability_zones     = local.azs
+  availability_zones     = var.primary_rds_availability_zones
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.rds_kb.id]
 
@@ -127,6 +127,10 @@ resource "aws_rds_cluster" "this" {
 resource "random_string" "snapshot_identifier_suffix" {
   length  = 10
   special = false
+
+  keepers = {
+    "version" = "1.0.0"
+  }
 }
 
 #-------------------------------------------------------------------------------
