@@ -129,7 +129,7 @@ resource "random_string" "snapshot_identifier_suffix" {
   special = false
 
   keepers = {
-    "version" = "1.0.0"
+    "version" = "1.0.1"
   }
 }
 
@@ -430,6 +430,86 @@ resource "random_password" "bedrock_user" {
 }
 
 #-------------------------------------------------------------------------------
-# TODO consider flyway migrations
+# Run initial SQL scripts to configure vector store
+# https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/AuroraPostgreSQL.VectorDB.html
+# Original inspiration for this null_resource from:
+# https://advancedweb.hu/how-to-run-sql-scripts-against-the-rds-data-api-with-terraform/
+# This script should only perform the minimum required to get started
+# Subsequent SQL commands should use SQL migrations (e.g. Flyway)
 #-------------------------------------------------------------------------------
-# TODO
+
+# Create the bedrock_user role in Postgres
+resource "null_resource" "db_setup_user" {
+  triggers = {
+    version = "1.0.3" # arbitrary flag to trigger re-runs
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+function exec_sql() {
+    aws rds-data execute-statement --resource-arn "$DB_ARN" --database  "$DB_NAME" --secret-arn "$SECRET_ARN" --sql "$1"
+}
+
+SQL="create role bedrock_user with password '$BEDROCK_USER_PW' login;"
+echo "SQL=$SQL"
+echo aws rds-data execute-statement --resource-arn "$DB_ARN" --database "$DB_NAME" --secret-arn "$SECRET_ARN" --sql "$SQL"
+aws rds-data execute-statement --resource-arn "$DB_ARN" --database  "$DB_NAME" --secret-arn "$SECRET_ARN" --sql "$SQL"
+			EOF
+
+    environment = {
+      DB_ARN          = aws_rds_cluster.this.arn
+      DB_NAME         = "postgres"
+      SECRET_ARN      = aws_rds_cluster.this.master_user_secret[0].secret_arn
+      BEDROCK_USER_PW = random_password.bedrock_user.result
+    }
+
+    interpreter = ["bash", "-c"]
+  }
+
+  depends_on = [aws_rds_cluster_instance.this]
+}
+
+# Create the minimal schema required for Bedrock to use a vector store
+# This is separate from db_setup_user to allow logging of nonsensitive details
+resource "null_resource" "db_setup_schema" {
+  triggers = {
+    version = "1.0.3" # arbitrary flag to trigger re-runs
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+function exec_sql() {
+    aws rds-data execute-statement --resource-arn "$DB_ARN" --database  "$DB_NAME" --secret-arn "$SECRET_ARN" --sql "$1"
+}
+
+exec_sql "create extension if not exists vector;"
+exec_sql "select extversion from pg_extension where extname='vector';"
+
+exec_sql "create schema if not exists bedrock_integration;"
+
+exec_sql "create role bedrock_integration_reader;"
+exec_sql "create role bedrock_integration_writer;"
+exec_sql "grant bedrock_integration_reader to bedrock_integration_writer;"
+
+exec_sql "grant usage on schema bedrock_integration to bedrock_integration_reader;"
+exec_sql "alter default privileges in schema bedrock_integration grant select on tables to bedrock_integration_reader;"
+exec_sql "alter default privileges grant usage, select on sequences to bedrock_integration_reader;"
+exec_sql "alter default privileges in schema bedrock_integration grant insert, update, delete on tables to bedrock_integration_writer;"
+
+exec_sql "grant bedrock_integration_writer to bedrock_user;"
+exec_sql "grant all on schema bedrock_integration to bedrock_user;"
+
+exec_sql "create table bedrock_integration.bedrock_kb (id uuid primary key, embedding vector(1024), chunks text, metadata json);"
+exec_sql "create index on bedrock_integration.bedrock_kb using hnsw (embedding vector_cosine_ops);"
+exec_sql "create index on bedrock_integration.bedrock_kb using hnsw (embedding vector_cosine_ops) with (ef_construction=256);"
+			EOF
+
+    environment = {
+      DB_ARN     = aws_rds_cluster.this.arn
+      DB_NAME    = "postgres"
+      SECRET_ARN = aws_rds_cluster.this.master_user_secret[0].secret_arn
+    }
+
+    interpreter = ["bash", "-c"]
+  }
+
+  depends_on = [null_resource.db_setup_user]
+}

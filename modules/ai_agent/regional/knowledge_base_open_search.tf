@@ -175,10 +175,10 @@
 # # TODO consider converting this to Aurora PostgreSQL
 # #-------------------------------------------------------------------------------
 
-provider "opensearch" {
-  url         = "https://bvr5be27g2xrwvkalvse.us-east-1.aoss.amazonaws.com" # aws_opensearchserverless_collection.knowledge_base.collection_endpoint
-  healthcheck = false
-}
+# provider "opensearch" {
+#   url         = aws_opensearchserverless_collection.knowledge_base.collection_endpoint
+#   healthcheck = false
+# }
 
 # resource "opensearch_index" "knowledge_base" {
 #   name                           = local.vector_index_name

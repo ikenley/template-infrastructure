@@ -18,4 +18,8 @@ module "regional_primary" {
 
   rds_cluster_arn         = aws_rds_cluster.this.arn
   bedrock_user_secret_arn = aws_secretsmanager_secret.bedrock_user.arn
+
+  depends_on = [
+    null_resource.db_setup_schema
+  ]
 }

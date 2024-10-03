@@ -59,4 +59,23 @@ resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
   knowledge_base_state = "ENABLED"
 }
 
+#-------------------------------------------------------------------------------
+# Perform initial sync of data store to vector store
+#-------------------------------------------------------------------------------
+resource "null_resource" "sync_kb" {
+  triggers = {
+    version = "1.0.3" # arbitrary flag to trigger re-runs
+  }
+  provisioner "local-exec" {
+    command = <<-EOF
+aws bedrock-agent start-ingestion-job --data-source-id $DATA_SOURCE_ID --knowledge-base-id $KNOWLEDGE_BASE_ID
+			EOF
 
+    environment = {
+      DATA_SOURCE_ID    = aws_bedrockagent_data_source.knowledge_base.data_source_id
+      KNOWLEDGE_BASE_ID = aws_bedrockagent_knowledge_base.knowledge_base.id
+    }
+
+    interpreter = ["bash", "-c"]
+  }
+}

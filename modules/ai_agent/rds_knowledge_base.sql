@@ -6,7 +6,6 @@
 create extension if not exists vector;
 select extversion from pg_extension where extname='vector';
 
-create schema ;
 -- YOU MUST CHANGE THE PASSWORD VALUE
 create role bedrock_user with password 'password' login;
 
@@ -20,12 +19,12 @@ create role bedrock_integration_writer;
 
 grant bedrock_integration_reader to bedrock_integration_writer;
 
-grant usage on schema iam to bedrock_integration_reader;
+grant usage on schema bedrock_integration to bedrock_integration_reader;
 
-alter default privileges in schema iam grant select on tables to bedrock_integration_reader;
+alter default privileges in schema bedrock_integration grant select on tables to bedrock_integration_reader;
 alter default privileges grant usage, select on sequences to bedrock_integration_reader;
 
-alter default privileges in schema iam grant insert, update, delete on tables to bedrock_integration_writer;
+alter default privileges in schema bedrock_integration grant insert, update, delete on tables to bedrock_integration_writer;
 
 
 -- grant permissions to bedrock_user
