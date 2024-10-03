@@ -18,21 +18,34 @@ locals {
 
 # Network
 locals {
-  private_subnets = split(",", data.aws_ssm_parameter.private_subnets.value)
+  private_subnets  = split(",", nonsensitive(data.aws_ssm_parameter.private_subnets.value))
+  database_subnets = split(",", nonsensitive(data.aws_ssm_parameter.database_subnets.value))
+  azs              = split(",", nonsensitive(data.aws_ssm_parameter.azs.value))
 }
 
 data "aws_ssm_parameter" "vpc_id" {
-  name  = "${local.core_output_prefix}/vpc_id"
+  name = "${local.core_output_prefix}/vpc_id"
+}
+
+data "aws_ssm_parameter" "vpc_cidr" {
+  name = "${local.core_output_prefix}/vpc_cidr"
 }
 
 data "aws_ssm_parameter" "private_subnets" {
-  name  = "${local.core_output_prefix}/private_subnets"
+  name = "${local.core_output_prefix}/private_subnets"
 }
+data "aws_ssm_parameter" "database_subnets" {
+  name = "${local.core_output_prefix}/database_subnets"
+}
+data "aws_ssm_parameter" "azs" {
+  name = "${local.core_output_prefix}/azs"
+}
+
 
 # Data environment
 data "aws_ssm_parameter" "data_lake_s3_bucket_arn" {
-  name  = "${local.core_output_prefix}/data_lake_s3_bucket_arn"
+  name = "${local.core_output_prefix}/data_lake_s3_bucket_arn"
 }
 data "aws_ssm_parameter" "data_lake_s3_bucket_name" {
-  name  = "${local.core_output_prefix}/data_lake_s3_bucket_name"
+  name = "${local.core_output_prefix}/data_lake_s3_bucket_name"
 }

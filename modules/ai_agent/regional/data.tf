@@ -3,10 +3,10 @@ locals {
 }
 
 # Network
-data "aws_subnet" "private_subnets" {
-  for_each = local.private_subnets
-  id       = each.value
-}
+# data "aws_subnet" "private_subnets" {
+#   for_each = local.private_subnets
+#   id       = each.value
+# }
 
 locals {
   private_subnets = toset(split(",", nonsensitive(data.aws_ssm_parameter.private_subnets.value)))

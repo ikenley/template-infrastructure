@@ -175,10 +175,10 @@
 # # TODO consider converting this to Aurora PostgreSQL
 # #-------------------------------------------------------------------------------
 
-provider "opensearch" {
-  url         = "https://bvr5be27g2xrwvkalvse.us-east-1.aoss.amazonaws.com" # aws_opensearchserverless_collection.knowledge_base.collection_endpoint
-  healthcheck = false
-}
+# provider "opensearch" {
+#   url         = aws_opensearchserverless_collection.knowledge_base.collection_endpoint
+#   healthcheck = false
+# }
 
 # resource "opensearch_index" "knowledge_base" {
 #   name                           = local.vector_index_name
@@ -225,4 +225,21 @@ provider "opensearch" {
 # resource "time_sleep" "aws_iam_role_policy_knowledge_base" {
 #   create_duration = "20s"
 #   depends_on      = [aws_iam_role_policy.knowledge_base]
+# }
+
+# resource "aws_iam_role_policy" "knowledge_base_open_search" {
+#   count = var.create_globals ? 1 : 0
+
+#   name = "${local.id}-kb-open-search"
+#   role = local.knowledge_base_role_name
+#   policy = jsonencode({
+#     Version = "2012-10-17"
+#     Statement = [
+#       {
+#         Action   = "aoss:APIAccessAll"
+#         Effect   = "Allow"
+#         Resource = aws_opensearchserverless_collection.knowledge_base.arn
+#       }
+#     ]
+#   })
 # }
