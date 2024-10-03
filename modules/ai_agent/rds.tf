@@ -45,9 +45,6 @@ resource "aws_rds_cluster" "this" {
   db_subnet_group_name   = aws_db_subnet_group.this.name
   vpc_security_group_ids = [aws_security_group.rds_kb.id]
 
-  #allocated_storage           = var.allocated_storage
-  #allow_major_version_upgrade = false
-  #apply_immediately                   = var.apply_immediately
   backup_retention_period   = 5
   deletion_protection       = false # TODO change this for final version
   copy_tags_to_snapshot     = true
@@ -55,71 +52,23 @@ resource "aws_rds_cluster" "this" {
 
   #kms_key_id = var.kms_key_id # TODO change this foro final version
 
-  #backtrack_window                    = local.backtrack_window
-  #ca_certificate_identifier           = var.cluster_ca_cert_identifier
-  #cluster_identifier_prefix           = var.cluster_use_name_prefix ? "${var.name}-" : null
-  #cluster_members                     = var.cluster_members
-  #database_name                       = var.is_primary_cluster ? var.database_name : null
-  #db_instance_parameter_group_name = var.allow_major_version_upgrade ? var.db_cluster_db_instance_parameter_group_name : null
-  #delete_automated_backups            = var.delete_automated_backups
-
-  #enable_global_write_forwarding      = var.enable_global_write_forwarding
-  #enable_local_write_forwarding       = var.enable_local_write_forwarding
   enabled_cloudwatch_logs_exports = ["postgresql"]
 
-
-  #engine_mode                         = var.engine_mode
-  #engine_lifecycle_support            = var.engine_lifecycle_support
-
-  #global_cluster_identifier           = var.global_cluster_identifier
-  #domain                              = var.domain
-  #domain_iam_role_name                = var.domain_iam_role_name
   iam_database_authentication_enabled = true
   storage_encrypted                   = true
 
-  # iam_roles has been removed from this resource and instead will be used with aws_rds_cluster_role_association below to avoid conflicts per docs
-  #iops                                  = var.iops
-
   manage_master_user_password = true
   #master_user_secret_kms_key_id         = null # TODO change this for final version
-  #master_password                       = var.is_primary_cluster && !var.manage_master_user_password ? var.master_password : null
   master_username = "rds_admin"
-
-  #network_type                          = var.network_type
 
   performance_insights_enabled = true
   # performance_insights_kms_key_id       = var.cluster_performance_insights_kms_key_id # TODO change this for final version
   performance_insights_retention_period = 31
 
-  #port                          = local.port
   preferred_backup_window      = "04:00-06:00"
   preferred_maintenance_window = "sat:01:00-sat:03:30"
 
-  #replication_source_identifier = var.replication_source_identifier
-
-  #skip_final_snapshot    = var.skip_final_snapshot
-  #snapshot_identifier    = var.snapshot_identifier
-  #source_region          = var.source_region
-
-  #storage_type           = var.storage_type
   tags = local.tags
-
-  # timeouts {
-  #   create = try(var.cluster_timeouts.create, null)
-  #   update = try(var.cluster_timeouts.update, null)
-  #   delete = try(var.cluster_timeouts.delete, null)
-  # }
-
-  # lifecycle {
-  #   ignore_changes = [
-  #     # See https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster#replication_source_identifier
-  #     # Since this is used either in read-replica clusters or global clusters, this should be acceptable to specify
-  #     replication_source_identifier,
-  #     # See docs here https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_global_cluster#new-global-cluster-from-existing-db-cluster
-  #     global_cluster_identifier,
-  #     snapshot_identifier,
-  #   ]
-  # }
 
   depends_on = [aws_cloudwatch_log_group.this]
 }
@@ -165,15 +114,9 @@ resource "aws_rds_cluster_instance" "this" {
 
   # preferred_backup_window - is set at the cluster level and will error if provided here
   preferred_maintenance_window = "sun:01:00-sun:03:30"
-  #promotion_tier               = try(each.value.promotion_tier, null)
 
   tags = local.tags
 
-  # timeouts {
-  #   create = try(var.instance_timeouts.create, null)
-  #   update = try(var.instance_timeouts.update, null)
-  #   delete = try(var.instance_timeouts.delete, null)
-  # }
 }
 
 #-------------------------------------------------------------------------------
@@ -213,10 +156,6 @@ resource "aws_iam_role" "rds_enhanced_monitoring" {
   path        = "/"
 
   assume_role_policy = data.aws_iam_policy_document.monitoring_rds_assume_role.json
-  # managed_policy_arns   = var.iam_role_managed_policy_arns
-  # permissions_boundary  = var.iam_role_permissions_boundary
-  # force_detach_policies = var.iam_role_force_detach_policies
-  # max_session_duration  = var.iam_role_max_session_duration
 
   tags = var.tags
 }
@@ -352,21 +291,6 @@ resource "aws_cloudwatch_log_group" "this" {
 
   tags = local.tags
 }
-
-#-------------------------------------------------------------------------------
-# Cluster Activity Stream
-#-------------------------------------------------------------------------------
-
-# resource "aws_rds_cluster_activity_stream" "this" {
-#   count = local.create && var.create_db_cluster_activity_stream ? 1 : 0
-
-#   resource_arn                        = aws_rds_cluster.this[0].arn
-#   mode                                = var.db_cluster_activity_stream_mode
-#   kms_key_id                          = var.db_cluster_activity_stream_kms_key_id
-#   engine_native_audit_fields_included = var.engine_native_audit_fields_included
-
-#   depends_on = [aws_rds_cluster_instance.this]
-# }
 
 #-------------------------------------------------------------------------------
 # Managed Secret Rotation
