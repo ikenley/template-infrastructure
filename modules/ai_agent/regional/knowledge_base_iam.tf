@@ -121,20 +121,3 @@ resource "aws_iam_role_policy" "knowledge_base" {
   policy = data.aws_iam_policy_document.knowledge_base_policy.json
   role   = local.knowledge_base_role_name
 }
-
-# resource "aws_iam_role_policy" "knowledge_base_open_search" {
-#   count = var.create_globals ? 1 : 0
-
-#   name = "${local.id}-kb-open-search"
-#   role = local.knowledge_base_role_name
-#   policy = jsonencode({
-#     Version = "2012-10-17"
-#     Statement = [
-#       {
-#         Action   = "aoss:APIAccessAll"
-#         Effect   = "Allow"
-#         Resource = aws_opensearchserverless_collection.knowledge_base.arn
-#       }
-#     ]
-#   })
-# }
