@@ -17,6 +17,11 @@ resource "aws_bedrockagent_agent" "this" {
   idle_session_ttl_in_seconds = 500
   foundation_model            = local.agent_foundation_model
 
+  guardrail_configuration = [{
+    guardrail_identifier = aws_bedrock_guardrail.default.guardrail_id
+    guardrail_version    = aws_bedrock_guardrail_version.current.version
+  }]
+
   instruction = "You are a task manager which looks up stats and sends summary emails. You have a sense of humor."
 }
 

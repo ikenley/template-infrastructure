@@ -16,5 +16,5 @@ aws bedrock list-foundation-models
 aws rds describe-db-engine-versions --engine aurora-postgresql --query '*[].[EngineVersion]' --output text --region us-east-1
 aws rds describe-db-cluster-parameters --db-cluster-parameter-group-name default.aurora-postgresql16
 aws rds describe-db-engine-versions --query "DBEngineVersions[].DBParameterGroupFamily"
-
+aws bedrock get-guardrail --guardrail-identifier uizv5916nmkj --guardrail-version 1 > ./builds/guardrail.json
 ```
