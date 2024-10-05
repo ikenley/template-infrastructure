@@ -16,5 +16,7 @@ module "static_s3_website" {
 
   path_prefix = ""
 
+  create_index_html_function = true
+
   tags = local.tags
 }

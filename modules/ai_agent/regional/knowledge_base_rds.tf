@@ -44,6 +44,8 @@ resource "aws_bedrockagent_data_source" "knowledge_base" {
   knowledge_base_id = aws_bedrockagent_knowledge_base.knowledge_base.id
   name              = "${local.id}-data-source"
 
+  data_deletion_policy = "RETAIN"
+
   data_source_configuration {
     type = "S3"
     s3_configuration {
@@ -64,7 +66,8 @@ resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
 #-------------------------------------------------------------------------------
 resource "null_resource" "sync_kb" {
   triggers = {
-    version = "1.0.3" # arbitrary flag to trigger re-runs
+    knowledge_base_id = aws_bedrockagent_knowledge_base.knowledge_base.id
+    version           = "1.0.3" # arbitrary flag to trigger re-runs
   }
   provisioner "local-exec" {
     command = <<-EOF

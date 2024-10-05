@@ -365,7 +365,7 @@ resource "random_password" "bedrock_user" {
 # Create the bedrock_user role in Postgres
 resource "null_resource" "db_setup_user" {
   triggers = {
-    version = "1.0.3" # arbitrary flag to trigger re-runs
+    version = "1.0.4" # arbitrary flag to trigger re-runs
   }
   provisioner "local-exec" {
     command = <<-EOF
@@ -396,7 +396,7 @@ aws rds-data execute-statement --resource-arn "$DB_ARN" --database  "$DB_NAME" -
 # This is separate from db_setup_user to allow logging of nonsensitive details
 resource "null_resource" "db_setup_schema" {
   triggers = {
-    version = "1.0.3" # arbitrary flag to trigger re-runs
+    version = "1.0.4" # arbitrary flag to trigger re-runs
   }
   provisioner "local-exec" {
     command = <<-EOF

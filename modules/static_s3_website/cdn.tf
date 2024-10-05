@@ -1,7 +1,8 @@
 
 
 locals {
-  s3_origin_id = "myS3Origin"
+  s3_origin_id         = "myS3Origin"
+  index_html_functions = var.create_index_html_function ? ["dummy_placeholder"] : []
 }
 
 resource "aws_cloudfront_distribution" "this" {
@@ -54,9 +55,12 @@ resource "aws_cloudfront_distribution" "this" {
     default_ttl            = 3600
     max_ttl                = 86400
 
-    function_association {
-      event_type   = "viewer-request"
-      function_arn = aws_cloudfront_function.index_html.arn
+    dynamic "function_association" {
+      for_each = local.index_html_functions
+      content {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.index_html[0].arn
+      }
     }
   }
 
@@ -91,9 +95,11 @@ resource "aws_cloudfront_origin_access_control" "default" {
 }
 
 resource "aws_cloudfront_function" "index_html" {
+  count = var.create_index_html_function ? 1 : 0
+
   name    = "${local.id}-index-html"
   runtime = "cloudfront-js-2.0"
-  comment = "Function whihc adds index.html to the request if needed"
+  comment = "Function which adds index.html to the request if needed"
   publish = true
   code    = <<EOF
 function handler(event) {

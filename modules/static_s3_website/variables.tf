@@ -29,8 +29,13 @@ variable "domain_name" {
 }
 
 variable "path_prefix" {
-  default = ""
+  default     = ""
   description = "Default path prefix for site e.g. my-prefix"
 }
 
 variable "logs_bucket_name" {}
+
+variable "create_index_html_function" {
+  type    = bool
+  default = false
+}
