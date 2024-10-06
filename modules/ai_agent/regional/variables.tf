@@ -32,6 +32,10 @@ variable "agent_resource_role_name" {
   default = ""
 }
 
+variable "create_rds_knowledge_base" {
+  type = bool
+}
+
 variable "knowledge_base_role_arn" {
   default = ""
 }

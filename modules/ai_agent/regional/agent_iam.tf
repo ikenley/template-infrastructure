@@ -5,6 +5,8 @@
 locals {
   agent_resource_role_arn  = var.create_globals ? aws_iam_role.bedrock_agent[0].arn : var.agent_resource_role_arn
   agent_resource_role_name = var.create_globals ? aws_iam_role.bedrock_agent[0].name : var.agent_resource_role_name
+
+  rds_placeholders = var.create_rds_knowledge_base ? ["dummy_placeholder"] : []
 }
 
 data "aws_iam_policy_document" "bedrock_agent_trust" {
@@ -37,13 +39,16 @@ data "aws_iam_policy_document" "bedrock_agent_policy" {
     ]
   }
 
-  statement {
-    sid     = "RetrieveKnowledgeBase"
-    effect  = "Allow"
-    actions = ["bedrock:Retrieve"]
-    resources = [
-      aws_bedrockagent_knowledge_base.knowledge_base.arn
-    ]
+  dynamic "statement" {
+    for_each = local.rds_placeholders
+    content {
+      sid     = "RetrieveKnowledgeBase"
+      effect  = "Allow"
+      actions = ["bedrock:Retrieve"]
+      resources = [
+        aws_bedrockagent_knowledge_base.knowledge_base[0].arn
+      ]
+    }
   }
 }
 

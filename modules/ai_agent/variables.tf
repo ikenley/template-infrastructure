@@ -26,4 +26,8 @@ variable "base_domain" {
   description = "e.g. example.com"
 }
 
+variable "create_rds_knowledge_base" {
+  type = bool
+}
+
 variable "primary_rds_availability_zones" {}

@@ -45,6 +45,8 @@ module "main" {
 
   base_domain = "ikenley.com"
 
+  create_rds_knowledge_base = false
+
   primary_rds_availability_zones = [
     "us-east-1a"
     , "us-east-1b"

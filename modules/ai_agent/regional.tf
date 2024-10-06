@@ -16,7 +16,9 @@ module "regional_primary" {
 
   create_globals = true
 
-  rds_cluster_arn         = aws_rds_cluster.this.arn
+  create_rds_knowledge_base = var.create_rds_knowledge_base
+
+  rds_cluster_arn         = var.create_rds_knowledge_base ? aws_rds_cluster.this[0].arn : ""
   bedrock_user_secret_arn = aws_secretsmanager_secret.bedrock_user.arn
 
   depends_on = [
