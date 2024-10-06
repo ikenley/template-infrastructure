@@ -33,6 +33,8 @@ resource "aws_db_subnet_group" "this" {
 resource "aws_rds_cluster" "this" {
   provider = aws.primary
 
+  count = var.create_rds_knowledge_base ? 1 : 0
+
   cluster_identifier = local.rds_id
 
   #db_cluster_instance_class       = "db.t3.small" # TODO determine correct sizing
@@ -89,7 +91,9 @@ resource "random_string" "snapshot_identifier_suffix" {
 resource "aws_rds_cluster_instance" "this" {
   provider = aws.primary
 
-  cluster_identifier = aws_rds_cluster.this.id
+  count = var.create_rds_knowledge_base ? 1 : 0
+
+  cluster_identifier = aws_rds_cluster.this[0].id
   identifier         = "${local.rds_id}-primary"
 
   engine                  = "aurora-postgresql"
@@ -126,7 +130,7 @@ resource "aws_rds_cluster_instance" "this" {
 # resource "aws_rds_cluster_role_association" "this" {
 #   for_each = { for k, v in var.iam_roles : k => v if local.create }
 
-#   db_cluster_identifier = aws_rds_cluster.this[0].id
+#   db_cluster_identifier = aws_rds_cluster.this[0][0].id
 #   feature_name          = each.value.feature_name
 #   role_arn              = each.value.role_arn
 # }
@@ -178,23 +182,27 @@ data "aws_route53_zone" "base_domain" {
 resource "aws_route53_record" "rds_kb_writer" {
   provider = aws.primary
 
+  count = var.create_rds_knowledge_base ? 1 : 0
+
   zone_id = data.aws_route53_zone.base_domain.zone_id
   name    = "${local.rds_id}-writer.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
 
-  records = [aws_rds_cluster.this.endpoint]
+  records = [aws_rds_cluster.this[0].endpoint]
 }
 
 resource "aws_route53_record" "rds_kb_reader" {
   provider = aws.primary
+
+  count = var.create_rds_knowledge_base ? 1 : 0
 
   zone_id = data.aws_route53_zone.base_domain.zone_id
   name    = "${local.rds_id}-reader.${var.base_domain}"
   type    = "CNAME"
   ttl     = "300"
 
-  records = [aws_rds_cluster.this.reader_endpoint]
+  records = [aws_rds_cluster.this[0].reader_endpoint]
 }
 
 #-------------------------------------------------------------------------------
@@ -299,7 +307,9 @@ resource "aws_cloudwatch_log_group" "this" {
 resource "aws_secretsmanager_secret_rotation" "this" {
   provider = aws.primary
 
-  secret_id = aws_rds_cluster.this.master_user_secret[0].secret_arn
+  count = var.create_rds_knowledge_base ? 1 : 0
+
+  secret_id = aws_rds_cluster.this[0].master_user_secret[0].secret_arn
 
   rotation_rules {
     automatically_after_days = 30
@@ -336,14 +346,14 @@ resource "aws_secretsmanager_secret_version" "bedrock_user" {
 
   secret_string = jsonencode({
     "engine" : "postgres",
-    "host" : aws_route53_record.rds_kb_writer.name,
+    "host" : var.create_rds_knowledge_base ? aws_route53_record.rds_kb_writer[0].name : "null",
     "username" : "bedrock_user",
     "password" : random_password.bedrock_user.result,
     "dbname" : "postgres",
     "port" : 5432,
-    "masterarn" : aws_rds_cluster.this.master_user_secret[0].secret_arn,
-    "dbClusterIdentifier" : aws_rds_cluster_instance.this.identifier,
-    "dbInstanceIdentifier" : aws_rds_cluster.this.id
+    "masterarn" : var.create_rds_knowledge_base ? aws_rds_cluster.this[0].master_user_secret[0].secret_arn : "null",
+    "dbClusterIdentifier" : var.create_rds_knowledge_base ? aws_rds_cluster_instance.this[0].identifier : "null",
+    "dbInstanceIdentifier" : var.create_rds_knowledge_base ? aws_rds_cluster.this[0].id : "null"
   })
 }
 
@@ -364,6 +374,8 @@ resource "random_password" "bedrock_user" {
 
 # Create the bedrock_user role in Postgres
 resource "null_resource" "db_setup_user" {
+  count = var.create_rds_knowledge_base ? 1 : 0
+
   triggers = {
     version = "1.0.4" # arbitrary flag to trigger re-runs
   }
@@ -380,9 +392,9 @@ aws rds-data execute-statement --resource-arn "$DB_ARN" --database  "$DB_NAME" -
 			EOF
 
     environment = {
-      DB_ARN          = aws_rds_cluster.this.arn
+      DB_ARN          = aws_rds_cluster.this[0].arn
       DB_NAME         = "postgres"
-      SECRET_ARN      = aws_rds_cluster.this.master_user_secret[0].secret_arn
+      SECRET_ARN      = aws_rds_cluster.this[0].master_user_secret[0].secret_arn
       BEDROCK_USER_PW = random_password.bedrock_user.result
     }
 
@@ -395,6 +407,8 @@ aws rds-data execute-statement --resource-arn "$DB_ARN" --database  "$DB_NAME" -
 # Create the minimal schema required for Bedrock to use a vector store
 # This is separate from db_setup_user to allow logging of nonsensitive details
 resource "null_resource" "db_setup_schema" {
+  count = var.create_rds_knowledge_base ? 1 : 0
+
   triggers = {
     version = "1.0.4" # arbitrary flag to trigger re-runs
   }
@@ -427,9 +441,9 @@ exec_sql "create index on bedrock_integration.bedrock_kb using hnsw (embedding v
 			EOF
 
     environment = {
-      DB_ARN     = aws_rds_cluster.this.arn
+      DB_ARN     = aws_rds_cluster.this[0].arn
       DB_NAME    = "postgres"
-      SECRET_ARN = aws_rds_cluster.this.master_user_secret[0].secret_arn
+      SECRET_ARN = aws_rds_cluster.this[0].master_user_secret[0].secret_arn
     }
 
     interpreter = ["bash", "-c"]

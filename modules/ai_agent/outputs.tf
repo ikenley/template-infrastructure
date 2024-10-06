@@ -4,44 +4,50 @@
 
 resource "aws_ssm_parameter" "rds_cluster_arn" {
   provider = aws.primary
+  count    = var.create_rds_knowledge_base ? 1 : 0
   name     = "${local.output_prefix}/rds_cluster_arn"
   type     = "String"
-  value    = aws_rds_cluster.this.arn
+  value    = aws_rds_cluster.this[0].arn
 }
 
 resource "aws_ssm_parameter" "rds_cluster_id" {
   provider = aws.primary
+  count    = var.create_rds_knowledge_base ? 1 : 0
   name     = "${local.output_prefix}/rds_cluster_id"
   type     = "String"
-  value    = aws_rds_cluster.this.id
+  value    = aws_rds_cluster.this[0].id
 }
 
 resource "aws_ssm_parameter" "rds_cluster_primary_instance_arn" {
   provider = aws.primary
+  count    = var.create_rds_knowledge_base ? 1 : 0
   name     = "${local.output_prefix}/rds_cluster_primary_instance_arn"
   type     = "String"
-  value    = aws_rds_cluster_instance.this.arn
+  value    = aws_rds_cluster_instance.this[0].arn
 }
 
 resource "aws_ssm_parameter" "rds_cluster_primary_instance_id" {
   provider = aws.primary
+  count    = var.create_rds_knowledge_base ? 1 : 0
   name     = "${local.output_prefix}/rds_cluster_primary_instance_id"
   type     = "String"
-  value    = aws_rds_cluster_instance.this.id
+  value    = aws_rds_cluster_instance.this[0].id
 }
 
 resource "aws_ssm_parameter" "rds_cluster_writer_domain" {
   provider = aws.primary
+  count    = var.create_rds_knowledge_base ? 1 : 0
   name     = "${local.output_prefix}/rds_cluster_writer_domain"
   type     = "String"
-  value    = aws_route53_record.rds_kb_writer.name
+  value    = aws_route53_record.rds_kb_writer[0].name
 }
 
 resource "aws_ssm_parameter" "rds_cluster_reader_domain" {
   provider = aws.primary
+  count    = var.create_rds_knowledge_base ? 1 : 0
   name     = "${local.output_prefix}/rds_cluster_reader_domain"
   type     = "String"
-  value    = aws_route53_record.rds_kb_reader.name
+  value    = aws_route53_record.rds_kb_reader[0].name
 }
 
 resource "aws_ssm_parameter" "rds_cluster_security_group_arn" {

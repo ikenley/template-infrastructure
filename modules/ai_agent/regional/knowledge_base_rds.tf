@@ -12,6 +12,8 @@ data "aws_bedrock_foundation_model" "kb" {
 }
 
 resource "aws_bedrockagent_knowledge_base" "knowledge_base" {
+  count = var.create_rds_knowledge_base ? 1 : 0
+
   name     = local.id
   role_arn = local.knowledge_base_role_arn
   knowledge_base_configuration {
@@ -41,7 +43,9 @@ resource "aws_bedrockagent_knowledge_base" "knowledge_base" {
 }
 
 resource "aws_bedrockagent_data_source" "knowledge_base" {
-  knowledge_base_id = aws_bedrockagent_knowledge_base.knowledge_base.id
+  count = var.create_rds_knowledge_base ? 1 : 0
+
+  knowledge_base_id = aws_bedrockagent_knowledge_base.knowledge_base[0].id
   name              = "${local.id}-data-source"
 
   data_deletion_policy = "RETAIN"
@@ -55,9 +59,11 @@ resource "aws_bedrockagent_data_source" "knowledge_base" {
 }
 
 resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
+  count = var.create_rds_knowledge_base ? 1 : 0
+
   agent_id             = aws_bedrockagent_agent.this.id
   description          = file("${path.module}/prompt_templates/kb_instruction.txt")
-  knowledge_base_id    = aws_bedrockagent_knowledge_base.knowledge_base.id
+  knowledge_base_id    = aws_bedrockagent_knowledge_base.knowledge_base[0].id
   knowledge_base_state = "ENABLED"
 }
 
@@ -65,8 +71,10 @@ resource "aws_bedrockagent_agent_knowledge_base_association" "this" {
 # Perform initial sync of data store to vector store
 #-------------------------------------------------------------------------------
 resource "null_resource" "sync_kb" {
+  count = var.create_rds_knowledge_base ? 1 : 0
+
   triggers = {
-    knowledge_base_id = aws_bedrockagent_knowledge_base.knowledge_base.id
+    knowledge_base_id = aws_bedrockagent_knowledge_base.knowledge_base[0].id
     version           = "1.0.3" # arbitrary flag to trigger re-runs
   }
   provisioner "local-exec" {
@@ -75,8 +83,8 @@ aws bedrock-agent start-ingestion-job --data-source-id $DATA_SOURCE_ID --knowled
 			EOF
 
     environment = {
-      DATA_SOURCE_ID    = aws_bedrockagent_data_source.knowledge_base.data_source_id
-      KNOWLEDGE_BASE_ID = aws_bedrockagent_knowledge_base.knowledge_base.id
+      DATA_SOURCE_ID    = aws_bedrockagent_data_source.knowledge_base[0].data_source_id
+      KNOWLEDGE_BASE_ID = aws_bedrockagent_knowledge_base.knowledge_base[0].id
     }
 
     interpreter = ["bash", "-c"]

@@ -4,8 +4,8 @@
 #-------------------------------------------------------------------------------
 
 locals {
-  knowledge_base_role_arn  = var.create_globals ? aws_iam_role.knowledge_base[0].arn : var.knowledge_base_role_arn
-  knowledge_base_role_name = var.create_globals ? aws_iam_role.knowledge_base[0].name : var.knowledge_base_role_name
+  knowledge_base_role_arn  = var.create_globals && var.create_rds_knowledge_base ? aws_iam_role.knowledge_base[0].arn : var.knowledge_base_role_arn
+  knowledge_base_role_name = var.create_globals && var.create_rds_knowledge_base ? aws_iam_role.knowledge_base[0].name : var.knowledge_base_role_name
 }
 
 data "aws_iam_policy_document" "knowledge_base_trust" {
@@ -108,14 +108,14 @@ data "aws_iam_policy_document" "knowledge_base_policy" {
 }
 
 resource "aws_iam_role" "knowledge_base" {
-  count = var.create_globals ? 1 : 0
+  count = var.create_globals && var.create_rds_knowledge_base ? 1 : 0
 
   assume_role_policy = data.aws_iam_policy_document.knowledge_base_trust.json
   name               = "${local.id}-knowledge-base"
 }
 
 resource "aws_iam_role_policy" "knowledge_base" {
-  count = var.create_globals ? 1 : 0
+  count = var.create_globals && var.create_rds_knowledge_base ? 1 : 0
 
   name   = "${local.id}-knowledge-base"
   policy = data.aws_iam_policy_document.knowledge_base_policy.json
