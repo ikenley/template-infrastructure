@@ -2,8 +2,8 @@
 # todo.tf
 #------------------------------------------------------------------------------
 
-resource "aws_ssm_parameter" "todo" {
-  name     = "${local.output_prefix}/todo"
-  type     = "String"
-  value    = "Open the pod bay doors, HAL"
+resource "aws_ssm_parameter" "vpc_id" {
+  name  = "${local.output_prefix}/vpc_id"
+  type  = "String"
+  value = aws_vpc.this.id
 }
