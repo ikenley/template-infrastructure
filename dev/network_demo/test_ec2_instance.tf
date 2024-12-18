@@ -81,7 +81,7 @@ resource "aws_iam_instance_profile" "nat_instance_profile" {
 
 resource "aws_network_interface" "network_interface" {
   source_dest_check = false
-  subnet_id         = module.network_hub.private_subnets[0]
+  subnet_id         = module.network_hub.transit_gateway_subnets[0]
   security_groups   = [aws_security_group.nat_instance_sg.id]
 
   tags = {

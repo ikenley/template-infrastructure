@@ -6,9 +6,9 @@
 locals {
   vpc_id = aws_vpc.this.id
 
-  len_public_subnets   = length(var.public_subnets)
-  len_private_subnets  = length(var.private_subnets)
-  len_database_subnets = length(var.database_subnets)
+  len_public_subnets          = length(var.public_subnets)
+  len_firewall_subnets        = length(var.firewall_subnets)
+  len_transit_gateway_subnets = length(var.transit_gateway_subnets)
 }
 
 resource "aws_vpc" "this" {
@@ -97,20 +97,20 @@ resource "aws_route" "public_internet_gateway" {
 }
 
 ################################################################################
-# Private Subnets
+# fFrewall Subnets
 ################################################################################
 
 locals {
-  create_private_subnets = local.len_private_subnets > 0
+  create_firewall_subnets = local.len_firewall_subnets > 0
 }
 
-resource "aws_subnet" "private" {
-  count = local.create_private_subnets ? local.len_private_subnets : 0
+resource "aws_subnet" "firewall" {
+  count = local.create_firewall_subnets ? local.len_firewall_subnets : 0
 
   #   assign_ipv6_address_on_creation                = var.enable_ipv6 && var.private_subnet_ipv6_native ? true : var.private_subnet_assign_ipv6_address_on_creation
   availability_zone    = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) > 0 ? element(var.azs, count.index) : null
   availability_zone_id = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) == 0 ? element(var.azs, count.index) : null
-  cidr_block           = element(concat(var.private_subnets, [""]), count.index)
+  cidr_block           = element(concat(var.firewall_subnets, [""]), count.index)
   #   enable_dns64                                   = var.enable_ipv6 && var.private_subnet_enable_dns64
   #   enable_resource_name_dns_aaaa_record_on_launch = var.enable_ipv6 && var.private_subnet_enable_resource_name_dns_aaaa_record_on_launch
   #   enable_resource_name_dns_a_record_on_launch    = !var.private_subnet_ipv6_native && var.private_subnet_enable_resource_name_dns_a_record_on_launch
@@ -121,22 +121,22 @@ resource "aws_subnet" "private" {
 
   tags = merge(
     {
-      Name = format("${local.id}-${var.private_subnet_suffix}-%s", element(var.azs, count.index))
+      Name = format("${local.id}-${var.firewall_subnet_suffix}-%s", element(var.azs, count.index))
     },
     local.tags
   )
 }
 
 # There are as many routing tables as the number of NAT gateways
-resource "aws_route_table" "private" {
-  count = local.create_private_subnets ? local.nat_gateway_count : 0
+resource "aws_route_table" "firewall" {
+  count = local.create_firewall_subnets ? local.nat_gateway_count : 0
 
   vpc_id = local.vpc_id
 
   tags = merge(
     {
-      "Name" = var.single_nat_gateway ? "${local.id}-${var.private_subnet_suffix}" : format(
-        "${local.id}-${var.private_subnet_suffix}-%s",
+      "Name" = var.single_nat_gateway ? "${local.id}-${var.firewall_subnet_suffix}" : format(
+        "${local.id}-${var.firewall_subnet_suffix}-%s",
         element(var.azs, count.index),
       )
     },
@@ -144,55 +144,55 @@ resource "aws_route_table" "private" {
   )
 }
 
-resource "aws_route_table_association" "private" {
-  count = local.create_private_subnets ? local.len_private_subnets : 0
+resource "aws_route_table_association" "firewall" {
+  count = local.create_firewall_subnets ? local.len_firewall_subnets : 0
 
-  subnet_id = element(aws_subnet.private[*].id, count.index)
+  subnet_id = element(aws_subnet.firewall[*].id, count.index)
   route_table_id = element(
-    aws_route_table.private[*].id,
+    aws_route_table.firewall[*].id,
     var.single_nat_gateway ? 0 : count.index,
   )
 }
 
 ################################################################################
-# Database Subnets
+# transit_gateway Subnets
 ################################################################################
 
 locals {
-  create_database_subnets     = local.len_database_subnets > 0
-  create_database_route_table = local.create_database_subnets
+  create_transit_gateway_subnets     = local.len_transit_gateway_subnets > 0
+  create_transit_gateway_route_table = local.create_transit_gateway_subnets
 }
 
-resource "aws_subnet" "database" {
-  count = local.create_database_subnets ? local.len_database_subnets : 0
+resource "aws_subnet" "transit_gateway" {
+  count = local.create_transit_gateway_subnets ? local.len_transit_gateway_subnets : 0
 
-  #   assign_ipv6_address_on_creation                = var.enable_ipv6 && var.database_subnet_ipv6_native ? true : var.database_subnet_assign_ipv6_address_on_creation
+  #   assign_ipv6_address_on_creation                = var.enable_ipv6 && var.transit_gateway_subnet_ipv6_native ? true : var.transit_gateway_subnet_assign_ipv6_address_on_creation
   availability_zone    = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) > 0 ? element(var.azs, count.index) : null
   availability_zone_id = length(regexall("^[a-z]{2}-", element(var.azs, count.index))) == 0 ? element(var.azs, count.index) : null
-  cidr_block           = element(concat(var.database_subnets, [""]), count.index)
-  #   enable_dns64                                   = var.enable_ipv6 && var.database_subnet_enable_dns64
-  #   enable_resource_name_dns_aaaa_record_on_launch = var.enable_ipv6 && var.database_subnet_enable_resource_name_dns_aaaa_record_on_launch
-  #   enable_resource_name_dns_a_record_on_launch    = !var.database_subnet_ipv6_native && var.database_subnet_enable_resource_name_dns_a_record_on_launch
-  #   ipv6_cidr_block                                = var.enable_ipv6 && length(var.database_subnet_ipv6_prefixes) > 0 ? cidrsubnet(aws_vpc.this[0].ipv6_cidr_block, 8, var.database_subnet_ipv6_prefixes[count.index]) : null
-  #   ipv6_native                                    = var.enable_ipv6 && var.database_subnet_ipv6_native
-  #   private_dns_hostname_type_on_launch            = var.database_subnet_private_dns_hostname_type_on_launch
+  cidr_block           = element(concat(var.transit_gateway_subnets, [""]), count.index)
+  #   enable_dns64                                   = var.enable_ipv6 && var.transit_gateway_subnet_enable_dns64
+  #   enable_resource_name_dns_aaaa_record_on_launch = var.enable_ipv6 && var.transit_gateway_subnet_enable_resource_name_dns_aaaa_record_on_launch
+  #   enable_resource_name_dns_a_record_on_launch    = !var.transit_gateway_subnet_ipv6_native && var.transit_gateway_subnet_enable_resource_name_dns_a_record_on_launch
+  #   ipv6_cidr_block                                = var.enable_ipv6 && length(var.transit_gateway_subnet_ipv6_prefixes) > 0 ? cidrsubnet(aws_vpc.this[0].ipv6_cidr_block, 8, var.transit_gateway_subnet_ipv6_prefixes[count.index]) : null
+  #   ipv6_native                                    = var.enable_ipv6 && var.transit_gateway_subnet_ipv6_native
+  #   private_dns_hostname_type_on_launch            = var.transit_gateway_subnet_private_dns_hostname_type_on_launch
   vpc_id = local.vpc_id
 
   tags = merge(
     {
-      Name = format("${local.id}-${var.database_subnet_suffix}-%s", element(var.azs, count.index), )
+      Name = format("${local.id}-${var.transit_gateway_subnet_suffix}-%s", element(var.azs, count.index), )
 
     },
     local.tags,
   )
 }
 
-resource "aws_db_subnet_group" "database" {
-  count = local.create_database_subnets ? 1 : 0
+resource "aws_db_subnet_group" "transit_gateway" {
+  count = local.create_transit_gateway_subnets ? 1 : 0
 
   name        = local.id
-  description = "Database subnet group for ${local.id}"
-  subnet_ids  = aws_subnet.database[*].id
+  description = "Transit gateway subnet group for ${local.id}"
+  subnet_ids  = aws_subnet.transit_gateway[*].id
 
   tags = merge(
     {
@@ -202,15 +202,15 @@ resource "aws_db_subnet_group" "database" {
   )
 }
 
-resource "aws_route_table" "database" {
-  count = local.create_database_route_table ? var.single_nat_gateway ? 1 : local.len_database_subnets : 0
+resource "aws_route_table" "transit_gateway" {
+  count = local.create_transit_gateway_route_table ? var.single_nat_gateway ? 1 : local.len_transit_gateway_subnets : 0
 
   vpc_id = local.vpc_id
 
   tags = merge(
     {
-      "Name" = var.single_nat_gateway ? "${local.id}-${var.database_subnet_suffix}" : format(
-        "${local.id}-${var.database_subnet_suffix}-%s",
+      "Name" = var.single_nat_gateway ? "${local.id}-${var.transit_gateway_subnet_suffix}" : format(
+        "${local.id}-${var.transit_gateway_subnet_suffix}-%s",
         element(var.azs, count.index),
       )
     },
@@ -218,20 +218,20 @@ resource "aws_route_table" "database" {
   )
 }
 
-resource "aws_route_table_association" "database" {
-  count = local.create_database_subnets ? local.len_database_subnets : 0
+resource "aws_route_table_association" "transit_gateway" {
+  count = local.create_transit_gateway_subnets ? local.len_transit_gateway_subnets : 0
 
-  subnet_id = element(aws_subnet.database[*].id, count.index)
+  subnet_id = element(aws_subnet.transit_gateway[*].id, count.index)
   route_table_id = element(
-    coalescelist(aws_route_table.database[*].id, aws_route_table.private[*].id),
+    coalescelist(aws_route_table.transit_gateway[*].id, aws_route_table.firewall[*].id),
     count.index,
   )
 }
 
-# resource "aws_route" "database_internet_gateway" {
-#   count = local.create_database_route_table ? 1 : 0
+# resource "aws_route" "transit_gateway_internet_gateway" {
+#   count = local.create_transit_gateway_route_table ? 1 : 0
 
-#   route_table_id         = aws_route_table.database[0].id
+#   route_table_id         = aws_route_table.transit_gateway[0].id
 #   destination_cidr_block = "0.0.0.0/0"
 #   gateway_id             = aws_internet_gateway.this[0].id
 
@@ -240,10 +240,10 @@ resource "aws_route_table_association" "database" {
 #   }
 # }
 
-# resource "aws_route" "database_nat_gateway" {
-#   count = local.create_database_route_table && !var.create_database_internet_gateway_route && var.create_database_nat_gateway_route && var.enable_nat_gateway ? var.single_nat_gateway ? 1 : local.len_database_subnets : 0
+# resource "aws_route" "transit_gateway_nat_gateway" {
+#   count = local.create_transit_gateway_route_table && !var.create_transit_gateway_internet_gateway_route && var.create_transit_gateway_nat_gateway_route && var.enable_nat_gateway ? var.single_nat_gateway ? 1 : local.len_transit_gateway_subnets : 0
 
-#   route_table_id         = element(aws_route_table.database[*].id, count.index)
+#   route_table_id         = element(aws_route_table.transit_gateway[*].id, count.index)
 #   destination_cidr_block = "0.0.0.0/0"
 #   nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
 
@@ -252,10 +252,10 @@ resource "aws_route_table_association" "database" {
 #   }
 # }
 
-# resource "aws_route" "database_dns64_nat_gateway" {
-#   count = local.create_database_route_table && !var.create_database_internet_gateway_route && var.create_database_nat_gateway_route && var.enable_nat_gateway && var.enable_ipv6 && var.private_subnet_enable_dns64 ? var.single_nat_gateway ? 1 : local.len_database_subnets : 0
+# resource "aws_route" "transit_gateway_dns64_nat_gateway" {
+#   count = local.create_transit_gateway_route_table && !var.create_transit_gateway_internet_gateway_route && var.create_transit_gateway_nat_gateway_route && var.enable_nat_gateway && var.enable_ipv6 && var.private_subnet_enable_dns64 ? var.single_nat_gateway ? 1 : local.len_transit_gateway_subnets : 0
 
-#   route_table_id              = element(aws_route_table.database[*].id, count.index)
+#   route_table_id              = element(aws_route_table.transit_gateway[*].id, count.index)
 #   destination_ipv6_cidr_block = "64:ff9b::/96"
 #   nat_gateway_id              = element(aws_nat_gateway.this[*].id, count.index)
 
@@ -264,10 +264,10 @@ resource "aws_route_table_association" "database" {
 #   }
 # }
 
-# resource "aws_route" "database_ipv6_egress" {
-#   count = local.create_database_route_table && var.create_egress_only_igw && var.enable_ipv6 && var.create_database_internet_gateway_route ? 1 : 0
+# resource "aws_route" "transit_gateway_ipv6_egress" {
+#   count = local.create_transit_gateway_route_table && var.create_egress_only_igw && var.enable_ipv6 && var.create_transit_gateway_internet_gateway_route ? 1 : 0
 
-#   route_table_id              = aws_route_table.database[0].id
+#   route_table_id              = aws_route_table.transit_gateway[0].id
 #   destination_ipv6_cidr_block = "::/0"
 #   egress_only_gateway_id      = aws_egress_only_internet_gateway.this[0].id
 
@@ -343,10 +343,10 @@ resource "aws_nat_gateway" "this" {
   depends_on = [aws_internet_gateway.this]
 }
 
-resource "aws_route" "private_nat_gateway" {
+resource "aws_route" "firewall_nat_gateway" {
   count = var.enable_nat_gateway ? local.nat_gateway_count : 0
 
-  route_table_id         = element(aws_route_table.private[*].id, count.index)
+  route_table_id         = element(aws_route_table.firewall[*].id, count.index)
   destination_cidr_block = var.nat_gateway_destination_cidr_block
   nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
 

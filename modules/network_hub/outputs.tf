@@ -31,22 +31,22 @@ output "public_subnets" {
   value       = aws_subnet.public[*].id
 }
 
-resource "aws_ssm_parameter" "private_subnets" {
-  name  = "${local.output_prefix}/private_subnets"
+resource "aws_ssm_parameter" "firewall_subnets" {
+  name  = "${local.output_prefix}/firewall_subnets"
   type  = "String"
-  value = join(",", aws_subnet.private[*].id)
+  value = join(",", aws_subnet.firewall[*].id)
 }
-output "private_subnets" {
-  description = "List of IDs of private subnets"
-  value       = aws_subnet.private[*].id
+output "firewall_subnets" {
+  description = "List of IDs of firewall subnets"
+  value       = aws_subnet.firewall[*].id
 }
 
-resource "aws_ssm_parameter" "database_subnets" {
-  name  = "${local.output_prefix}/database_subnets"
+resource "aws_ssm_parameter" "transit_gateway_subnets" {
+  name  = "${local.output_prefix}/transit_gateway_subnets"
   type  = "String"
-  value = join(",", aws_subnet.database[*].id)
+  value = join(",", aws_subnet.transit_gateway[*].id)
 }
-output "database_subnets" {
-  description = "List of IDs of database subnets"
-  value       = aws_subnet.database[*].id
+output "transit_gateway_subnets" {
+  description = "List of IDs of transit_gateway subnets"
+  value       = aws_subnet.transit_gateway[*].id
 }

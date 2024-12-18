@@ -32,14 +32,14 @@ variable "public_subnet_suffix" {
   default = "public"
 }
 
-variable "private_subnets" {}
-variable "private_subnet_suffix" {
-  default = "private"
+variable "firewall_subnets" {}
+variable "firewall_subnet_suffix" {
+  default = "firewall"
 }
 
-variable "database_subnets" {}
-variable "database_subnet_suffix" {
-  default = "database"
+variable "transit_gateway_subnets" {}
+variable "transit_gateway_subnet_suffix" {
+  default = "transit_gateway"
 }
 
 variable "enable_nat_gateway" {

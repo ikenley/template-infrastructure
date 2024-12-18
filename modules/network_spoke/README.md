@@ -1,6 +1,6 @@
-# Network Hub
+# Network Spoke
 
-A centralized network "hub" account which manages cross-account networking. It can also centralize ingress and egress.
+A centralized network "spoke" which connects to a "hub" VPC in another AWS account for centralized egress.
 
 Related links:
 - [Infrastructure OU - Network account](https://docs.aws.amazon.com/prescriptive-guidance/latest/security-reference-architecture/network.html)
