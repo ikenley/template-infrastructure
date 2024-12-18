@@ -26,15 +26,20 @@ provider "aws" {
   profile = "terraform-dev"
 }
 
-# ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 # Resources
-# ------------------------------------------------------------------------------
+#------------------------------------------------------------------------------
 
 locals {
-  spend_money = false
+  namespace = "ik"
+  env       = "dev"
+  project   = "network-hub"
+  is_prod   = false
+
+  spend_money = true
 }
 
-module "main" {
+module "network_hub" {
   source = "../../modules/network_hub"
 
   providers = {
@@ -42,10 +47,10 @@ module "main" {
     aws.primary = aws.primary
   }
 
-  namespace = "ik"
-  env       = "dev"
-  project   = "network-hub"
-  is_prod   = false
+  namespace = local.namespace
+  env       = local.env
+  project   = local.project
+  is_prod   = local.is_prod
 
   cidr = "10.1.0.0/16"
 
@@ -57,3 +62,4 @@ module "main" {
   enable_nat_gateway = local.spend_money
   single_nat_gateway = false
 }
+

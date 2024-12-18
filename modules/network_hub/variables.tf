@@ -34,12 +34,12 @@ variable "public_subnet_suffix" {
 
 variable "private_subnets" {}
 variable "private_subnet_suffix" {
-  default = "public"
+  default = "private"
 }
 
 variable "database_subnets" {}
 variable "database_subnet_suffix" {
-  default = "public"
+  default = "database"
 }
 
 variable "enable_nat_gateway" {

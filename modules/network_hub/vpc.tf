@@ -1,5 +1,6 @@
 #-------------------------------------------------------------------------------
-# Core VPC setup# Fork of: https://github.com/terraform-aws-modules/terraform-aws-vpc
+# Core VPC setup
+# Fork of: https://github.com/terraform-aws-modules/terraform-aws-vpc
 #-------------------------------------------------------------------------------
 
 locals {
