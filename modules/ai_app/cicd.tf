@@ -37,7 +37,7 @@ resource "aws_ecr_repository_policy" "api" {
 
 resource "aws_ecr_repository" "lambda" {
   name                 = "${local.id}-lambda"
-  image_tag_mutability = "IMMUTABLE"
+  image_tag_mutability = "MUTABLE"
 
   image_scanning_configuration {
     scan_on_push = true
@@ -345,7 +345,7 @@ resource "aws_codebuild_project" "codebuild_main" {
   environment {
     type                        = "LINUX_CONTAINER"
     compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:4.0"
+    image                       = "aws/codebuild/amazonlinux-x86_64-standard:5.0"
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
 
@@ -414,12 +414,12 @@ resource "aws_codebuild_project" "codebuild_main" {
     }
 
     environment_variable {
-      name = "REACT_APP_API_URL_PREFIX"
+      name  = "VITE_API_URL_PREFIX"
       value = "https://api.${var.domain_name}/ai/api"
     }
 
     environment_variable {
-      name = "REACT_APP_AUTH_API_URL_PREFIX"
+      name  = "VITE_AUTH_API_URL_PREFIX"
       value = "https://${data.aws_ssm_parameter.auth_domain_name.value}/auth/api"
     }
   }
