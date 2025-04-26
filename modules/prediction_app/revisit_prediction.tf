@@ -18,7 +18,7 @@ module "revisit_prediction_lambda" {
   function_name = local.revisit_prediction_id
   description   = "Check for Predictions that have a revisit_on date"
   handler       = "index.handler"
-  runtime       = "nodejs18.x"
+  runtime       = "nodejs22.x"
   publish       = true
   timeout       = 10 # 30 seconds
 
