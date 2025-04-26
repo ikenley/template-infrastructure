@@ -1,6 +1,7 @@
 # ------------------------------------------------------------------------------
-# efs-demo
-# Example of AWS Step Function with various integrations
+# network-demo
+# Example of multi-account AWS network with a central "hub" network
+# All outbound (egress) traffic will be monitored by AWS Network Firewall
 # ------------------------------------------------------------------------------
 
 terraform {
