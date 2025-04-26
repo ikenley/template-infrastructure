@@ -9,6 +9,7 @@ Related links:
 - [Visual subnet calculator](https://www.davidc.net/sites/default/subnets/subnets.html)
 - [terraform-aws-vpc module](https://github.com/terraform-aws-modules/terraform-aws-vpc)
 - [terraform-aws-modules/terraform-aws-network-firewall](https://github.com/terraform-aws-modules/terraform-aws-network-firewall)
+- [Using the NAT gateway with AWS Network Firewall for centralized IPv4 egress](https://docs.aws.amazon.com/whitepapers/latest/building-scalable-secure-multi-vpc-network-infrastructure/using-nat-gateway-with-firewall.html)
 - [aws-samples/aws-network-firewall-terraform](https://github.com/aws-samples/aws-network-firewall-terraform)
 - [Deployment models for AWS Network Firewall](https://github.com/aws-samples/aws-network-firewall-terraform)
 - [hub-and-spoke-with-inspection-vpc-terraform](https://github.com/aws-samples/hub-and-spoke-with-inspection-vpc-terraform)
