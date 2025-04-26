@@ -11,3 +11,4 @@ Related links:
 - [terraform-aws-modules/terraform-aws-network-firewall](https://github.com/terraform-aws-modules/terraform-aws-network-firewall)
 - [aws-samples/aws-network-firewall-terraform](https://github.com/aws-samples/aws-network-firewall-terraform)
 - [Deployment models for AWS Network Firewall](https://github.com/aws-samples/aws-network-firewall-terraform)
+- [hub-and-spoke-with-inspection-vpc-terraform](https://github.com/aws-samples/hub-and-spoke-with-inspection-vpc-terraform)

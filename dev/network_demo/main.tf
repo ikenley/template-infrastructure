@@ -57,8 +57,8 @@ module "network_hub" {
 
   azs                     = ["us-east-1a", "us-east-1b"]
   public_subnets          = ["10.1.0.0/24", "10.1.1.0/24"]
-  firewall_subnets        = ["10.1.2.0/24", "10.1.3.0/24"]
-  transit_gateway_subnets = ["10.1.4.0/24", "10.1.5.0/24"]
+  firewall_subnets        = ["10.1.2.0/28", "10.1.2.16/28"]
+  transit_gateway_subnets = ["10.1.2.32/28", "10.1.2.48/28"]
 
   enable_nat_gateway = local.spend_money
   single_nat_gateway = false

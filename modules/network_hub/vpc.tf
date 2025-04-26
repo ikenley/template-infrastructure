@@ -4,6 +4,8 @@
 #-------------------------------------------------------------------------------
 
 locals {
+  inspection_id = "${local.id}-inspection"
+
   vpc_id = aws_vpc.this.id
 
   len_public_subnets          = length(var.public_subnets)
