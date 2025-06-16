@@ -39,3 +39,13 @@ variable "create_index_html_function" {
   type    = bool
   default = false
 }
+
+# Configuration for additional origins
+# This is currently optimized for adding an API Gateway backend
+variable "additional_origins" {
+  type = map(object({
+    domain_name  = string
+    path_pattern = string
+  }))
+  default = {}
+}

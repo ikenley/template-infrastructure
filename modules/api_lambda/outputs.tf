@@ -1,4 +1,18 @@
 # ------------------------------------------------------------------------------
+# api_gateway.tf
+# ------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "api_gateway_api_endpoint" {
+  name  = "${local.output_prefix}/api_gateway_api_endpoint"
+  type  = "String"
+  value = aws_apigatewayv2_api.this.api_endpoint
+}
+
+output "api_gateway_api_endpoint" {
+  value = aws_apigatewayv2_api.this.api_endpoint
+}
+
+# ------------------------------------------------------------------------------
 # lambda.tf
 # ------------------------------------------------------------------------------
 

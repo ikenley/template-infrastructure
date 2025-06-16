@@ -12,6 +12,21 @@ resource "aws_cloudfront_distribution" "this" {
     origin_id                = local.s3_origin_id
   }
 
+  dynamic "origin" {
+    for_each = var.additional_origins
+
+    content {
+      domain_name = origin.value.domain_name
+      origin_id   = origin.key
+      custom_origin_config {
+        http_port              = "80"
+        https_port             = "443"
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
+  }
+
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Managed by Terraform"
