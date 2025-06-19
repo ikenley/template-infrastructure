@@ -18,7 +18,7 @@ module "frontend" {
   # Configure API Gateway origin
   additional_origins = {
     "api-gateway" = {
-      domain_name  = module.api_lambda.api_gateway_api_endpoint
+      domain_name  = replace(module.api_lambda.api_gateway_api_endpoint, "https://", "")
       path_pattern = "/api/*"
     }
   }

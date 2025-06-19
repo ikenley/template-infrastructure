@@ -29,10 +29,10 @@ resource "aws_apigatewayv2_integration" "this" {
 }
 
 resource "aws_lambda_permission" "api_gateway" {
-  statement_id = "AllowExecutionFromAPIGateway"
-  action = "lambda:InvokeFunction"
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.this.function_name
-  principal = "apigateway.amazonaws.com"
+  principal     = "apigateway.amazonaws.com"
 
   source_arn = "${aws_apigatewayv2_api.this.execution_arn}/*/*"
 }
@@ -63,12 +63,17 @@ resource "aws_apigatewayv2_deployment" "this" {
 # DNS record
 #------------------------------------------------------------------------------
 
-data "aws_route53_zone" "this" {
-  name         = "${var.parent_domain_name}."
-  private_zone = false
+# data "aws_route53_zone" "this" {
+#   name         = "${var.parent_domain_name}."
+#   private_zone = false
+# }
+
+data "aws_acm_certificate" "issued" {
+  domain   = var.domain_name
+  statuses = ["ISSUED"]
 }
 
-resource "aws_apigatewayv2_api_mapping" "example" {
+resource "aws_apigatewayv2_api_mapping" "this" {
   api_id      = aws_apigatewayv2_api.this.id
   domain_name = aws_apigatewayv2_domain_name.api_gateway.id
   stage       = aws_apigatewayv2_stage.default.id
@@ -78,67 +83,52 @@ resource "aws_apigatewayv2_domain_name" "api_gateway" {
   domain_name = var.domain_name
 
   domain_name_configuration {
-    certificate_arn = aws_acm_certificate.api_gateway.arn
+    certificate_arn = data.aws_acm_certificate.issued.arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
 
-  depends_on = [ aws_acm_certificate_validation.api_gateway ]
+  ##depends_on = [aws_acm_certificate_validation.api_gateway]
 }
 
-resource "aws_route53_record" "api_gateway" {
-  name    = aws_apigatewayv2_domain_name.api_gateway.domain_name
-  type    = "A"
-  zone_id = data.aws_route53_zone.this.zone_id
-
-  alias {
-    name                   = aws_apigatewayv2_domain_name.api_gateway.domain_name_configuration[0].target_domain_name
-    zone_id                = aws_apigatewayv2_domain_name.api_gateway.domain_name_configuration[0].hosted_zone_id
-    evaluate_target_health = false
-  }
-}
-
-# resource "aws_route53_record" "this" {
-#   zone_id         = data.aws_route53_zone.this.zone_id
-#   name            = var.domain_name
-#   allow_overwrite = true
-#   type            = "A"
+# resource "aws_route53_record" "api_gateway" {
+#   name    = aws_apigatewayv2_domain_name.api_gateway.domain_name
+#   type    = "A"
+#   zone_id = data.aws_route53_zone.this.zone_id
 
 #   alias {
-#     name                   = data.aws_lb.this.dns_name
-#     zone_id                = data.aws_lb.this.zone_id
+#     name                   = aws_apigatewayv2_domain_name.api_gateway.domain_name_configuration[0].target_domain_name
+#     zone_id                = aws_apigatewayv2_domain_name.api_gateway.domain_name_configuration[0].hosted_zone_id
 #     evaluate_target_health = false
 #   }
 # }
 
-resource "aws_acm_certificate" "api_gateway" {
-  domain_name       = var.domain_name
-  validation_method = "DNS"
-}
+# resource "aws_acm_certificate" "api_gateway" {
+#   domain_name       = var.domain_name
+#   validation_method = "DNS"
+# }
 
-resource "aws_route53_record" "validation_api_gateway" {
-  for_each = {
-    for dvo in aws_acm_certificate.api_gateway.domain_validation_options : dvo.domain_name => {
-      name   = dvo.resource_record_name
-      record = dvo.resource_record_value
-      type   = dvo.resource_record_type
-    }
-  }
+# resource "aws_route53_record" "validation_api_gateway" {
+#   for_each = {
+#     for dvo in aws_acm_certificate.api_gateway.domain_validation_options : dvo.domain_name => {
+#       name   = dvo.resource_record_name
+#       record = dvo.resource_record_value
+#       type   = dvo.resource_record_type
+#     }
+#   }
 
-  allow_overwrite = true
-  name            = each.value.name
-  records         = [each.value.record]
-  ttl             = 60
-  type            = each.value.type
-  zone_id         = data.aws_route53_zone.this.zone_id
-}
+#   allow_overwrite = true
+#   name            = each.value.name
+#   records         = [each.value.record]
+#   ttl             = 60
+#   type            = each.value.type
+#   zone_id         = data.aws_route53_zone.this.zone_id
+# }
 
-resource "aws_acm_certificate_validation" "api_gateway" {
-  certificate_arn         = aws_acm_certificate.api_gateway.arn
-  validation_record_fqdns = [for record in aws_route53_record.validation_api_gateway : record.fqdn]
-}
-
-
+# resource "aws_acm_certificate_validation" "api_gateway" {
+#   certificate_arn         = aws_acm_certificate.api_gateway.arn
+#   validation_record_fqdns = [for record in aws_route53_record.validation_api_gateway : record.fqdn]
+# }
 
 # #------------------------------------------------------------------------------
 # # Lambda security group

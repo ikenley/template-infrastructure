@@ -1,7 +1,7 @@
 
 
 locals {
-  s3_origin_id         = "myS3Origin"
+  s3_origin_id         = "static-s3-site"
   index_html_functions = var.create_index_html_function ? ["dummy_placeholder"] : []
 }
 
@@ -77,6 +77,26 @@ resource "aws_cloudfront_distribution" "this" {
         function_arn = aws_cloudfront_function.index_html[0].arn
       }
     }
+  }
+
+  dynamic "ordered_cache_behavior" {
+    for_each = var.additional_origins
+
+    content {
+      path_pattern             = ordered_cache_behavior.value.path_pattern
+      allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      cached_methods           = ["GET", "HEAD"]
+      target_origin_id         = ordered_cache_behavior.key
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Managed-AllViewer
+
+      # min_ttl                = 0
+      # default_ttl            = 3600
+      # max_ttl                = 86400
+      compress               = true
+      viewer_protocol_policy = "https-only"
+    }
+
   }
 
   price_class = "PriceClass_200"
