@@ -14,7 +14,7 @@ module "api_lambda" {
   git_branch = var.git_branch
 
   parent_domain_name = var.parent_domain_name
-  domain_name        = "api.${var.domain_name}"
+  domain_name        = var.domain_name
 
   image_uri          = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-ai-lambda:da35cbb"
   lambda_description = var.description
