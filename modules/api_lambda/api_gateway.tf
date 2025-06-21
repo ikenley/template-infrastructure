@@ -91,6 +91,10 @@ resource "aws_apigatewayv2_domain_name" "api_gateway" {
   ##depends_on = [aws_acm_certificate_validation.api_gateway]
 }
 
+# Deprecated: Do note create DNS record in API gateway module
+# Instead, we will create it in a separate module to allow for CDN ingress
+# TODO: Consider making this an optional variable
+
 # resource "aws_route53_record" "api_gateway" {
 #   name    = aws_apigatewayv2_domain_name.api_gateway.domain_name
 #   type    = "A"
@@ -128,51 +132,4 @@ resource "aws_apigatewayv2_domain_name" "api_gateway" {
 # resource "aws_acm_certificate_validation" "api_gateway" {
 #   certificate_arn         = aws_acm_certificate.api_gateway.arn
 #   validation_record_fqdns = [for record in aws_route53_record.validation_api_gateway : record.fqdn]
-# }
-
-# #------------------------------------------------------------------------------
-# # Lambda security group
-# #------------------------------------------------------------------------------
-
-# resource "aws_security_group" "api_lambda" {
-#   name        = "${local.id}-lambda"
-#   description = "Allow inbound traffic from ALB and outbound to all"
-#   vpc_id      = data.aws_ssm_parameter.vpc_id.value
-# }
-
-# resource "aws_security_group_rule" "api_lambda_ingress" {
-#   security_group_id = aws_security_group.api_lambda.id
-#   type              = "ingress"
-#   from_port         = 80
-#   to_port           = 80
-#   protocol          = "tcp"
-
-#   source_security_group_id = data.aws_ssm_parameter.alb_public_sg_id.value
-# }
-
-# resource "aws_security_group_rule" "api_lambda_egress_http" {
-#   security_group_id = aws_security_group.api_lambda.id
-#   type              = "egress"
-#   from_port         = 80
-#   to_port           = 80
-#   protocol          = "tcp"
-#   cidr_blocks       = ["0.0.0.0/0"]
-# }
-
-# resource "aws_security_group_rule" "api_lambda_egress_https" {
-#   security_group_id = aws_security_group.api_lambda.id
-#   type              = "egress"
-#   from_port         = 443
-#   to_port           = 443
-#   protocol          = "tcp"
-#   cidr_blocks       = ["0.0.0.0/0"]
-# }
-
-# resource "aws_security_group_rule" "api_lambda_egress_pg" {
-#   security_group_id = aws_security_group.api_lambda.id
-#   type              = "egress"
-#   from_port         = 5432
-#   to_port           = 5432
-#   protocol          = "tcp"
-#   cidr_blocks       = [data.aws_ssm_parameter.vpc_cidr.value]
 # }

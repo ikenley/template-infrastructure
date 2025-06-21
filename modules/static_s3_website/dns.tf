@@ -1,3 +1,10 @@
+
+
+
+# Deprecated: Do note create DNS record in API gateway module
+# Instead, we will create it in a separate module to allow for CDN ingress
+# TODO: Consider making this an optional variable
+
 data "aws_route53_zone" "this" {
   name         = "${var.parent_domain_name}."
   private_zone = false
