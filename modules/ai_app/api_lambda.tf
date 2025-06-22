@@ -13,8 +13,10 @@ module "api_lambda" {
   git_repo   = var.git_repo
   git_branch = var.git_branch
 
-  parent_domain_name = var.parent_domain_name
-  domain_name        = "api.${var.domain_name}"
+  parent_domain_name     = var.parent_domain_name
+  domain_name            = var.domain_name
+  create_acm_certificate = false
+  acm_certificate_arn    = module.acm_certificate.certificate_arn
 
   image_uri          = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-ai-lambda:da35cbb"
   lambda_description = var.description
@@ -34,6 +36,26 @@ module "api_lambda" {
     JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
     STATE_FUNCTION_ARN        = data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value
   }
+
+  tags = var.tags
+}
+
+# ACM certificate
+data "aws_route53_zone" "this" {
+  name         = "${var.parent_domain_name}."
+  private_zone = false
+}
+
+module "acm_certificate" {
+  source = "../acm_certificate"
+
+  namespace    = var.namespace
+  env          = var.env
+  is_prod      = var.is_prod
+  project_name = var.project_name
+
+  domain_name      = var.domain_name
+  route_53_zone_id = data.aws_route53_zone.this.zone_id
 
   tags = var.tags
 }

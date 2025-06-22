@@ -415,7 +415,7 @@ resource "aws_codebuild_project" "codebuild_main" {
 
     environment_variable {
       name  = "VITE_API_URL_PREFIX"
-      value = "https://api.${var.domain_name}/ai/api"
+      value = "https://${var.domain_name}/ai/api"
     }
 
     environment_variable {

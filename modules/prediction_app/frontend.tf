@@ -15,5 +15,13 @@ module "frontend" {
 
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
+  # Configure API Gateway origin
+  additional_origins = {
+    "api-gateway" = {
+      domain_name  = replace(module.api_lambda.api_gateway_api_endpoint, "https://", "")
+      path_pattern = "/api/*"
+    }
+  }
+
   tags = var.tags
 }
