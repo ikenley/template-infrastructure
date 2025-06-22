@@ -3,7 +3,10 @@
 locals {
   s3_origin_id         = "static-s3-site"
   index_html_functions = var.create_index_html_function ? ["dummy_placeholder"] : []
+
+  acm_certificate_arn = var.create_acm_certificate ? module.acm_certificate[0].certificate_arn : var.acm_certificate_arn
 }
+
 
 resource "aws_cloudfront_distribution" "this" {
   origin {
@@ -111,14 +114,27 @@ resource "aws_cloudfront_distribution" "this" {
   tags = local.tags
 
   viewer_certificate {
-    acm_certificate_arn            = aws_acm_certificate.static.arn
+    acm_certificate_arn            = local.acm_certificate_arn
     ssl_support_method             = "sni-only"
     cloudfront_default_certificate = false
   }
+}
 
-  depends_on = [
-    aws_acm_certificate_validation.this
-  ]
+
+module "acm_certificate" {
+  count = var.create_acm_certificate ? 1 : 0
+
+  source = "../acm_certificate"
+
+  namespace    = var.namespace
+  env          = var.env
+  is_prod      = var.is_prod
+  project_name = var.project_name
+
+  domain_name      = var.domain_name
+  route_53_zone_id = data.aws_route53_zone.this.zone_id
+
+  tags = var.tags
 }
 
 resource "aws_cloudfront_origin_access_control" "default" {

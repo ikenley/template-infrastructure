@@ -63,14 +63,8 @@ resource "aws_apigatewayv2_deployment" "this" {
 # DNS record
 #------------------------------------------------------------------------------
 
-# data "aws_route53_zone" "this" {
-#   name         = "${var.parent_domain_name}."
-#   private_zone = false
-# }
-
-data "aws_acm_certificate" "issued" {
-  domain   = var.domain_name
-  statuses = ["ISSUED"]
+locals {
+  acm_certificate_arn = var.create_acm_certificate ? module.acm_certificate[0].certificate_arn : var.acm_certificate_arn
 }
 
 resource "aws_apigatewayv2_api_mapping" "this" {
@@ -83,7 +77,7 @@ resource "aws_apigatewayv2_domain_name" "api_gateway" {
   domain_name = var.domain_name
 
   domain_name_configuration {
-    certificate_arn = data.aws_acm_certificate.issued.arn
+    certificate_arn = local.acm_certificate_arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
@@ -91,45 +85,24 @@ resource "aws_apigatewayv2_domain_name" "api_gateway" {
   ##depends_on = [aws_acm_certificate_validation.api_gateway]
 }
 
-# Deprecated: Do note create DNS record in API gateway module
-# Instead, we will create it in a separate module to allow for CDN ingress
-# TODO: Consider making this an optional variable
+# ACM certificate
+data "aws_route53_zone" "this" {
+  name         = "${var.parent_domain_name}."
+  private_zone = false
+}
 
-# resource "aws_route53_record" "api_gateway" {
-#   name    = aws_apigatewayv2_domain_name.api_gateway.domain_name
-#   type    = "A"
-#   zone_id = data.aws_route53_zone.this.zone_id
+module "acm_certificate" {
+  count = var.create_acm_certificate ? 1 : 0
 
-#   alias {
-#     name                   = aws_apigatewayv2_domain_name.api_gateway.domain_name_configuration[0].target_domain_name
-#     zone_id                = aws_apigatewayv2_domain_name.api_gateway.domain_name_configuration[0].hosted_zone_id
-#     evaluate_target_health = false
-#   }
-# }
+  source = "../acm_certificate"
 
-# resource "aws_acm_certificate" "api_gateway" {
-#   domain_name       = var.domain_name
-#   validation_method = "DNS"
-# }
+  namespace    = var.namespace
+  env          = var.env
+  is_prod      = var.is_prod
+  project_name = var.project_name
 
-# resource "aws_route53_record" "validation_api_gateway" {
-#   for_each = {
-#     for dvo in aws_acm_certificate.api_gateway.domain_validation_options : dvo.domain_name => {
-#       name   = dvo.resource_record_name
-#       record = dvo.resource_record_value
-#       type   = dvo.resource_record_type
-#     }
-#   }
+  domain_name      = var.domain_name
+  route_53_zone_id = data.aws_route53_zone.this.zone_id
 
-#   allow_overwrite = true
-#   name            = each.value.name
-#   records         = [each.value.record]
-#   ttl             = 60
-#   type            = each.value.type
-#   zone_id         = data.aws_route53_zone.this.zone_id
-# }
-
-# resource "aws_acm_certificate_validation" "api_gateway" {
-#   certificate_arn         = aws_acm_certificate.api_gateway.arn
-#   validation_record_fqdns = [for record in aws_route53_record.validation_api_gateway : record.fqdn]
-# }
+  tags = var.tags
+}

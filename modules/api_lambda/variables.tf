@@ -32,6 +32,14 @@ variable "domain_name" {
   description = "Base domain name e.g. example.com"
 }
 
+variable "create_acm_certificate" {
+  type = bool
+}
+variable "acm_certificate_arn" {
+  default     = null
+  description = "ACM certificate ARN. If none is passed, a new cert will be created"
+}
+
 # Network config
 variable "aws_lb_listener_rule_priority" {
   default = 25000
