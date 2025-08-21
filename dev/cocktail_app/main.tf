@@ -33,10 +33,10 @@ module "cocktail_app" {
   namespace    = "ik"
   env          = "dev"
   is_prod      = false
-  project_name = "ai"
+  project_name = "cocktail"
 
   git_repo   = "ikenley/mcp-cocktail"
-  git_branch = "main"
+  git_branch = "remote-cocktail-mcp" # TODO "main"
 
   parent_domain_name = "ikenley.com"
   domain_name        = "cocktail.ikenley.com"

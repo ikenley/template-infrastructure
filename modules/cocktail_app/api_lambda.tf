@@ -18,7 +18,7 @@ module "api_lambda" {
   create_acm_certificate = false
   acm_certificate_arn    = module.acm_certificate.certificate_arn
 
-  image_uri          = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-ai-lambda:da35cbb"
+  image_uri          = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-ai-lambda:98a4554"
   lambda_description = var.description
   lambda_timeout     = 30
   lambda_memory_size = 1024

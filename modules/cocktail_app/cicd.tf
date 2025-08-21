@@ -561,8 +561,7 @@ resource "aws_iam_policy" "codebuild_main" {
           "lambda:UpdateFunctionCode"
         ],
         "Resource" : [
-          module.api_lambda.lambda_function_arn,
-          aws_lambda_function.job_runner.arn
+          module.api_lambda.lambda_function_arn
         ]
       },
       {
