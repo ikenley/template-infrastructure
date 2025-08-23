@@ -36,7 +36,7 @@ module "cocktail_app" {
   project_name = "cocktail"
 
   git_repo   = "ikenley/mcp-cocktail"
-  git_branch = "remote-cocktail-mcp" # TODO "main"
+  git_branch = "main"
 
   parent_domain_name = "ikenley.com"
   domain_name        = "cocktail.ikenley.com"
