@@ -399,23 +399,18 @@ resource "aws_codebuild_project" "codebuild_main" {
       value = module.frontend.bucket_id
     }
 
-    # environment_variable {
-    #   name  = "SITE_S3_KEY_PREFIX"
-    #   value = "prediction"
-    # }
-
     environment_variable {
       name  = "CDN_DISTRIBUTION_ID"
       value = module.frontend.cdn_distribution_id
     }
 
     environment_variable {
-      name = "REACT_APP_API_URL_PREFIX"
-      value = "https://api.${local.app_domain}/api"
+      name  = "REACT_APP_API_URL_PREFIX"
+      value = "https://${local.app_domain}/api"
     }
 
     environment_variable {
-      name = "REACT_APP_AUTH_API_URL_PREFIX"
+      name  = "REACT_APP_AUTH_API_URL_PREFIX"
       value = "https://${data.aws_ssm_parameter.auth_domain_name.value}/auth/api"
     }
   }

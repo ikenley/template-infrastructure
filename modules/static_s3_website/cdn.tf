@@ -1,15 +1,33 @@
 
 
 locals {
-  s3_origin_id         = "myS3Origin"
+  s3_origin_id         = "static-s3-site"
   index_html_functions = var.create_index_html_function ? ["dummy_placeholder"] : []
+
+  acm_certificate_arn = var.create_acm_certificate ? module.acm_certificate[0].certificate_arn : var.acm_certificate_arn
 }
+
 
 resource "aws_cloudfront_distribution" "this" {
   origin {
     domain_name              = aws_s3_bucket.this.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.default.id
     origin_id                = local.s3_origin_id
+  }
+
+  dynamic "origin" {
+    for_each = var.additional_origins
+
+    content {
+      domain_name = origin.value.domain_name
+      origin_id   = origin.key
+      custom_origin_config {
+        http_port              = "80"
+        https_port             = "443"
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
   }
 
   enabled             = true
@@ -64,6 +82,26 @@ resource "aws_cloudfront_distribution" "this" {
     }
   }
 
+  dynamic "ordered_cache_behavior" {
+    for_each = var.additional_origins
+
+    content {
+      path_pattern             = ordered_cache_behavior.value.path_pattern
+      allowed_methods          = ["GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE"]
+      cached_methods           = ["GET", "HEAD"]
+      target_origin_id         = ordered_cache_behavior.key
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # Managed-CachingDisabled
+      origin_request_policy_id = "216adef6-5c7f-47e4-b989-5492eafa07d3" # Managed-AllViewer
+
+      # min_ttl                = 0
+      # default_ttl            = 3600
+      # max_ttl                = 86400
+      compress               = true
+      viewer_protocol_policy = "https-only"
+    }
+
+  }
+
   price_class = "PriceClass_200"
 
   restrictions {
@@ -76,14 +114,27 @@ resource "aws_cloudfront_distribution" "this" {
   tags = local.tags
 
   viewer_certificate {
-    acm_certificate_arn            = aws_acm_certificate.static.arn
+    acm_certificate_arn            = local.acm_certificate_arn
     ssl_support_method             = "sni-only"
     cloudfront_default_certificate = false
   }
+}
 
-  depends_on = [
-    aws_acm_certificate_validation.this
-  ]
+
+module "acm_certificate" {
+  count = var.create_acm_certificate ? 1 : 0
+
+  source = "../acm_certificate"
+
+  namespace    = var.namespace
+  env          = var.env
+  is_prod      = var.is_prod
+  project_name = var.project_name
+
+  domain_name      = var.domain_name
+  route_53_zone_id = data.aws_route53_zone.this.zone_id
+
+  tags = var.tags
 }
 
 resource "aws_cloudfront_origin_access_control" "default" {

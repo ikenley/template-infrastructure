@@ -8,10 +8,14 @@ module "frontend" {
   namespace    = var.namespace
   env          = var.env
   is_prod      = var.is_prod
-  project_name = var.name
+  project_name = var.project_name
 
-  parent_domain_name = var.domain_name
-  domain_name        = "${var.dns_subdomain}.${var.domain_name}"
+  parent_domain_name     = var.parent_domain_name
+  domain_name            = var.domain_name
+  create_acm_certificate = false
+  acm_certificate_arn    = module.acm_certificate.certificate_arn
+
+  path_prefix = "cocktail/"
 
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
@@ -19,9 +23,12 @@ module "frontend" {
   additional_origins = {
     "api-gateway" = {
       domain_name  = replace(module.api_lambda.api_gateway_api_endpoint, "https://", "")
-      path_pattern = "/api/*"
+      path_pattern = "/cocktail/api/*"
     }
   }
 
   tags = var.tags
 }
+
+
+

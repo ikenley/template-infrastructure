@@ -393,10 +393,6 @@ resource "aws_codebuild_project" "codebuild_main" {
       name  = "API_FUNCTION_NAME"
       value = module.api_lambda.lambda_function_name
     }
-    environment_variable {
-      name  = "JOB_RUNNER_FUNCTION_NAME"
-      value = aws_lambda_function.job_runner.function_name
-    }
 
     environment_variable {
       name  = "SITE_S3_BUCKET_NAME"
@@ -565,8 +561,7 @@ resource "aws_iam_policy" "codebuild_main" {
           "lambda:UpdateFunctionCode"
         ],
         "Resource" : [
-          module.api_lambda.lambda_function_arn,
-          aws_lambda_function.job_runner.arn
+          module.api_lambda.lambda_function_arn
         ]
       },
       {
