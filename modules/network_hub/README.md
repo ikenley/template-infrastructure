@@ -9,5 +9,5 @@ Related links:
 - [Visual subnet calculator](https://www.davidc.net/sites/default/subnets/subnets.html)
 - [terraform-aws-vpc module](https://github.com/terraform-aws-modules/terraform-aws-vpc)
 - [terraform-aws-modules/terraform-aws-network-firewall](https://github.com/terraform-aws-modules/terraform-aws-network-firewall)
-- [Deployment models for AWS Network Firewall](https://github.com/aws-samples/aws-network-firewall-terraform)
 - [hub-and-spoke-with-inspection-vpc-terraform](https://github.com/aws-samples/hub-and-spoke-with-inspection-vpc-terraform)
+- [Deployment models for AWS Network Firewall](https://github.com/aws-samples/aws-network-firewall-terraform)

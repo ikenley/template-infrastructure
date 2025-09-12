@@ -5,20 +5,20 @@
 resource "aws_ssm_parameter" "vpc_id" {
   name  = "${local.output_prefix}/vpc_id"
   type  = "String"
-  value = aws_vpc.this.id
+  value = aws_vpc.inspection_vpc.id
 }
 output "vpc_id" {
-  value = aws_vpc.this.id
+  value = aws_vpc.inspection_vpc.id
 }
 
 resource "aws_ssm_parameter" "vpc_cidr_block" {
   name  = "${local.output_prefix}/vpc_cidr_block"
   type  = "String"
-  value = try(aws_vpc.this.cidr_block, null)
+  value = try(aws_vpc.inspection_vpc.cidr_block, null)
 }
 output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
-  value       = try(aws_vpc.this.cidr_block, null)
+  value       = try(aws_vpc.inspection_vpc.cidr_block, null)
 }
 
 resource "aws_ssm_parameter" "public_subnets" {
