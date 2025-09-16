@@ -55,8 +55,6 @@ resource "aws_nat_gateway" "inspection_vpc_nat_gw" {
   }
 }
 
-
-
 resource "aws_subnet" "inspection_vpc_tgw_subnet" {
   count                   = length(data.aws_availability_zones.available.names)
   map_public_ip_on_launch = false
