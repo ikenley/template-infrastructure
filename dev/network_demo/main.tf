@@ -44,8 +44,8 @@ module "network_hub" {
   source = "../../modules/network_hub"
 
   providers = {
-    aws = aws.primary
-    #aws.primary = aws.primary
+    aws         = aws.primary
+    aws.primary = aws.primary
   }
 
   namespace = local.namespace

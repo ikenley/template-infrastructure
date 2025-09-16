@@ -73,7 +73,7 @@ resource "aws_route_table_association" "spoke_vpc_a_route_table_association" {
 #-------------------------------------------------------------------------------
 
 resource "aws_security_group" "spoke_vpc_a_endpoint_sg" {
-  name        = "spoke-vpc-a/sg-ssm-ec2-endpoints"
+  name        = "${local.id}-spoke-vpc-a-sg-ssm-ec2-endpoints"
   description = "Allow TLS inbound traffic for SSM/EC2 endpoints"
   vpc_id      = aws_vpc.spoke_vpc_a.id
 
@@ -85,7 +85,7 @@ resource "aws_security_group" "spoke_vpc_a_endpoint_sg" {
     cidr_blocks = [aws_vpc.spoke_vpc_a.cidr_block]
   }
   tags = {
-    Name = "spoke-vpc-a/sg-ssm-ec2-endpoints"
+    Name = "${local.id}-spoke-vpc-a-sg-ssm-ec2-endpoints"
   }
 }
 

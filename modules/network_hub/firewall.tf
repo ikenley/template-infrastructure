@@ -4,7 +4,7 @@
 #-------------------------------------------------------------------------------
 
 resource "aws_networkfirewall_firewall_policy" "anfw_policy" {
-  name = "firewall-policy"
+  name = "${local.id}-firewall-policy"
   firewall_policy {
     stateless_default_actions          = ["aws:forward_to_sfe"]
     stateless_fragment_default_actions = ["aws:forward_to_sfe"]
@@ -26,7 +26,7 @@ resource "aws_networkfirewall_firewall_policy" "anfw_policy" {
 
 resource "aws_networkfirewall_rule_group" "drop_icmp" {
   capacity = 1
-  name     = "drop-icmp"
+  name     = "${local.id}-drop-icmp"
   type     = "STATELESS"
   rule_group {
     rules_source {
@@ -53,7 +53,7 @@ resource "aws_networkfirewall_rule_group" "drop_icmp" {
 
 resource "aws_networkfirewall_rule_group" "drop_non_http_between_vpcs" {
   capacity = 100
-  name     = "drop-non-http-between-vpcs"
+  name     = "${local.id}-drop-non-http-between-vpcs"
   type     = "STATEFUL"
   rule_group {
     rule_variables {
@@ -78,7 +78,7 @@ resource "aws_networkfirewall_rule_group" "drop_non_http_between_vpcs" {
 
 resource "aws_networkfirewall_rule_group" "block_public_dns_resolvers" {
   capacity = 1
-  name     = "block-public-dns"
+  name     = "${local.id}-block-public-dns"
   type     = "STATEFUL"
   rule_group {
     rules_source {
@@ -102,8 +102,8 @@ resource "aws_networkfirewall_rule_group" "block_public_dns_resolvers" {
 }
 
 resource "aws_networkfirewall_rule_group" "block_domains" {
-  capacity = 100
-  name     = "block-domains"
+  capacity = 1000
+  name     = "${local.id}-block-domains"
   type     = "STATEFUL"
   rule_group {
     rule_variables {
@@ -130,7 +130,7 @@ resource "aws_networkfirewall_rule_group" "block_domains" {
 
 
 resource "aws_networkfirewall_firewall" "inspection_vpc_anfw" {
-  name                = "NetworkFirewall"
+  name                = "${local.id}-network-firewall"
   firewall_policy_arn = aws_networkfirewall_firewall_policy.anfw_policy.arn
   vpc_id              = aws_vpc.inspection_vpc.id
 
@@ -145,43 +145,17 @@ resource "aws_networkfirewall_firewall" "inspection_vpc_anfw" {
 }
 
 resource "aws_cloudwatch_log_group" "anfw_alert_log_group" {
-  name = "/aws/network-firewall/alert"
+  name = "/aws/${local.id}-network-firewall/alert"
 }
 
-resource "random_string" "bucket_random_id" {
-  length  = 5
-  special = false
-  upper   = false
-}
+module "anfw_flow_bucket" {
+  source = "../s3_bucket"
 
-resource "aws_s3_bucket" "anfw_flow_bucket" {
-  bucket        = "network-firewall-flow-bucket-${random_string.bucket_random_id.id}"
-  force_destroy = true
-}
+  bucket_name_suffix = "${local.id}-firewall-log"
 
-resource "aws_s3_bucket_server_side_encryption_configuration" "example" {
-  bucket = aws_s3_bucket.anfw_flow_bucket.id
-  rule {
-    apply_server_side_encryption_by_default {
-      sse_algorithm = "aws:kms"
-    }
-  }
-}
+  enable_archive = true
 
-resource "aws_s3_bucket_ownership_controls" "anfw_flow_bucket_ownership_control" {
-  bucket = aws_s3_bucket.anfw_flow_bucket.id
-  rule {
-    object_ownership = "BucketOwnerEnforced"
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "anfw_flow_bucket_public_access_block" {
-  bucket = aws_s3_bucket.anfw_flow_bucket.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
+  tags = local.tags
 }
 
 resource "aws_networkfirewall_logging_configuration" "anfw_alert_logging_configuration" {
@@ -196,7 +170,7 @@ resource "aws_networkfirewall_logging_configuration" "anfw_alert_logging_configu
     }
     log_destination_config {
       log_destination = {
-        bucketName = aws_s3_bucket.anfw_flow_bucket.bucket
+        bucketName = module.anfw_flow_bucket.s3_bucket_id
       }
       log_destination_type = "S3"
       log_type             = "FLOW"
