@@ -37,16 +37,16 @@ locals {
   project   = "network-hub"
   is_prod   = false
 
-  spend_money = false
+  spend_money = true
 }
 
 module "network_hub" {
   source = "../../modules/network_hub"
 
-  providers = {
-    aws         = aws.primary
-    aws.primary = aws.primary
-  }
+  # providers = {
+  #   aws         = aws.primary
+  #   aws.primary = aws.primary
+  # }
 
   namespace = local.namespace
   env       = local.env

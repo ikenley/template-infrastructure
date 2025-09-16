@@ -67,27 +67,27 @@ locals {
 }
 
 resource "aws_route_table" "public" {
-  count = local.len_public_subnets > 0 ? 1 : 0
+  count = local.len_public_subnets
 
   vpc_id = local.vpc_id
 
   tags = merge(
     {
-      "Name" : "${local.id}-${var.public_subnet_suffix}"
+      Name = format("${local.id}-${var.public_subnet_suffix}-%s", element(var.azs, count.index))
     },
     local.tags
   )
 }
 
 resource "aws_route_table_association" "public" {
-  count = local.len_public_subnets > 0 ? 1 : 0
+  count = local.len_public_subnets
 
   subnet_id      = element(aws_subnet.public[*].id, count.index)
-  route_table_id = element(aws_route_table.public[*].id, 0)
+  route_table_id = element(aws_route_table.public[*].id, count.index)
 }
 
 resource "aws_route" "public_internet_gateway" {
-  count = local.len_public_subnets > 0 ? 1 : 0
+  count = local.len_public_subnets
 
   route_table_id         = aws_route_table.public[count.index].id
   destination_cidr_block = "0.0.0.0/0"
@@ -97,6 +97,35 @@ resource "aws_route" "public_internet_gateway" {
     create = "5m"
   }
 }
+
+resource "aws_route" "public_to_firewall" {
+  count = local.len_public_subnets
+
+  route_table_id         = aws_route_table.public[count.index].id
+  destination_cidr_block = local.super_cidr_block
+  # https://github.com/hashicorp/terraform-provider-aws/issues/16759
+  vpc_endpoint_id = element([for ss in tolist(aws_networkfirewall_firewall.inspection_vpc_anfw[0].firewall_status[0].sync_states) : ss.attachment[0].endpoint_id if ss.attachment[0].subnet_id == aws_subnet.firewall[count.index].id], 0)
+
+  timeouts {
+    create = "5m"
+  }
+}
+# resource "aws_route_table" "inspection_vpc_public_subnet_route_table" {
+#   count  = length(data.aws_availability_zones.available.names)
+#   vpc_id = aws_vpc.inspection_vpc.id
+#   route {
+#     cidr_block = "0.0.0.0/0"
+#     gateway_id = aws_internet_gateway.inspection_vpc_igw.id
+#   }
+#   route {
+#     cidr_block = var.super_cidr_block
+#     # https://github.com/hashicorp/terraform-provider-aws/issues/16759
+#     vpc_endpoint_id = element([for ss in tolist(aws_networkfirewall_firewall.inspection_vpc_anfw.firewall_status[0].sync_states) : ss.attachment[0].endpoint_id if ss.attachment[0].subnet_id == aws_subnet.inspection_vpc_firewall_subnet[count.index].id], 0)
+#   }
+#   tags = {
+#     Name = "inspection-vpc/${data.aws_availability_zones.available.names[count.index]}/public-subnet-route-table"
+#   }
+# }
 
 #-------------------------------------------------------------------------------
 # firewall Subnets
@@ -155,6 +184,30 @@ resource "aws_route_table_association" "firewall" {
     var.single_nat_gateway ? 0 : count.index,
   )
 }
+
+resource "aws_route" "firewall_nat_gateway" {
+  count = var.enable_nat_gateway ? local.nat_gateway_count : 0
+
+  route_table_id         = element(aws_route_table.firewall[*].id, count.index)
+  destination_cidr_block = var.nat_gateway_destination_cidr_block
+  nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
+
+  timeouts {
+    create = "5m"
+  }
+}
+
+# resource "aws_route" "firewall_to_transit_gateway" {
+#   count = var.enable_nat_gateway ? local.nat_gateway_count : 0
+
+#   route_table_id         = element(aws_route_table.firewall[*].id, count.index)
+#   destination_cidr_block = local.super_cidr_block
+#   #   transit_gateway_id = aws_ec2_transit_gateway.tgw.id
+
+#   timeouts {
+#     create = "5m"
+#   }
+# }
 
 #-------------------------------------------------------------------------------
 # transit_gateway Subnets
@@ -346,17 +399,5 @@ resource "aws_nat_gateway" "this" {
   )
 
   depends_on = [aws_internet_gateway.this]
-}
-
-resource "aws_route" "firewall_nat_gateway" {
-  count = var.enable_nat_gateway ? local.nat_gateway_count : 0
-
-  route_table_id         = element(aws_route_table.firewall[*].id, count.index)
-  destination_cidr_block = var.nat_gateway_destination_cidr_block
-  nat_gateway_id         = element(aws_nat_gateway.this[*].id, count.index)
-
-  timeouts {
-    create = "5m"
-  }
 }
 
