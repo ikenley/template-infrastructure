@@ -1,5 +1,7 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: MIT-0
+#-------------------------------------------------------------------------------
+# Example "spoke" VPC
+# This simulates a normal workload account
+#-------------------------------------------------------------------------------
 
 resource "aws_vpc" "spoke_vpc_a" {
   cidr_block           = local.spoke_vpc_a_cidr
@@ -65,63 +67,58 @@ resource "aws_route_table_association" "spoke_vpc_a_route_table_association" {
   route_table_id = aws_route_table.spoke_vpc_a_route_table.id
 }
 
-resource "aws_vpc" "spoke_vpc_b" {
-  cidr_block           = local.spoke_vpc_b_cidr
-  instance_tenancy     = "default"
-  enable_dns_support   = true
-  enable_dns_hostnames = true
-  tags = {
-    Name = "spoke-vpc-b"
-  }
-}
+#-------------------------------------------------------------------------------
+# vpc-endpoints
+# Enable private, direct connection for EC2 <> SSM
+#-------------------------------------------------------------------------------
 
-resource "aws_subnet" "spoke_vpc_b_protected_subnet" {
-  count                   = length(data.aws_availability_zones.available.names)
-  map_public_ip_on_launch = false
-  vpc_id                  = aws_vpc.spoke_vpc_b.id
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  cidr_block              = cidrsubnet(local.spoke_vpc_b_cidr, 8, 10 + count.index)
-  tags = {
-    Name = "spoke-vpc-b/${data.aws_availability_zones.available.names[count.index]}/protected-subnet"
-  }
-}
+resource "aws_security_group" "spoke_vpc_a_endpoint_sg" {
+  name        = "spoke-vpc-a/sg-ssm-ec2-endpoints"
+  description = "Allow TLS inbound traffic for SSM/EC2 endpoints"
+  vpc_id      = aws_vpc.spoke_vpc_a.id
 
-resource "aws_subnet" "spoke_vpc_b_endpoint_subnet" {
-  count                   = length(data.aws_availability_zones.available.names)
-  map_public_ip_on_launch = false
-  vpc_id                  = aws_vpc.spoke_vpc_b.id
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  cidr_block              = cidrsubnet(local.spoke_vpc_b_cidr, 8, 20 + count.index)
-
-  tags = {
-    Name = "spoke-vpc-b/${data.aws_availability_zones.available.names[count.index]}/endpoint-subnet"
-  }
-}
-
-resource "aws_subnet" "spoke_vpc_b_tgw_subnet" {
-  count                   = length(data.aws_availability_zones.available.names)
-  map_public_ip_on_launch = false
-  vpc_id                  = aws_vpc.spoke_vpc_b.id
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
-  cidr_block              = cidrsubnet(local.spoke_vpc_b_cidr, 8, 30 + count.index)
-  tags = {
-    Name = "spoke-vpc-b/${data.aws_availability_zones.available.names[count.index]}/tgw-subnet"
-  }
-}
-
-resource "aws_route_table" "spoke_vpc_b_route_table" {
-  vpc_id = aws_vpc.spoke_vpc_b.id
-  route {
-    cidr_block         = "0.0.0.0/0"
-    transit_gateway_id = aws_ec2_transit_gateway.tgw.id
+  ingress {
+    description = "TLS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [aws_vpc.spoke_vpc_a.cidr_block]
   }
   tags = {
-    Name = "spoke-vpc-b/route-table"
+    Name = "spoke-vpc-a/sg-ssm-ec2-endpoints"
   }
 }
 
-resource "aws_route_table_association" "spoke_vpc_b_route_table_association" {
-  count          = length(aws_subnet.spoke_vpc_b_protected_subnet[*])
-  subnet_id      = aws_subnet.spoke_vpc_b_protected_subnet[count.index].id
-  route_table_id = aws_route_table.spoke_vpc_b_route_table.id
+resource "aws_vpc_endpoint" "spoke_vpc_a_ssm_endpoint" {
+  vpc_id            = aws_vpc.spoke_vpc_a.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.ssm"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = aws_subnet.spoke_vpc_a_endpoint_subnet[*].id
+  security_group_ids = [
+    aws_security_group.spoke_vpc_a_endpoint_sg.id,
+  ]
+  private_dns_enabled = true
 }
+
+resource "aws_vpc_endpoint" "spoke_vpc_a_ssm_messages_endpoint" {
+  vpc_id            = aws_vpc.spoke_vpc_a.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.ssmmessages"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = aws_subnet.spoke_vpc_a_endpoint_subnet[*].id
+  security_group_ids = [
+    aws_security_group.spoke_vpc_a_endpoint_sg.id,
+  ]
+  private_dns_enabled = true
+}
+
+resource "aws_vpc_endpoint" "spoke_vpc_a_ec2_messages_endpoint" {
+  vpc_id            = aws_vpc.spoke_vpc_a.id
+  service_name      = "com.amazonaws.${data.aws_region.current.name}.ec2messages"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = aws_subnet.spoke_vpc_a_endpoint_subnet[*].id
+  security_group_ids = [
+    aws_security_group.spoke_vpc_a_endpoint_sg.id,
+  ]
+  private_dns_enabled = true
+}
+

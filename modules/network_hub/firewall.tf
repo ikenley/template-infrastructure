@@ -1,5 +1,7 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: MIT-0
+#-------------------------------------------------------------------------------
+# AWS Network Firewall configuration
+# Fork of: https://github.com/aws-samples/aws-network-firewall-terraform/blob/main/firewall.tf
+#-------------------------------------------------------------------------------
 
 resource "aws_networkfirewall_firewall_policy" "anfw_policy" {
   name = "firewall-policy"
@@ -58,7 +60,10 @@ resource "aws_networkfirewall_rule_group" "drop_non_http_between_vpcs" {
       ip_sets {
         key = "SPOKE_VPCS"
         ip_set {
-          definition = [aws_vpc.spoke_vpc_a.cidr_block, aws_vpc.spoke_vpc_b.cidr_block]
+          definition = [
+            aws_vpc.spoke_vpc_a.cidr_block
+            # , aws_vpc.spoke_vpc_b.cidr_block
+          ]
         }
       }
     }
@@ -105,7 +110,10 @@ resource "aws_networkfirewall_rule_group" "block_domains" {
       ip_sets {
         key = "HOME_NET"
         ip_set {
-          definition = [aws_vpc.spoke_vpc_a.cidr_block, aws_vpc.spoke_vpc_b.cidr_block]
+          definition = [
+            aws_vpc.spoke_vpc_a.cidr_block
+            #, aws_vpc.spoke_vpc_b.cidr_block
+          ]
         }
       }
     }

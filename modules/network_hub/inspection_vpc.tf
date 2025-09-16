@@ -1,5 +1,7 @@
-// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
-// SPDX-License-Identifier: MIT-0
+#-------------------------------------------------------------------------------
+# Create VPC for the centralized inspection/egress network
+# Fork of: https://github.com/aws-samples/aws-network-firewall-terraform/blob/main/inspection_vpc.tf
+#-------------------------------------------------------------------------------
 
 resource "aws_vpc" "inspection_vpc" {
   cidr_block       = local.inspection_vpc_cidr
