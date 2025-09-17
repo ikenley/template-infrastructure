@@ -55,7 +55,6 @@ resource "aws_ec2_transit_gateway_route" "spoke_route_table_default_route" {
   transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.inspection_vpc_tgw_attachment.id
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.spoke_route_table.id
   destination_cidr_block         = "0.0.0.0/0"
-
 }
 
 resource "aws_ec2_transit_gateway_route_table_association" "inspection_vpc_tgw_attachment_rt_association" {
