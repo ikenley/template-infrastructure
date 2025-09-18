@@ -5,9 +5,8 @@
 terraform {
   required_providers {
     aws = {
-      source                = "hashicorp/aws"
-      version               = ">= 5.70.0"
-      configuration_aliases = [aws.primary]
+      source  = "hashicorp/aws"
+      version = ">= 5.70.0"
     }
   }
 }
@@ -15,11 +14,9 @@ terraform {
 data "aws_caller_identity" "primary" {}
 
 data "aws_partition" "primary" {
-  provider = aws.primary
 }
 
 data "aws_region" "primary" {
-  provider = aws.primary
 }
 
 locals {

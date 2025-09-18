@@ -23,7 +23,7 @@ provider "aws" {
 
 provider "aws" {
   alias   = "spoke_abc"
-  region  = "us-west-2"
+  region  = "us-east-1"
   profile = "terraform-dev"
 }
 
@@ -39,7 +39,32 @@ locals {
 
   availability_zones = ["us-east-1a", "us-east-1b"]
 
+  example_spoke_abc_cidr = "10.11.0.0/16"
+
   spend_money = true
+}
+
+module "example_vpc_spoke_abc" {
+  source = "../../modules/network_spoke_example"
+
+  providers = {
+    aws = aws.spoke_abc
+  }
+
+  namespace = local.namespace
+  env       = local.env
+  project   = local.project
+  is_prod   = local.is_prod
+
+  cidr = local.example_spoke_abc_cidr
+
+  availability_zones = local.availability_zones
+
+  enable_nat_gateway = local.spend_money
+  single_nat_gateway = false
+
+  # Add after initial creation 
+  transit_gateway_id = ""
 }
 
 module "network_hub" {
@@ -66,8 +91,8 @@ module "network_hub" {
 
   spoke_vpcs = {
     spoke_abc = {
-      id = "TODO"
-      cidr : "10.11.0.0/16"
+      id = module.example_vpc_spoke_abc.vpc_id
+      cidr : local.example_spoke_abc_cidr
       transit_gateway_subnets = [
         {
           cidr : "10.11.0.0/24"

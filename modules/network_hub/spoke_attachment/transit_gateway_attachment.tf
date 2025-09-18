@@ -90,6 +90,11 @@ resource "aws_ec2_transit_gateway_vpc_attachment" "spoke" {
   transit_gateway_id = var.transit_gateway_id
   vpc_id             = var.spoke_vpc.id
 
+  depends_on = [
+    aws_ram_principal_association.tgw_spoke,
+    aws_ram_resource_association.tgw_spoke,
+  ]
+
   transit_gateway_default_route_table_association = false
   transit_gateway_default_route_table_propagation = false
 
