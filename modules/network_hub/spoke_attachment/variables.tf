@@ -32,6 +32,7 @@ variable "project" {
   description = "Project name to use as a base for most resources"
 }
 
+variable "transit_gateway_arn" {}
 variable "transit_gateway_id" {}
 
 variable "hub_transit_gateway_attachment_id" {}

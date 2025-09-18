@@ -58,6 +58,33 @@ resource "aws_route_table_association" "spoke_tgw_subnet" {
 # Transit Gateway attachement
 #-------------------------------------------------------------------------------
 
+# Share resource across accounts
+resource "aws_ram_resource_share" "tgw_spoke" {
+  provider = aws.hub
+
+  name = local.resource_name
+
+  tags = {
+    Name = local.resource_name
+  }
+}
+
+# Share the transit gateway...
+resource "aws_ram_resource_association" "tgw_spoke" {
+  provider = aws.hub
+
+  resource_arn       = var.transit_gateway_arn
+  resource_share_arn = aws_ram_resource_share.tgw_spoke.id
+}
+
+# ...with the second account.
+resource "aws_ram_principal_association" "tgw_spoke" {
+  provider = aws.hub
+
+  principal          = data.aws_caller_identity.spoke.account_id
+  resource_share_arn = aws_ram_resource_share.tgw_spoke.id
+}
+
 resource "aws_ec2_transit_gateway_vpc_attachment" "spoke" {
   subnet_ids         = aws_subnet.spoke_tgw_subnet[*].id
   transit_gateway_id = var.transit_gateway_id

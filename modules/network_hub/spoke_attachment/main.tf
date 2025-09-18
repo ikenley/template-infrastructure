@@ -14,6 +14,7 @@ terraform {
 }
 
 data "aws_caller_identity" "hub" {}
+data "aws_caller_identity" "spoke" {}
 
 data "aws_partition" "hub" {
   provider = aws.hub
