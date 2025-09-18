@@ -3,6 +3,10 @@
 # Fork of: https://github.com/aws-samples/aws-network-firewall-terraform/blob/main/firewall.tf
 #-------------------------------------------------------------------------------
 
+locals {
+  spoke_vpc_cidrs = toset([for k, v in var.spoke_vpcs : v.cidr])
+}
+
 resource "aws_networkfirewall_firewall_policy" "anfw_policy" {
   name = "${local.id}-firewall-policy"
   firewall_policy {
@@ -60,7 +64,7 @@ resource "aws_networkfirewall_rule_group" "drop_non_http_between_vpcs" {
       ip_sets {
         key = "SPOKE_VPCS"
         ip_set {
-          definition = var.spoke_vpc_cidrs
+          definition = local.spoke_vpc_cidrs
         }
       }
     }
@@ -107,7 +111,7 @@ resource "aws_networkfirewall_rule_group" "block_domains" {
       ip_sets {
         key = "HOME_NET"
         ip_set {
-          definition = var.spoke_vpc_cidrs
+          definition = local.spoke_vpc_cidrs
         }
       }
     }
@@ -143,7 +147,7 @@ resource "aws_cloudwatch_log_group" "anfw_alert_log_group" {
 }
 
 module "anfw_flow_bucket" {
-  source = "../../s3_bucket"
+  source = "../s3_bucket"
 
   bucket_name_suffix = "${local.id}-firewall-log"
 

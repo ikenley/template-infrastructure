@@ -7,7 +7,7 @@ terraform {
     aws = {
       source                = "hashicorp/aws"
       version               = ">= 5.70.0"
-      configuration_aliases = [aws.hub]
+      configuration_aliases = [aws.hub, aws.spoke_abc]
     }
   }
 }
@@ -27,14 +27,14 @@ locals {
 
   aws_region_hub = data.aws_region.hub.name
 
-  id            = "${var.namespace}-${var.env}-${var.project}-hub"
-  output_prefix = "/${var.namespace}/${var.env}/${var.project}/hub"
+  id            = "${var.namespace}-${var.env}-${var.project}"
+  output_prefix = "/${var.namespace}/${var.env}/${var.project}"
 
   tags = merge(var.tags, {
     Terraform   = true
     Environment = var.env
     is_prod     = var.is_prod
     repo        = "https://github.com/ikenley/template-infrastructure"
-    module      = "network_hub_and_spoke/hub"
+    module      = "network_hub_and_spoke"
   })
 }

@@ -32,23 +32,22 @@ variable "project" {
   description = "Project name to use as a base for most resources"
 }
 
+variable "transit_gateway_id" {}
 
-variable "hub_vpc_cidr" {}
-variable "availability_zones" {}
+variable "hub_transit_gateway_attachment_id" {}
+variable "hub_transit_gateway_route_table_id" {}
 
-variable "enable_nat_gateway" {
-  type = bool
-}
-variable "single_nat_gateway" {
-  default = false
-}
-variable "nat_gateway_destination_cidr_block" {
-  default = "0.0.0.0/0"
+variable "spoke_key" {
+  description = "Identifier used to create resources"
 }
 
-variable "spoke_vpcs" {
-  type = map(object({
+variable "spoke_vpc" {
+  type = object({
+    id : string
     cidr : string
-    availability_zones : list(string)
-  }))
+    transit_gateway_subnets : list(object({
+      cidr : string
+      availability_zone : string
+    }))
+  })
 }
