@@ -11,7 +11,7 @@ terraform {
     profile = "terraform-dev"
     region  = "us-east-1"
     bucket  = "924586450630-terraform-state"
-    key     = "dev/network_demo/terraform.tfstate.json"
+    key     = "dev/network_hub_demo/terraform.tfstate.json"
   }
 }
 
