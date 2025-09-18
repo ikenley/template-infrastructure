@@ -3,12 +3,6 @@ variable "super_cidr_block" {
   default = "10.0.0.0/8"
 }
 
-locals {
-  spoke_vpc_a_cidr    = cidrsubnet(var.super_cidr_block, 8, 10)
-  spoke_vpc_b_cidr    = cidrsubnet(var.super_cidr_block, 8, 11)
-  inspection_vpc_cidr = cidrsubnet(var.super_cidr_block, 8, 255)
-}
-
 variable "tags" {
   description = "A map of tags to add to all resources"
   type        = map(string)
@@ -35,23 +29,8 @@ variable "project" {
 
 # For the following vars, see:
 # https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest?tab=inputs
-variable "cidr" {}
-variable "azs" {}
-
-variable "public_subnets" {}
-variable "public_subnet_suffix" {
-  default = "public"
-}
-
-variable "firewall_subnets" {}
-variable "firewall_subnet_suffix" {
-  default = "firewall"
-}
-
-variable "transit_gateway_subnets" {}
-variable "transit_gateway_subnet_suffix" {
-  default = "transit_gateway"
-}
+variable "hub_vpc_cidr" {}
+variable "availability_zones" {}
 
 variable "enable_nat_gateway" {
   type = bool
@@ -59,6 +38,7 @@ variable "enable_nat_gateway" {
 variable "single_nat_gateway" {
   default = false
 }
-variable "nat_gateway_destination_cidr_block" {
-  default = "0.0.0.0/0"
+
+variable "spoke_vpc_cidrs" {
+  type = set(string)
 }

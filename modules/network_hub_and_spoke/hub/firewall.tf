@@ -60,10 +60,7 @@ resource "aws_networkfirewall_rule_group" "drop_non_http_between_vpcs" {
       ip_sets {
         key = "SPOKE_VPCS"
         ip_set {
-          definition = [
-            aws_vpc.spoke_vpc_a.cidr_block
-            # , aws_vpc.spoke_vpc_b.cidr_block
-          ]
+          definition = var.spoke_vpc_cidrs
         }
       }
     }
@@ -110,10 +107,7 @@ resource "aws_networkfirewall_rule_group" "block_domains" {
       ip_sets {
         key = "HOME_NET"
         ip_set {
-          definition = [
-            aws_vpc.spoke_vpc_a.cidr_block
-            #, aws_vpc.spoke_vpc_b.cidr_block
-          ]
+          definition = var.spoke_vpc_cidrs
         }
       }
     }
@@ -129,13 +123,13 @@ resource "aws_networkfirewall_rule_group" "block_domains" {
 }
 
 
-resource "aws_networkfirewall_firewall" "inspection_vpc_anfw" {
+resource "aws_networkfirewall_firewall" "hub_vpc_anfw" {
   name                = "${local.id}-network-firewall"
   firewall_policy_arn = aws_networkfirewall_firewall_policy.anfw_policy.arn
-  vpc_id              = aws_vpc.inspection_vpc.id
+  vpc_id              = aws_vpc.hub_vpc.id
 
   dynamic "subnet_mapping" {
-    for_each = aws_subnet.inspection_vpc_firewall_subnet[*].id
+    for_each = aws_subnet.hub_vpc_firewall_subnet[*].id
 
     content {
       subnet_id = subnet_mapping.value
@@ -149,7 +143,7 @@ resource "aws_cloudwatch_log_group" "anfw_alert_log_group" {
 }
 
 module "anfw_flow_bucket" {
-  source = "../s3_bucket"
+  source = "../../s3_bucket"
 
   bucket_name_suffix = "${local.id}-firewall-log"
 
@@ -159,7 +153,7 @@ module "anfw_flow_bucket" {
 }
 
 resource "aws_networkfirewall_logging_configuration" "anfw_alert_logging_configuration" {
-  firewall_arn = aws_networkfirewall_firewall.inspection_vpc_anfw.arn
+  firewall_arn = aws_networkfirewall_firewall.hub_vpc_anfw.arn
   logging_configuration {
     log_destination_config {
       log_destination = {

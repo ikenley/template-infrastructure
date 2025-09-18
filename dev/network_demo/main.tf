@@ -16,7 +16,7 @@ terraform {
 }
 
 provider "aws" {
-  alias   = "primary"
+  alias   = "hub"
   region  = "us-east-1"
   profile = "terraform-dev"
 }
@@ -36,18 +36,20 @@ provider "aws" {
 locals {
   namespace = "ik"
   env       = "dev"
-  project   = "network-hub"
+  project   = "network-demo"
   is_prod   = false
+
+  availability_zones = ["us-east-1a", "us-east-1b"]
 
   spend_money = true
 }
 
 module "network_hub" {
-  source = "../../modules/network_hub"
+  source = "../../modules/network_hub_and_spoke"
 
   providers = {
-    aws         = aws.primary
-    aws.primary = aws.primary
+    aws     = aws.hub
+    aws.hub = aws.hub
   }
 
   namespace = local.namespace
@@ -55,14 +57,18 @@ module "network_hub" {
   project   = local.project
   is_prod   = local.is_prod
 
-  cidr = "10.1.0.0/16"
+  hub_vpc_cidr = "10.255.0.0/16"
 
-  azs                     = ["us-east-1a", "us-east-1b"]
-  public_subnets          = ["10.1.0.0/24", "10.1.1.0/24"]
-  firewall_subnets        = ["10.1.2.0/24", "10.1.3.0/24"]
-  transit_gateway_subnets = ["10.1.4.0/24", "10.1.5.0/24"]
+  availability_zones = local.availability_zones
 
   enable_nat_gateway = local.spend_money
   single_nat_gateway = false
+
+  spoke_vpcs = {
+    spoke_abc = {
+      cidr : "10.11.0.0/16"
+      availability_zones = local.availability_zones
+    }
+  }
 }
 

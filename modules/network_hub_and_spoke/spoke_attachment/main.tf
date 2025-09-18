@@ -1,5 +1,6 @@
 #-------------------------------------------------------------------------------
 # Main local varialble setup
+# Based on https://github.com/hashicorp/terraform-provider-aws/tree/main/examples/transit-gateway-cross-account-vpc-attachment
 #-------------------------------------------------------------------------------
 
 terraform {

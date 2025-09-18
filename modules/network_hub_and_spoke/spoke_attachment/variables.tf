@@ -36,22 +36,7 @@ variable "project" {
 # For the following vars, see:
 # https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest?tab=inputs
 variable "cidr" {}
-variable "azs" {}
-
-variable "public_subnets" {}
-variable "public_subnet_suffix" {
-  default = "public"
-}
-
-variable "firewall_subnets" {}
-variable "firewall_subnet_suffix" {
-  default = "firewall"
-}
-
-variable "transit_gateway_subnets" {}
-variable "transit_gateway_subnet_suffix" {
-  default = "transit_gateway"
-}
+variable "availability_zones" {}
 
 variable "enable_nat_gateway" {
   type = bool

@@ -33,25 +33,8 @@ variable "project" {
 }
 
 
-# For the following vars, see:
-# https://registry.terraform.io/modules/terraform-aws-modules/vpc/aws/latest?tab=inputs
-variable "cidr" {}
-variable "azs" {}
-
-variable "public_subnets" {}
-variable "public_subnet_suffix" {
-  default = "public"
-}
-
-variable "firewall_subnets" {}
-variable "firewall_subnet_suffix" {
-  default = "firewall"
-}
-
-variable "transit_gateway_subnets" {}
-variable "transit_gateway_subnet_suffix" {
-  default = "transit_gateway"
-}
+variable "hub_vpc_cidr" {}
+variable "availability_zones" {}
 
 variable "enable_nat_gateway" {
   type = bool
@@ -61,4 +44,11 @@ variable "single_nat_gateway" {
 }
 variable "nat_gateway_destination_cidr_block" {
   default = "0.0.0.0/0"
+}
+
+variable "spoke_vpcs" {
+  type = map(object({
+    cidr : string
+    availability_zones : list(string)
+  }))
 }

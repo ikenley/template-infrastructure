@@ -14,38 +14,38 @@ resource "aws_vpc" "spoke_vpc_a" {
 }
 
 resource "aws_subnet" "spoke_vpc_a_protected_subnet" {
-  count                   = length(data.aws_availability_zones.available.names)
+  count                   = length(var.availability_zones)
   map_public_ip_on_launch = false
   vpc_id                  = aws_vpc.spoke_vpc_a.id
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  availability_zone       = var.availability_zones[count.index]
   cidr_block              = cidrsubnet(local.spoke_vpc_a_cidr, 8, 10 + count.index)
 
   tags = {
-    Name = "spoke-vpc-a/${data.aws_availability_zones.available.names[count.index]}/protected-subnet"
+    Name = "spoke-vpc-a/${var.availability_zones[count.index]}/protected-subnet"
   }
 }
 
 resource "aws_subnet" "spoke_vpc_a_endpoint_subnet" {
-  count                   = length(data.aws_availability_zones.available.names)
+  count                   = length(var.availability_zones)
   map_public_ip_on_launch = false
   vpc_id                  = aws_vpc.spoke_vpc_a.id
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  availability_zone       = var.availability_zones[count.index]
   cidr_block              = cidrsubnet(local.spoke_vpc_a_cidr, 8, 20 + count.index)
 
   tags = {
-    Name = "spoke-vpc-a/${data.aws_availability_zones.available.names[count.index]}/endpoint-subnet"
+    Name = "spoke-vpc-a/${var.availability_zones[count.index]}/endpoint-subnet"
   }
 }
 
 resource "aws_subnet" "spoke_vpc_a_tgw_subnet" {
-  count                   = length(data.aws_availability_zones.available.names)
+  count                   = length(var.availability_zones)
   map_public_ip_on_launch = false
   vpc_id                  = aws_vpc.spoke_vpc_a.id
-  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  availability_zone       = var.availability_zones[count.index]
   cidr_block              = cidrsubnet(local.spoke_vpc_a_cidr, 8, 30 + count.index)
 
   tags = {
-    Name = "spoke-vpc-a/${data.aws_availability_zones.available.names[count.index]}/tgw-subnet"
+    Name = "spoke-vpc-a/${var.availability_zones[count.index]}/tgw-subnet"
   }
 }
 
