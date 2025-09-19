@@ -64,7 +64,7 @@ module "example_vpc_spoke_abc" {
   single_nat_gateway = false
 
   # Add after initial creation 
-  transit_gateway_id = ""
+  transit_gateway_id = "tgw-0ca9260aaf7d15b43"
 }
 
 module "network_hub" {
