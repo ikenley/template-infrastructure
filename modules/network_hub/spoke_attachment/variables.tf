@@ -46,9 +46,6 @@ variable "spoke_vpc" {
   type = object({
     id : string
     cidr : string
-    transit_gateway_subnets : list(object({
-      cidr : string
-      availability_zone : string
-    }))
+    transit_gateway_subnet_ids : list(string)
   })
 }

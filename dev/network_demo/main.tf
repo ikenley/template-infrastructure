@@ -11,7 +11,7 @@ terraform {
     profile = "terraform-dev"
     region  = "us-east-1"
     bucket  = "924586450630-terraform-state"
-    key     = "dev/network_hub_demo/terraform.tfstate.json"
+    key     = "dev/network_hub_example/terraform.tfstate.json"
   }
 }
 
@@ -93,16 +93,7 @@ module "network_hub" {
     spoke_abc = {
       id = module.example_vpc_spoke_abc.vpc_id
       cidr : local.example_spoke_abc_cidr
-      transit_gateway_subnets = [
-        {
-          cidr : "10.11.0.0/24"
-          availability_zone : "us-east-1a"
-        },
-        {
-          cidr : "10.11.1.0/24"
-          availability_zone : "us-east-1b"
-        }
-      ]
+      transit_gateway_subnet_ids = module.example_vpc_spoke_abc.transit_gw_subnet_ids
     }
   }
 }
