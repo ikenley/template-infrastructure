@@ -47,7 +47,7 @@ resource "aws_route_table" "route_table" {
     transit_gateway_id = var.transit_gateway_id
   }
   tags = {
-    Name = "spoke-vpc-a/route-table"
+    Name = "spoke-vpc-a/${var.availability_zones[count.index]}/protected-subnet"
   }
 }
 

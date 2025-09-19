@@ -39,6 +39,12 @@ resource "aws_ec2_transit_gateway_route_table_association" "hub" {
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
 }
 
+# Route propagation for Account A attachment to its route table
+resource "aws_ec2_transit_gateway_route_table_propagation" "hub" {
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.hub.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.hub.id
+}
+
 # resource "aws_ec2_transit_gateway_route" "hub_to_spoke" {
 #   for_each = var.spoke_vpcs
 

@@ -14,7 +14,7 @@ resource "aws_ec2_transit_gateway_route" "hub_to_spoke" {
   provider = aws.hub
 
   destination_cidr_block         = var.spoke_vpc.cidr
-  transit_gateway_attachment_id  = var.hub_transit_gateway_attachment_id
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.spoke.id
   transit_gateway_route_table_id = var.hub_transit_gateway_route_table_id
 }
 
@@ -110,3 +110,10 @@ resource "aws_ec2_transit_gateway_route" "spoke_to_hub" {
   transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.spoke.id
 }
 
+# Route propagation for spoke attachment to its route table  
+resource "aws_ec2_transit_gateway_route_table_propagation" "spoke" {
+  provider = aws.hub
+
+  transit_gateway_attachment_id  = aws_ec2_transit_gateway_vpc_attachment.spoke.id
+  transit_gateway_route_table_id = aws_ec2_transit_gateway_route_table.spoke.id
+}
