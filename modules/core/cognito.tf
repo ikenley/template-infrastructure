@@ -36,6 +36,10 @@ resource "aws_cognito_user_pool" "this" {
     }
   }
 
+  lambda_config {
+    pre_sign_up = aws_lambda_function.pre_signup_trigger.arn
+  }
+
   tags = local.tags
 }
 
@@ -173,7 +177,7 @@ resource "aws_cognito_user_pool_client" "main" {
   enable_token_revocation       = true
 
   callback_urls = var.cognito_callback_urls
-  logout_urls = var.cognito_logout_urls
+  logout_urls   = var.cognito_logout_urls
 
   refresh_token_validity = 30
   access_token_validity  = 1
@@ -204,4 +208,101 @@ resource "aws_cognito_identity_provider" "google" {
     given_name  = "given_name"
     family_name = "family_name"
   }
+}
+
+#------------------------------------------------------------------------------
+# Pre sign-up Lambda trigger
+# https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-lambda-pre-sign-up.html
+#------------------------------------------------------------------------------
+
+locals {
+  pre_signup_trigger_id = "${local.id}-cognito-pre-signup-trigger"
+}
+
+resource "aws_lambda_function" "pre_signup_trigger" {
+  function_name = local.pre_signup_trigger_id
+
+  role = aws_iam_role.pre_signup_trigger.arn
+
+  filename         = data.archive_file.pre_signup_trigger.output_path
+  handler          = "lambda_function.lambda_handler"
+  source_code_hash = data.external.lambda_hash.result.hash
+  runtime          = "python3.13"
+}
+
+# Ensure consistent source code hash
+data "external" "lambda_hash" {
+  program = ["python3", "-c", "import hashlib,sys,json; print(json.dumps({'hash':hashlib.sha256(open(sys.argv[1],'rb').read()).hexdigest()}))", "${path.module}/lambda/pre_signup_trigger/src/lambda_function.py"]
+}
+
+data "archive_file" "pre_signup_trigger" {
+  type        = "zip"
+  source_file = "${path.module}/lambda/pre_signup_trigger/src/lambda_function.py"
+  output_path = "${path.module}/lambda/pre_signup_trigger/src/lambda_function.zip"
+}
+
+resource "aws_iam_role" "pre_signup_trigger" {
+  name = local.pre_signup_trigger_id
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Sid    = ""
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+      },
+    ]
+  })
+
+  tags = local.tags
+}
+
+resource "aws_iam_role_policy_attachment" "pre_signup_trigger" {
+  role       = aws_iam_role.pre_signup_trigger.name
+  policy_arn = aws_iam_policy.pre_signup_trigger.arn
+}
+
+resource "aws_iam_policy" "pre_signup_trigger" {
+  name        = local.pre_signup_trigger_id
+  path        = "/"
+  description = "Lambda execution policy for ${local.pre_signup_trigger_id}"
+
+  policy = jsonencode({
+    "Version" : "2012-10-17",
+    "Statement" : [
+      {
+        "Sid" : "AllowLogging",
+        "Effect" : "Allow",
+        "Action" : [
+          "logs:CreateLogGroup",
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ],
+        "Resource" : "*"
+      },
+      {
+        "Sid" : "AllowVpcAccess",
+        "Effect" : "Allow",
+        "Action" : [
+          "ec2:CreateNetworkInterface",
+          "ec2:DescribeNetworkInterfaces",
+          "ec2:DeleteNetworkInterface"
+        ],
+        "Resource" : "*"
+      }
+    ]
+  })
+}
+
+resource "aws_lambda_permission" "pre_signup_trigger" {
+  statement_id  = "AllowExecutionFromCognito"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.pre_signup_trigger.arn
+  principal     = "cognito-idp.amazonaws.com"
+  source_arn    = aws_cognito_user_pool.this.arn
+  depends_on    = [aws_lambda_function.pre_signup_trigger]
 }
