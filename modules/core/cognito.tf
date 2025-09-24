@@ -222,12 +222,25 @@ locals {
 resource "aws_lambda_function" "pre_signup_trigger" {
   function_name = local.pre_signup_trigger_id
 
+  description = "Validate Cognito signup triggers"
+
   role = aws_iam_role.pre_signup_trigger.arn
 
   filename         = data.archive_file.pre_signup_trigger.output_path
   handler          = "lambda_function.lambda_handler"
   source_code_hash = data.external.lambda_hash.result.hash
   runtime          = "python3.13"
+
+  environment {
+    variables = {
+      APP_ENV = var.env
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = module.vpc.private_subnets
+    security_group_ids = [aws_security_group.pre_signup_trigger.id]
+  }
 }
 
 # Ensure consistent source code hash
@@ -293,6 +306,25 @@ resource "aws_iam_policy" "pre_signup_trigger" {
           "ec2:DeleteNetworkInterface"
         ],
         "Resource" : "*"
+      },
+      {
+        "Sid" : "AccessTableAllIndexesOnBooks",
+        "Effect" : "Allow",
+        "Action" : [
+          "dynamodb:PutItem",
+          "dynamodb:UpdateItem",
+          "dynamodb:DeleteItem",
+          "dynamodb:BatchWriteItem",
+          "dynamodb:GetItem",
+          "dynamodb:BatchGetItem",
+          "dynamodb:Scan",
+          "dynamodb:Query",
+          "dynamodb:ConditionCheckItem"
+        ],
+        "Resource" : [
+          "${aws_dynamodb_table.pre_signup_trigger.arn}",
+          "${aws_dynamodb_table.pre_signup_trigger.arn}/index/*"
+        ]
       }
     ]
   })
@@ -305,4 +337,48 @@ resource "aws_lambda_permission" "pre_signup_trigger" {
   principal     = "cognito-idp.amazonaws.com"
   source_arn    = aws_cognito_user_pool.this.arn
   depends_on    = [aws_lambda_function.pre_signup_trigger]
+}
+
+resource "aws_security_group" "pre_signup_trigger" {
+  name        = local.pre_signup_trigger_id
+  description = "Allow outbound to all"
+  vpc_id      = module.vpc.vpc_id
+}
+
+resource "aws_security_group_rule" "pre_signup_trigger" {
+  security_group_id = aws_security_group.pre_signup_trigger.id
+  type              = "egress"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+}
+
+resource "aws_dynamodb_table" "pre_signup_trigger" {
+  name = local.pre_signup_trigger_id
+
+  billing_mode = "PAY_PER_REQUEST"
+
+  stream_enabled = true
+
+  hash_key  = "hash_key"
+  range_key = "range_key"
+
+  attribute {
+    name = "hash_key"
+    type = "S"
+  }
+
+  attribute {
+    name = "range_key"
+    type = "S"
+  }
+
+  replica {
+    region_name = "us-west-2"
+  }
+
+  tags = merge(local.tags, {
+    Name = local.pre_signup_trigger_id
+  })
 }

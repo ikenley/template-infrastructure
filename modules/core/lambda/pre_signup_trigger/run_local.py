@@ -1,3 +1,5 @@
+from src.lambda_function import lambda_handler
+
 event = {
     "version": "1",
     "region": "us-east-1",
@@ -18,3 +20,7 @@ event = {
         "autoVerifyPhone": False,
     },
 }
+
+context = {}
+
+lambda_handler(event, context)
