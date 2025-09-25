@@ -1,4 +1,8 @@
+from dotenv import load_dotenv
 from src.lambda_function import lambda_handler
+
+
+load_dotenv()
 
 event = {
     "version": "1",
@@ -11,7 +15,7 @@ event = {
     },
     "triggerSource": "PreSignUp_SignUp",
     "request": {
-        "userAttributes": {"email": "ikenley6+auth@gmail.com"},
+        "userAttributes": {"email": "ikenley6+example@gmail.com"},
         "validationData": None,
     },
     "response": {

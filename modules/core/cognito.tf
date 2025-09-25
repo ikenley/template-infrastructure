@@ -233,7 +233,8 @@ resource "aws_lambda_function" "pre_signup_trigger" {
 
   environment {
     variables = {
-      APP_ENV = var.env
+      APP_ENV               = var.env
+      INVITATION_TABLE_NAME = aws_dynamodb_table.pre_signup_trigger.name
     }
   }
 
