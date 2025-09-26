@@ -18,5 +18,7 @@ module "static_s3_website" {
 
   create_index_html_function = true
 
+  create_acm_certificate = true
+
   tags = local.tags
 }
