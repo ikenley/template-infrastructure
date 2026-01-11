@@ -13,6 +13,8 @@ module "frontend" {
   parent_domain_name = var.domain_name
   domain_name        = "${var.dns_subdomain}.${var.domain_name}"
 
+  create_acm_certificate = true
+
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
   # Configure API Gateway origin

@@ -16,6 +16,8 @@ module "api_lambda" {
   parent_domain_name = var.domain_name
   domain_name        = "${var.dns_subdomain}.${var.domain_name}"
 
+  create_acm_certificate = true
+
   image_uri            = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-test-prediction-lambda:3"
   lambda_image_command = ["PredictionApi::PredictionApi.LambdaEntryPoint::FunctionHandlerAsync"]
   lambda_description   = "Predictions app API Lambda"

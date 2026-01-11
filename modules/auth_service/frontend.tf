@@ -17,5 +17,7 @@ module "frontend" {
 
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
+  create_acm_certificate = true
+
   tags = var.tags
 }

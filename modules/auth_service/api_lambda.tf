@@ -18,27 +18,29 @@ module "api_lambda" {
   git_branch = var.git_branch
 
   parent_domain_name = var.parent_domain_name
-  domain_name      = local.api_domain_name
+  domain_name        = local.api_domain_name
 
   aws_lb_listener_rule_priority = 12500
 
-  image_uri = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-auth-api:b7aecb7"
+  image_uri          = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-dev-auth-api:b7aecb7"
   lambda_description = var.description
-  lambda_timeout = 30
+  lambda_timeout     = 30
   lambda_memory_size = 1024
 
   environment_variables = {
-    APP_ENV = var.env
-    BASE_DOMAIN = var.parent_domain_name
+    APP_ENV               = var.env
+    BASE_DOMAIN           = var.parent_domain_name
     CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
   }
+
+  create_acm_certificate = true
 
   tags = var.tags
 }
 
 resource "aws_iam_policy" "api_lambda" {
-  name        = "${local.id}-lambda"
-  path        = "/"
+  name = "${local.id}-lambda"
+  path = "/"
 
   policy = jsonencode({
     Version = "2012-10-17"
@@ -51,9 +53,9 @@ resource "aws_iam_policy" "api_lambda" {
         Resource = [aws_ssm_parameter.lambda_config.arn]
       },
       {
-        Sid: "AllowCognito", 
-        Action = ["cognito-idp:AdminInitiateAuth"],
-        Effect = "Allow"
+        Sid : "AllowCognito",
+        Action   = ["cognito-idp:AdminInitiateAuth"],
+        Effect   = "Allow"
         Resource = ["*"] # TODO narrow scope
       }
     ]

@@ -35,6 +35,29 @@ resource "aws_ecr_repository_policy" "api" {
   })
 }
 
+resource "aws_ecr_lifecycle_policy" "api" {
+  repository = aws_ecr_repository.api.name
+
+  policy = <<EOF
+{
+  "rules": [
+    {
+      "rulePriority": 1,
+      "description": "Keep last 3 images",
+      "selection": {
+        "tagStatus": "any",
+        "countType": "imageCountMoreThan",
+        "countNumber": 3
+      },
+      "action": {
+        "type": "expire"
+      }
+    }
+  ]
+}
+EOF
+}
+
 resource "aws_ecr_repository" "lambda" {
   name                 = "${local.id}-lambda"
   image_tag_mutability = "MUTABLE"
@@ -62,6 +85,29 @@ resource "aws_ecr_repository_policy" "lambda" {
       }
     ]
   })
+}
+
+resource "aws_ecr_lifecycle_policy" "lambda" {
+  repository = aws_ecr_repository.lambda.name
+
+  policy = <<EOF
+{
+  "rules": [
+    {
+      "rulePriority": 1,
+      "description": "Keep last 3 images",
+      "selection": {
+        "tagStatus": "any",
+        "countType": "imageCountMoreThan",
+        "countNumber": 3
+      },
+      "action": {
+        "type": "expire"
+      }
+    }
+  ]
+}
+EOF
 }
 
 resource "aws_codepipeline" "this" {
