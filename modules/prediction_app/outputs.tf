@@ -1,21 +1,21 @@
 resource "aws_ssm_parameter" "revisit_prediction__pg_connection" {
-  name  = local.pg_connection_parm_name
-  type  = "SecureString"
-  overwrite = true 
+  name      = local.pg_connection_parm_name
+  type      = "SecureString"
+  overwrite = true
   value = jsonencode({
-    "host":"${local.pghost}",
-    "port":"${local.pgport}",
-    "user":"revisit_prediction_user",
-    "password":"${random_password.revisit_prediction_user.result}",
-    "database":"${local.pgdatabase}"
+    "host" : "${local.pghost}",
+    "port" : "${local.pgport}",
+    "user" : "revisit_prediction_user",
+    "password" : "${random_password.revisit_prediction_user.result}",
+    "database" : "${local.pgdatabase}"
   })
 }
 
 resource "aws_ssm_parameter" "revisit_prediction__pgpassword" {
-  name  = "${local.output_prefix}/revisit_prediction/pgpassword"
-  type  = "SecureString"
-  overwrite = true 
-  value = random_password.revisit_prediction_user.result
+  name      = "${local.output_prefix}/revisit_prediction/pgpassword"
+  type      = "SecureString"
+  overwrite = true
+  value     = random_password.revisit_prediction_user.result
 }
 
 # Used only for local dev
@@ -24,10 +24,10 @@ resource "aws_ssm_parameter" "revisit_prediction_local__pg_connection" {
   type  = "SecureString"
   value = "SET_FOR_LOCAL_ENV"
 
-  overwrite = false 
+  overwrite = false
 
   # populate this via data sources
-  lifecycle {  
+  lifecycle {
     ignore_changes = [value]
   }
 }
@@ -63,23 +63,23 @@ resource "aws_ssm_parameter" "prediction_app_user__connection_string" {
 }
 
 resource "aws_ssm_parameter" "auth_service__pg_connection" {
-  name  = "${local.output_prefix}/auth_service/pg_connection"
-  type  = "SecureString"
-  overwrite = true 
+  name      = "${local.output_prefix}/auth_service/pg_connection"
+  type      = "SecureString"
+  overwrite = true
   value = jsonencode({
-    "host":"${local.pghost}",
-    "port":"${local.pgport}",
-    "user":"auth_service_user",
-    "password":"${random_password.auth_service_user.result}",
-    "database":"${local.pgdatabase}"
+    "host" : "${local.pghost}",
+    "port" : "${local.pgport}",
+    "user" : "auth_service_user",
+    "password" : "${random_password.auth_service_user.result}",
+    "database" : "${local.pgdatabase}"
   })
 }
 
 resource "aws_ssm_parameter" "auth_service__pgpassword" {
-  name  = "${local.output_prefix}/auth_service/pgpassword"
-  type  = "SecureString"
-  overwrite = true 
-  value = random_password.auth_service_user.result
+  name      = "${local.output_prefix}/auth_service/pgpassword"
+  type      = "SecureString"
+  overwrite = true
+  value     = random_password.auth_service_user.result
 }
 
 # Used only for local dev
@@ -88,10 +88,10 @@ resource "aws_ssm_parameter" "auth_service_local__pg_connection" {
   type  = "SecureString"
   value = "SET_FOR_LOCAL_VALUES"
 
-  overwrite = false 
+  overwrite = false
 
   # populate this via data sources
-  lifecycle {  
+  lifecycle {
     ignore_changes = [value]
   }
 }
