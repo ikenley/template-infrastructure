@@ -13,7 +13,7 @@ module "receive_lambda" {
   function_name = local.receive_lambda_id
   description   = "${local.id} receive manual approve callback"
   handler       = "lambda_function.handler"
-  runtime       = "nodejs20.x"
+  runtime       = "nodejs24.x"
   publish       = true
   timeout       = 30 # seconds
 

@@ -13,7 +13,7 @@ resource "aws_ssm_parameter" "auth_service_domain_name" {
   name      = "${local.output_prefix}/domain_name"
   type      = "String"
   overwrite = true
-  value = local.api_domain_name
+  value     = var.domain_name
 }
 
 resource "aws_ssm_parameter" "lambda_config" {
@@ -22,7 +22,7 @@ resource "aws_ssm_parameter" "lambda_config" {
   overwrite = true
   value = jsonencode({
     "COGNITO_OAUTH_URL_PREFIX" : "https://${data.aws_ssm_parameter.cognito_user_pool_domain.value}",
-    "COGNITO_OAUTH_REDIRECT_URL_PREFIX" : "https://${local.api_domain_name}",
+    "COGNITO_OAUTH_REDIRECT_URL_PREFIX" : "https://${var.domain_name}",
     "COGNITO_USER_POOL_ID" : data.aws_ssm_parameter.cognito_user_pool_id.value,
     "COGNITO_USER_POOL_CLIENT_ID" : data.aws_ssm_parameter.cognito_client_id.value,
     "COGNITO_USER_POOL_CLIENT_SECRET" : data.aws_ssm_parameter.cognito_client_secret.value,

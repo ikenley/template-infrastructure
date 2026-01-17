@@ -72,9 +72,9 @@ resource "aws_api_gateway_method" "api_gateway" {
 }
 
 resource "aws_api_gateway_integration" "api_gateway" {
-  http_method = aws_api_gateway_method.api_gateway.http_method
-  resource_id = aws_api_gateway_resource.api_gateway.id
-  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  http_method             = aws_api_gateway_method.api_gateway.http_method
+  resource_id             = aws_api_gateway_resource.api_gateway.id
+  rest_api_id             = aws_api_gateway_rest_api.api_gateway.id
   integration_http_method = "POST"
   type                    = "AWS_PROXY"
   uri                     = module.receive_lambda.lambda_function_invoke_arn
@@ -144,13 +144,13 @@ resource "aws_api_gateway_stage" "api_gateway" {
 }
 
 resource "aws_api_gateway_method_settings" "api_gateway" {
-  rest_api_id = "${aws_api_gateway_rest_api.api_gateway.id}"
-  stage_name  = "${aws_api_gateway_stage.api_gateway.stage_name}"
+  rest_api_id = aws_api_gateway_rest_api.api_gateway.id
+  stage_name  = aws_api_gateway_stage.api_gateway.stage_name
   method_path = "*/*"
   settings {
-    logging_level = "INFO"
+    logging_level      = "INFO"
     data_trace_enabled = true
-    metrics_enabled = true
+    metrics_enabled    = true
   }
 }
 
@@ -162,7 +162,7 @@ resource "aws_cloudwatch_log_group" "api_gateway" {
 
 resource "aws_api_gateway_deployment" "api_gateway" {
   rest_api_id = aws_api_gateway_rest_api.api_gateway.id
-  stage_name  = "DummyStage"
+  #stage_name  = "DummyStage"
 
   triggers = {
     redeployment = sha1(jsonencode(aws_api_gateway_rest_api.api_gateway.body))

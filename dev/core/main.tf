@@ -21,7 +21,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.28"
     }
     tls = {
       source  = "hashicorp/tls"
@@ -110,7 +110,7 @@ module "core" {
   cognito_callback_urls = [
     "http://localhost:8085/auth/api/login/callback",
     "http://localhost:8088/auth/api/login/callback",
-    "https://api.auth-service.ikenley.com/auth/api/login/callback"
+    "https://auth-service.ikenley.com/auth/api/login/callback"
   ]
   cognito_logout_urls = [
     "http://localhost:8085/auth/api/status",
