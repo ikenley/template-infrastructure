@@ -25,7 +25,7 @@ resource "aws_lambda_function" "job_runner" {
       BASE_DOMAIN           = var.parent_domain_name
       CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
       IMAGE_S3_BUCKET_NAME  = module.frontend.bucket_id
-      FROM_EMAIL_ADDRESS    = data.aws_ssm_parameter.ses_email_address.value
+      FROM_EMAIL_ADDRESS    = "image@ikenley.com"
       IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
     }
   }
@@ -147,7 +147,7 @@ resource "aws_iam_policy" "job_runner" {
           "ses:SendEmail"
         ]
         Effect   = "Allow"
-        Resource = "*"
+        Resource = "arn:aws:ses:${data.aws_region.current.name}:${local.account_id}:identity/ikenley.com"
       },
       {
         "Sid" : "AllowDynamoImageMetadata",
