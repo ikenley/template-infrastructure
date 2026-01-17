@@ -2,10 +2,6 @@
 # Front-end: Static React application on S3 behind Cloudfront CDN
 # ------------------------------------------------------------------------------
 
-locals {
-  api_domain_name = "api.${var.domain_name}"
-}
-
 module "api_lambda" {
   source = "../api_lambda"
 
@@ -18,7 +14,7 @@ module "api_lambda" {
   git_branch = var.git_branch
 
   parent_domain_name = var.parent_domain_name
-  domain_name        = local.api_domain_name
+  domain_name        = var.domain_name
 
   aws_lb_listener_rule_priority = 12500
 

@@ -19,5 +19,13 @@ module "frontend" {
 
   create_acm_certificate = true
 
+  # Configure API Gateway origin
+  additional_origins = {
+    "api-gateway" = {
+      domain_name  = replace(module.api_lambda.api_gateway_api_endpoint, "https://", "")
+      path_pattern = "/auth/api/*"
+    }
+  }
+
   tags = var.tags
 }

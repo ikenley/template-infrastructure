@@ -14,7 +14,7 @@ module "send_lambda" {
   function_name = local.send_lambda_id
   description   = "${local.id} send manual approve message"
   handler       = "lambda_function.handler"
-  runtime       = "nodejs20.x"
+  runtime       = "nodejs24.x"
   publish       = true
   timeout       = 30 # seconds
 

@@ -108,7 +108,7 @@ resource "aws_instance" "nat_instance" {
   // Controls if traffic is routed to the instance when the destination address does not match the instance. Used for NAT or VPNs.
   instance_type        = var.nat_instance_type
   key_name             = aws_key_pair.nat_instance_key_pair.key_name
-  ami                  = data.aws_ami.amazon_linux.id
+  ami                  = "ami-0ca792952bfbaa10e" #data.aws_ami.amazon_linux.id # TODO un-pin this
   iam_instance_profile = aws_iam_instance_profile.nat_instance_profile.name
   user_data            = data.template_file.nat_instance_setup_template.rendered
 
