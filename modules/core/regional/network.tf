@@ -11,7 +11,7 @@ data "aws_security_group" "default" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "2.77.0"
+  version = "5.16.0"
 
   name = "main"
 
@@ -44,17 +44,6 @@ module "vpc" {
   enable_nat_gateway = var.spend_money ? true : false
   single_nat_gateway = true
 
-  # VPC endpoint for S3
-  enable_s3_endpoint = var.enable_s3_endpoint
-
-  # VPC Endpoint for ECR API
-  enable_ecr_api_endpoint = false
-  # ecr_api_endpoint_private_dns_enabled = true
-  ecr_api_endpoint_security_group_ids = [
-    data.aws_security_group.default.id
-    //, module.internal_all_security_group.this_security_group_id
-  ]
-
   # Default security group - ingress/egress rules cleared to deny all
   manage_default_security_group  = true
   default_security_group_ingress = [{}]
@@ -65,6 +54,31 @@ module "vpc" {
   create_flow_log_cloudwatch_log_group = true
   create_flow_log_cloudwatch_iam_role  = true
   flow_log_max_aggregation_interval    = 60
+
+  tags = local.tags
+}
+
+#------------------------------------------------------------------------------
+# VPC Endpoints
+#------------------------------------------------------------------------------
+
+module "vpc_endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "5.16.0"
+
+  vpc_id = module.vpc.vpc_id
+
+  endpoints = var.enable_s3_endpoint ? {
+    s3 = {
+      service      = "s3"
+      service_type = "Gateway"
+      route_table_ids = flatten([
+        module.vpc.private_route_table_ids,
+        module.vpc.public_route_table_ids
+      ])
+      tags = { Name = "s3-vpc-endpoint" }
+    }
+  } : {}
 
   tags = local.tags
 }

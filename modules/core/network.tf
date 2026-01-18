@@ -11,7 +11,7 @@ data "aws_security_group" "default" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "2.77.0"
+  version = "5.16.0"
 
   name = "main"
 
@@ -70,9 +70,6 @@ module "vpc" {
   # dhcp_options_domain_name         = "service.consul"
   # dhcp_options_domain_name_servers = ["127.0.0.1", "10.10.0.2"]
 
-  # VPC endpoint for S3
-  enable_s3_endpoint = var.enable_s3_endpoint
-
   # VPC endpoint for DynamoDB
   # enable_dynamodb_endpoint = true
 
@@ -98,14 +95,6 @@ module "vpc" {
   # enable_ec2messages_endpoint              = true
   # ec2messages_endpoint_private_dns_enabled = true
   # ec2messages_endpoint_security_group_ids  = [data.aws_security_group.default.id]
-
-  # VPC Endpoint for ECR API
-  enable_ecr_api_endpoint = false
-  # ecr_api_endpoint_private_dns_enabled = true
-  ecr_api_endpoint_security_group_ids = [
-    data.aws_security_group.default.id
-    //, module.internal_all_security_group.this_security_group_id
-  ]
 
   # # VPC Endpoint for ECR DKR
   # enable_ecr_dkr_endpoint              = true
@@ -165,6 +154,31 @@ module "vpc" {
   # vpc_endpoint_tags = {
   #   #Name      = "vpc-impact"
   # }
+}
+
+#------------------------------------------------------------------------------
+# VPC Endpoints
+#------------------------------------------------------------------------------
+
+module "vpc_endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "5.16.0"
+
+  vpc_id = module.vpc.vpc_id
+
+  endpoints = var.enable_s3_endpoint ? {
+    s3 = {
+      service      = "s3"
+      service_type = "Gateway"
+      route_table_ids = flatten([
+        module.vpc.private_route_table_ids,
+        module.vpc.public_route_table_ids
+      ])
+      tags = { Name = "s3-vpc-endpoint" }
+    }
+  } : {}
+
+  tags = local.tags
 }
 
 module "nat_instance" {

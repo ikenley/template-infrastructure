@@ -88,7 +88,7 @@ module "core" {
 
   failover_vpc_client_cidr = "10.1.0.4/22"
 
-  enable_s3_endpoint = var.spend_money
+  enable_s3_endpoint = true
 
   enable_bastion_host = var.spend_money && local.enable_bastion_host
   enable_client_vpn   = var.spend_money && local.enable_client_vpn

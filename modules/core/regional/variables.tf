@@ -67,7 +67,9 @@ variable "vpc_client_cidr" {
 }
 
 variable "enable_s3_endpoint" {
-  type = bool
+  description = "Whether to create an S3 VPC Gateway endpoint"
+  type        = bool
+  default     = true
 }
 
 # Bastion host
