@@ -1,9 +1,8 @@
 console.log(`Loading function`);
 import { SNS } from "@aws-sdk/client-sns";
 
-export const handler = (event, context, callback) => {
+export const handler = async (event) => {
   console.log(`event= ${JSON.stringify(event)}`);
-  console.log(`context= ${JSON.stringify(context)}`);
 
   const executionContext = event.ExecutionContext;
   console.log(`executionContext= ${executionContext}`);
@@ -38,7 +37,7 @@ export const handler = (event, context, callback) => {
     `Welcome! This is an email requiring an approval for a step functions execution.`;
 
   const emailMessage = `${baseMessage}
-  
+
 Please check the following information and click "Approve" link if you want to approve.
 
 Execution Name -> ${executionName}
@@ -48,22 +47,19 @@ Approve ${approveEndpoint}
 Reject ${rejectEndpoint}`;
 
   const sns = new SNS();
-  var params = {
+  const params = {
     Message: emailMessage,
     Subject: "Required approval from AWS Step Functions",
     TopicArn: emailSnsTopic,
   };
 
-  sns
-    .publish(params)
-    .then(function (data) {
-      console.log(`MessageID is ${data.MessageId}`);
-      callback(null);
-    })
-    .catch(function (err) {
-      console.error(err, err.stack);
-      callback(err);
-    });
+  try {
+    const data = await sns.publish(params);
+    console.log(`MessageID is ${data.MessageId}`);
+  } catch (err) {
+    console.error(err, err.stack);
+    throw err;
+  }
 };
 
 export default handler;
