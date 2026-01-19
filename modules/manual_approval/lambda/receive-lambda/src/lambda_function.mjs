@@ -1,11 +1,6 @@
 import { SFN as StepFunctions } from "@aws-sdk/client-sfn";
 
-var redirectToStepFunctions = function (
-  lambdaArn,
-  statemachineName,
-  executionName,
-  callback
-) {
+const buildStepFunctionsRedirect = (lambdaArn, statemachineName, executionName) => {
   const lambdaArnTokens = lambdaArn.split(":");
   const partition = lambdaArnTokens[1];
   const region = lambdaArnTokens[3];
@@ -33,15 +28,16 @@ var redirectToStepFunctions = function (
     region +
     "#/executions/details/" +
     executionArn;
-  callback(null, {
+
+  return {
     statusCode: 302,
     headers: {
       Location: url,
     },
-  });
+  };
 };
 
-export const handler = (event, context, callback) => {
+export const handler = async (event, context) => {
   console.log("Event= " + JSON.stringify(event));
   const action = event.queryStringParameters.action;
   const taskToken = event.queryStringParameters.taskToken;
@@ -50,7 +46,7 @@ export const handler = (event, context, callback) => {
 
   const stepfunctions = new StepFunctions();
 
-  var message = "";
+  let message = "";
 
   if (action === "approve") {
     message = { action, message: "Approved! Task approved by ${var.email}" };
@@ -58,26 +54,24 @@ export const handler = (event, context, callback) => {
     message = { action, message: "Rejected! Task rejected by ${var.email}" };
   } else {
     console.error("Unrecognized action. Expected: approve, reject.");
-    callback({ Status: "Failed to process the request. Unrecognized Action." });
+    throw new Error("Failed to process the request. Unrecognized Action.");
   }
 
-  stepfunctions
-    .sendTaskSuccess({
+  try {
+    await stepfunctions.sendTaskSuccess({
       output: JSON.stringify(message),
       taskToken,
-    })
-    .then(function (data) {
-      redirectToStepFunctions(
-        context.invokedFunctionArn,
-        statemachineName,
-        executionName,
-        callback
-      );
-    })
-    .catch(function (err) {
-      console.error(err, err.stack);
-      callback(err);
     });
+
+    return buildStepFunctionsRedirect(
+      context.invokedFunctionArn,
+      statemachineName,
+      executionName
+    );
+  } catch (err) {
+    console.error(err, err.stack);
+    throw err;
+  }
 };
 
 export default handler;
