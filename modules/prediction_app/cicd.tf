@@ -155,6 +155,20 @@ resource "aws_codepipeline" "this" {
         ProjectName = local.codebuild_project_name
       }
     }
+
+    action {
+      name             = "Migrations"
+      category         = "Build"
+      owner            = "AWS"
+      provider         = "CodeBuild"
+      input_artifacts  = ["SourceArtifact"]
+      output_artifacts = ["Migrations"]
+      version          = "1"
+
+      configuration = {
+        ProjectName = aws_codebuild_project.migrations.name
+      }
+    }
   }
 }
 

@@ -28,6 +28,8 @@ module "api_lambda" {
     APP_ENV                          = var.env
     BASE_DOMAIN                      = var.domain_name
     CONNECTION_STRING_SSM_PARAM_NAME = aws_ssm_parameter.prediction_app_user__connection_string.name
+    COGNITO_USER_POOL_ID             = var.auth_cognito_users_pool_id
+    COGNITO_CLIENT_ID                = var.auth_client_id
   }
 
   tags = var.tags

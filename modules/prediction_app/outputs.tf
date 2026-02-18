@@ -44,6 +44,12 @@ resource "aws_ssm_parameter" "flyway_admin__pgpassword" {
   value = random_password.flyway_admin.result
 }
 
+resource "aws_ssm_parameter" "flyway_url" {
+  name  = "${local.output_prefix}/flyway_url"
+  type  = "SecureString"
+  value = "jdbc:postgresql://${local.pghost}:${local.pgport}/${local.pgdatabase}"
+}
+
 resource "aws_ssm_parameter" "prediction_app_user__pguser" {
   name  = "${local.output_prefix}/prediction_app_user/pguser"
   type  = "SecureString"
