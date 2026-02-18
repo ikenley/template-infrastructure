@@ -5,14 +5,14 @@
 #AWS_REGION=us-east-1
 # USERNAME=$USERNAME
 # MY_ENV=development
-EC2_INSTANCE_NAME=ik-dev-main-bastion-host
+EC2_INSTANCE_NAME=ik-dev-core-nat-ec2-nat-instance
 #KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
 KEY_PATH=~/.ssh/ik-dev-main-bastion-host-ssh-key
-KEY_PARAM_NAME="/ik/dev/main/bastion-host/bastion_host_private_key"
-INSTANCE_PARAM_NAME='/ik/dev/main/bastion-host/instance-id'
-SOURCE_PORT="5440"
-TARGET_HOST="ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com"
-TARGET_PORT="5432"
+KEY_PARAM_NAME=/ik/dev/core/nat/ec2-nat-instance/key
+INSTANCE_PARAM_NAME=/ik/dev/core/nat_instance_id
+SOURCE_PORT=5440
+TARGET_HOST=ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com
+TARGET_PORT=5432
 
 # echo "AWS_PROFILE=$AWS_PROFILE"
 # export AWS_PROFILE=$AWS_PROFILE
@@ -41,5 +41,9 @@ echo "$RAW_KEY" | sed 's/\\n/\n/g' > "$KEY_PATH"
 chmod 400 $KEY_PATH
 
 # echo "Establishing SSH tunnel via..."
-echo "ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT"
-ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT
+#echo "ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT"
+#ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT
+aws ssm start-session \
+    --target $INSTANCE_ID \
+    --document-name AWS-StartPortForwardingSessionToRemoteHost \
+    --parameters '{"host":["'$TARGET_HOST'"],"portNumber":["'$TARGET_PORT'"], "localPortNumber":["'$SOURCE_PORT'"]}'
