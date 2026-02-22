@@ -31,6 +31,8 @@ module "aurora_serverless_v2" {
   is_prod   = var.is_prod
   name      = "${var.name}-aurora-01"
 
+  database_name = "core"
+
   vpc_id           = module.vpc.vpc_id
   vpc_cidr         = var.cidr
   database_subnets = module.vpc.database_subnets

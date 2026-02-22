@@ -21,7 +21,7 @@ module "api_lambda" {
   image_uri            = "924586450630.dkr.ecr.us-east-1.amazonaws.com/ik-test-prediction-lambda:3"
   lambda_image_command = ["PredictionApi::PredictionApi.LambdaEntryPoint::FunctionHandlerAsync"]
   lambda_description   = "Predictions app API Lambda"
-  lambda_timeout       = 30
+  lambda_timeout       = 60
   lambda_memory_size   = 2048
 
   environment_variables = {

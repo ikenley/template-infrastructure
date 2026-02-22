@@ -56,6 +56,14 @@ resource "aws_ssm_parameter" "cluster_port" {
   tags = local.tags
 }
 
+resource "aws_ssm_parameter" "cluster_database_name" {
+  name  = "${local.output_prefix}/cluster_database_name"
+  type  = "String"
+  value = var.database_name
+
+  tags = local.tags
+}
+
 resource "aws_ssm_parameter" "master_username" {
   name  = "${local.output_prefix}/master_username"
   type  = "SecureString"
