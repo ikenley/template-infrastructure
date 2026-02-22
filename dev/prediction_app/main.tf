@@ -85,7 +85,7 @@ module "prediction_app" {
   ses_email_address = data.terraform_remote_state.core.outputs.ses_email_address
   ses_email_arn     = data.terraform_remote_state.core.outputs.ses_email_arn
 
-  rds_output_prefix = "/ik/dev/main-pg-01"
+  rds_output_prefix = "/ik/dev/main-aurora-01"
 
   tags = {
     Environment = "dev"

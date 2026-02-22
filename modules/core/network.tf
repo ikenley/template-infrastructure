@@ -182,17 +182,18 @@ module "vpc_endpoints" {
 }
 
 module "nat_instance" {
-  source = "../nat_instance"
+  source  = "RaJiska/fck-nat/aws"
+  version = "1.4.0"
 
-  namespace = var.namespace
-  env       = var.env
-  name      = "core"
+  name      = "${var.namespace}-${var.env}-core"
+  vpc_id    = module.vpc.vpc_id
+  subnet_id = module.vpc.public_subnets[0]
 
-  aws_vpc_id        = module.vpc.vpc_id
-  nat_instance_type = "t3.nano"
-  number_of_azs     = 1
-  public_subnets_ids = module.vpc.public_subnets
-  private_route_table_ids = module.vpc.private_route_table_ids
+  instance_type = "t4g.nano"
+  ha_mode       = false
+
+  update_route_tables = true
+  route_tables_ids    = { for idx, id in module.vpc.private_route_table_ids : tostring(idx) => id }
 
   tags = local.tags
 }

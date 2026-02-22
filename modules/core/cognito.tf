@@ -360,7 +360,8 @@ resource "aws_dynamodb_table" "pre_signup_trigger" {
 
   billing_mode = "PAY_PER_REQUEST"
 
-  stream_enabled = true
+  stream_enabled   = true
+  stream_view_type = "NEW_AND_OLD_IMAGES"
 
   hash_key  = "hash_key"
   range_key = "range_key"
