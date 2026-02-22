@@ -110,7 +110,9 @@ resource "aws_instance" "nat_instance" {
   key_name             = aws_key_pair.nat_instance_key_pair.key_name
   ami                  = "ami-0ca792952bfbaa10e" #data.aws_ami.amazon_linux.id # TODO un-pin this
   iam_instance_profile = aws_iam_instance_profile.nat_instance_profile.name
-  user_data            = data.template_file.nat_instance_setup_template.rendered
+  user_data            = templatefile("${path.module}/nat-instance-setup.sh.tpl", {
+    cidr_block = "${data.aws_vpc.current_vpc.cidr_block}"
+  })
 
   network_interface {
     device_index         = 0

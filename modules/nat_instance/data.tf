@@ -17,14 +17,6 @@ data "aws_ami" "amazon_linux" {
   owners = [137112412989] # AWS
 }
 
-// NAT Instance template.
-data "template_file" "nat_instance_setup_template" {
-  template = file("${path.module}/nat-instance-setup.sh.tpl")
-  vars = {
-    cidr_block = "${data.aws_vpc.current_vpc.cidr_block}"
-  }
-}
-
 // Get NAT Instance data.
 data "aws_instance" "nat_instance_data" {
   instance_id = aws_instance.nat_instance.id
