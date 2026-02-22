@@ -11,7 +11,8 @@ KEY_PATH=~/.ssh/ik-dev-main-bastion-host-ssh-key
 KEY_PARAM_NAME=/ik/dev/core/nat/ec2-nat-instance/key
 INSTANCE_PARAM_NAME=/ik/dev/core/nat_instance_id
 SOURCE_PORT=5440
-TARGET_HOST=ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com
+#TARGET_HOST=ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com
+TARGET_HOST=aurora-test-2026-2-20-b.cluster-cvfrjq1ncpr2.us-east-1.rds.amazonaws.com
 TARGET_PORT=5432
 
 # echo "AWS_PROFILE=$AWS_PROFILE"
