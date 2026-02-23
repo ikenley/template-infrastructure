@@ -21,7 +21,7 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 6.28"
+      version = "~> 6.33.0"
     }
     tls = {
       source  = "hashicorp/tls"
@@ -117,6 +117,8 @@ module "core" {
     "http://localhost:8088/auth/api/status",
     "https://api.auth-service.ikenley.com/auth/api/status"
   ]
+
+  aurora_snapshot_identifier = "arn:aws:rds:us-east-1:924586450630:cluster-snapshot:aurora-2026-02-22"
 
   tags = {}
 }

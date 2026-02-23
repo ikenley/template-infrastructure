@@ -81,7 +81,7 @@ resource "aws_ssm_parameter" "nat_public_ips" {
 resource "aws_ssm_parameter" "nat_instance_id" {
   name  = "/${var.namespace}/${var.env}/core/nat_instance_id"
   type  = "String"
-  value = module.nat_instance.nat_instance_id
+  value = module.nat_instance.eni_id
 }
 
 # ALB

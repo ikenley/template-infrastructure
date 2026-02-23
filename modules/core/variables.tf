@@ -172,3 +172,11 @@ variable "cognito_logout_urls" {
 variable "github_org" {
   description = "Github org used to configure OIDC provider"
 }
+
+# Aurora Serverless v2
+
+variable "aurora_snapshot_identifier" {
+  description = "ARN or identifier of the DB cluster snapshot to restore Aurora from. Null creates a fresh cluster."
+  type        = string
+  default     = null
+}

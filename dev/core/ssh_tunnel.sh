@@ -5,13 +5,12 @@
 #AWS_REGION=us-east-1
 # USERNAME=$USERNAME
 # MY_ENV=development
-EC2_INSTANCE_NAME=ik-dev-core-nat-ec2-nat-instance
+EC2_INSTANCE_NAME=ik-dev-core
 #KEY_PATH=./secrets/ik-dev-main-bastion-host-ssh-key
 KEY_PATH=~/.ssh/ik-dev-main-bastion-host-ssh-key
 KEY_PARAM_NAME=/ik/dev/core/nat/ec2-nat-instance/key
-INSTANCE_PARAM_NAME=/ik/dev/core/nat_instance_id
 SOURCE_PORT=5440
-TARGET_HOST=ik-dev-main-pg-01.cvfrjq1ncpr2.us-east-1.rds.amazonaws.com
+TARGET_HOST_PARAM_NAME=/ik/dev/main-aurora-01/cluster_endpoint
 TARGET_PORT=5432
 
 # echo "AWS_PROFILE=$AWS_PROFILE"
@@ -27,18 +26,21 @@ get_parameter () {
 }
 
 # echo "Fetching host info..."
-INSTANCE_ID=$(get_parameter "$INSTANCE_PARAM_NAME")
+INSTANCE_ID=$(aws ec2 describe-instances \
+    --filters "Name=tag:Name,Values=$EC2_INSTANCE_NAME" \
+              "Name=instance-state-name,Values=running" \
+    --query "Reservations[0].Instances[0].InstanceId" \
+    --output text)
 echo "INSTANCE_ID=$INSTANCE_ID"
-# LOCAL_PORT=$(get_parameter "//todo\port-forwarding-number")
-# echo "LOCAL_PORT=$LOCAL_PORT"
-# DB_INSTANCE_ADDRESS=$(get_parameter "//\db-instance-address")
-# echo "DB_INSTANCE_ADDRESS=$DB_INSTANCE_ADDRESS"
 
-echo "Fetching key"
-RAW_KEY=$(get_parameter "$KEY_PARAM_NAME")
-chmod 700 $KEY_PATH
-echo "$RAW_KEY" | sed 's/\\n/\n/g' > "$KEY_PATH"
-chmod 400 $KEY_PATH
+TARGET_HOST=$(get_parameter "$TARGET_HOST_PARAM_NAME")
+echo "TARGET_HOST=$TARGET_HOST"
+
+# echo "Fetching key"
+# RAW_KEY=$(get_parameter "$KEY_PARAM_NAME")
+# chmod 700 $KEY_PATH
+# echo "$RAW_KEY" | sed 's/\\n/\n/g' > "$KEY_PATH"
+# chmod 400 $KEY_PATH
 
 # echo "Establishing SSH tunnel via..."
 #echo "ssh -i $KEY_PATH ec2-user@$INSTANCE_ID -L $SOURCE_PORT:$TARGET_HOST:$TARGET_PORT"

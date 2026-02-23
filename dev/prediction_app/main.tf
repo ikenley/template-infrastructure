@@ -82,10 +82,10 @@ module "prediction_app" {
   auth_client_id             = var.auth_client_id
   auth_aud                   = var.auth_aud
 
-  ses_email_address = data.terraform_remote_state.core.outputs.ses_email_address
-  ses_email_arn     = data.terraform_remote_state.core.outputs.ses_email_arn
+  ses_email_address = "predictions@ikenley.com"
+  ses_email_arn     = "arn:aws:ses:*:*:identity/ikenley.com"
 
-  rds_output_prefix = "/ik/dev/main-pg-01"
+  rds_output_prefix = "/ik/dev/main-aurora-01"
 
   tags = {
     Environment = "dev"
