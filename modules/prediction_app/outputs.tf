@@ -7,7 +7,8 @@ resource "aws_ssm_parameter" "revisit_prediction__pg_connection" {
     "port" : "${local.pgport}",
     "user" : "revisit_prediction_user",
     "password" : "${random_password.revisit_prediction_user.result}",
-    "database" : "${local.pgdatabase}"
+    "database" : "${local.pgdatabase}",
+    "ssl" : { "rejectUnauthorized" : false }
   })
 }
 

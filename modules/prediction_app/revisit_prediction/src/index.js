@@ -50,16 +50,18 @@ const getPredictionsByDate = async (
   }
 
   try {
-    const data = await pool.query(
-      `
+    const query = `
 select p.id
     , p.name
     , u.email
 from prediction.prediction p
-join iam.user u
-  on p.user_id = u.id
+join auth.user u
+  on p.user_id = u.id::varchar
 where date_trunc('day', p.revisit_on) = date_trunc('day', $1::timestamp)
-;`,
+;`
+    console.log("query", query);
+    const data = await pool.query(query
+      ,
       [todayDateIso]
     );
     return data.rows;

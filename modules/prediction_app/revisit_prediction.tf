@@ -65,7 +65,7 @@ resource "aws_iam_policy" "revisit_prediction" {
         "Sid" : "Ses",
         "Effect" : "Allow",
         "Action" : ["ses:SendEmail", "ses:SendRawEmail"],
-        "Resource" : "${var.ses_email_arn}"
+        "Resource" : var.ses_email_arn
       },
       {
         "Sid" : "SSMDescribeParameters",
