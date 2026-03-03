@@ -10,6 +10,8 @@ locals {
   id            = "${var.namespace}-${var.env}-prediction"
   output_prefix = "/${var.namespace}/${var.env}/prediction"
 
+  git_repo = "https://github.com/ikenley/prediction-app"
+
   app_domain = "${var.dns_subdomain}.${var.domain_name}"
 
   tags = merge(var.tags, {

@@ -16,6 +16,8 @@ locals {
   id            = "${var.namespace}-${var.env}-ai"
   output_prefix = "/${var.namespace}/${var.env}/ai"
 
+  git_repo = "https://github.com/ikenley/ai-app"
+
   tags = merge(var.tags, {
     Terraform   = true
     Environment = var.env
