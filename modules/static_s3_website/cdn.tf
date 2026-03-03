@@ -5,6 +5,13 @@ locals {
   index_html_functions = var.create_index_html_function ? ["dummy_placeholder"] : []
 
   acm_certificate_arn = var.create_acm_certificate ? module.acm_certificate[0].certificate_arn : var.acm_certificate_arn
+
+  viewer_request_function_arn = (
+    var.viewer_request_function_arn != null ? var.viewer_request_function_arn :
+    var.create_index_html_function ? aws_cloudfront_function.index_html[0].arn :
+    null
+  )
+  viewer_request_functions = local.viewer_request_function_arn != null ? ["assoc"] : []
 }
 
 
@@ -74,10 +81,10 @@ resource "aws_cloudfront_distribution" "this" {
     max_ttl                = 86400
 
     dynamic "function_association" {
-      for_each = local.index_html_functions
+      for_each = local.viewer_request_functions
       content {
         event_type   = "viewer-request"
-        function_arn = aws_cloudfront_function.index_html[0].arn
+        function_arn = local.viewer_request_function_arn
       }
     }
   }

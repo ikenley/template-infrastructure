@@ -48,6 +48,12 @@ variable "create_index_html_function" {
   default = false
 }
 
+variable "viewer_request_function_arn" {
+  type        = string
+  default     = null
+  description = "ARN of an externally-defined CloudFront Function to associate with viewer-request on the default cache behavior. Takes precedence over create_index_html_function."
+}
+
 # Configuration for additional origins
 # This is currently optimized for adding an API Gateway backend
 variable "additional_origins" {
