@@ -131,6 +131,8 @@ resource "aws_codebuild_project" "codebuild_main" {
     buildspec       = "buildspec.yml"
   }
 
+  source_version = var.git_branch
+
   cache {
     type  = "LOCAL"
     modes = ["LOCAL_DOCKER_LAYER_CACHE"]
