@@ -19,6 +19,8 @@ module "frontend" {
 
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
+  create_index_html_function = true
+
   # Configure API Gateway origin
   # additional_origins = {
   #   "api-gateway" = {
