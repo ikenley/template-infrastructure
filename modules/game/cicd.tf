@@ -209,7 +209,7 @@ resource "aws_codebuild_project" "codebuild_main" {
 
     environment_variable {
       name  = "SITE_S3_KEY_PREFIX"
-      value = "ai"
+      value = "game"
     }
 
     environment_variable {
