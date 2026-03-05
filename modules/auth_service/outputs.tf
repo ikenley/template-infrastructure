@@ -33,3 +33,32 @@ resource "aws_ssm_parameter" "lambda_config" {
     "PGDATABASE" : data.aws_ssm_parameter.db_database_name.value,
   })
 }
+
+
+# ------------------------------------------------------------------------------
+# api_lambda
+# ------------------------------------------------------------------------------
+
+resource "aws_ssm_parameter" "user_table_arn" {
+  name  = "${local.output_prefix}/user_table_arn"
+  type  = "String"
+  value = aws_dynamodb_table.user.arn
+}
+
+resource "aws_ssm_parameter" "user_table_name" {
+  name  = "${local.output_prefix}/user_table_name"
+  type  = "String"
+  value = aws_dynamodb_table.user.name
+}
+
+resource "aws_ssm_parameter" "oauth_state_table_arn" {
+  name  = "${local.output_prefix}/oauth_state_table_arn"
+  type  = "String"
+  value = aws_dynamodb_table.oauth_state.arn
+}
+
+resource "aws_ssm_parameter" "oauth_state_table_name" {
+  name  = "${local.output_prefix}/oauth_state_table_name"
+  type  = "String"
+  value = aws_dynamodb_table.oauth_state.name
+}
