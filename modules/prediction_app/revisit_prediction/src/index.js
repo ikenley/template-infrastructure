@@ -1,16 +1,18 @@
 const { SSMClient, GetParameterCommand } = require("@aws-sdk/client-ssm");
 const { SESClient, SendEmailCommand } = require("@aws-sdk/client-ses");
+const { DynamoDBClient, BatchGetItemCommand } = require("@aws-sdk/client-dynamodb");
 const { Pool } = require("pg");
 
 let pool = null;
 
 exports.handler = async function (_event, _context) {
-  const { AWS_REGION, PG_CONNECTION_PARAM_NAME, SES_EMAIL_ADDRESS } =
+  const { AWS_REGION, PG_CONNECTION_PARAM_NAME, SES_EMAIL_ADDRESS, USER_TABLE_NAME } =
     process.env;
   console.log("revisit-prediction started", {
     AWS_REGION,
     PG_CONNECTION_PARAM_NAME,
     SES_EMAIL_ADDRESS,
+    USER_TABLE_NAME
   });
 
   const todayDateIso = getTodayDateIso();
@@ -22,10 +24,13 @@ exports.handler = async function (_event, _context) {
   );
   console.log("predictions: \n" + JSON.stringify(predictions, null, 2));
 
+  const dynamoClient = new DynamoDBClient({ region: AWS_REGION });
+  const predictionsWithEmail = await attachEmails(dynamoClient, USER_TABLE_NAME, predictions);
+
   // Long term, consider moving this to SQS
   // Probably fine at the current volume
   const sesClient = new SESClient({ region: AWS_REGION });
-  for (let p of predictions) {
+  for (let p of predictionsWithEmail) {
     await sendEmail(sesClient, SES_EMAIL_ADDRESS, p);
   }
 
@@ -53,10 +58,8 @@ const getPredictionsByDate = async (
     const query = `
 select p.id
     , p.name
-    , u.email
+    , p.user_id
 from prediction.prediction p
-join auth.user u
-  on p.user_id = u.id::varchar
 where date_trunc('day', p.revisit_on) = date_trunc('day', $1::timestamp)
 ;`
     console.log("query", query);
@@ -88,6 +91,28 @@ const getPgConfig = async (awsRegion, pgConnectionParamName) => {
   const response = await client.send(command);
   const pgConfig = JSON.parse(response.Parameter.Value);
   return pgConfig;
+};
+
+const attachEmails = async (dynamoClient, userTableName, predictions) => {
+  if (!predictions || predictions.length === 0) {
+    return predictions
+  };
+
+  const userIds = [...new Set(predictions.map(p => p.user_id))];
+
+  const keys = userIds.map(id => ({ id: { S: id } }));
+  const command = new BatchGetItemCommand({
+    RequestItems: {
+      [userTableName]: { Keys: keys, ProjectionExpression: "id, email" }
+    }
+  });
+
+  const response = await dynamoClient.send(command);
+  const items = response.Responses[userTableName] ?? [];
+  const emailMap = Object.fromEntries(items.map(item => [item.id.S, item.email.S]));
+  console.log("emailMap", emailMap);
+
+  return predictions.map(p => ({ ...p, email: emailMap[p.user_id] }));
 };
 
 const sendEmail = async (sesClient, sourceEmailAddress, prediction) => {

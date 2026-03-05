@@ -32,6 +32,7 @@ module "revisit_prediction_lambda" {
     Serverless               = "Terraform"
     PG_CONNECTION_PARAM_NAME = local.pg_connection_parm_name
     SES_EMAIL_ADDRESS        = var.ses_email_address
+    USER_TABLE_NAME          = data.aws_ssm_parameter.user_table_name.value
   }
 
   tags = local.tags
@@ -87,6 +88,12 @@ resource "aws_iam_policy" "revisit_prediction" {
         "Resource" : [
           "arn:aws:ssm:*:*:parameter${local.pg_connection_parm_name}"
         ]
+      },
+      {
+        "Sid" : "DynamoDB",
+        "Effect" : "Allow",
+        "Action" : ["dynamodb:BatchGetItem"],
+        "Resource" : "arn:aws:dynamodb:*:*:table/${data.aws_ssm_parameter.user_table_name.value}"
       }
     ]
   })
