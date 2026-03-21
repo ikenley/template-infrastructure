@@ -54,6 +54,12 @@ variable "viewer_request_function_arn" {
   description = "ARN of an externally-defined CloudFront Function to associate with viewer-request on the default cache behavior. Takes precedence over create_index_html_function."
 }
 
+variable "enable_blue_green" {
+  type        = bool
+  default     = false
+  description = "When true, configures CloudFront for blue/green deployments using a KeyValueStore-backed viewer-request function. Cannot be combined with viewer_request_function_arn or create_index_html_function."
+}
+
 # Configuration for additional origins
 # This is currently optimized for adding an API Gateway backend
 variable "additional_origins" {
