@@ -7,6 +7,7 @@ locals {
   acm_certificate_arn = var.create_acm_certificate ? module.acm_certificate[0].certificate_arn : var.acm_certificate_arn
 
   viewer_request_function_arn = (
+    var.enable_blue_green ? aws_cloudfront_function.blue_green[0].arn :
     var.viewer_request_function_arn != null ? var.viewer_request_function_arn :
     var.create_index_html_function ? aws_cloudfront_function.index_html[0].arn :
     null
@@ -40,18 +41,18 @@ resource "aws_cloudfront_distribution" "this" {
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "Managed by Terraform"
-  default_root_object = "${var.path_prefix}index.html"
+  default_root_object = var.enable_blue_green ? null : "${var.path_prefix}index.html"
 
   custom_error_response {
     error_code         = 403
     response_code      = 200
-    response_page_path = "/${var.path_prefix}index.html"
+    response_page_path = var.enable_blue_green ? "/index.html" : "/${var.path_prefix}index.html"
   }
 
   custom_error_response {
     error_code         = 404
     response_code      = 200
-    response_page_path = "/${var.path_prefix}index.html"
+    response_page_path = var.enable_blue_green ? "/index.html" : "/${var.path_prefix}index.html"
   }
 
   logging_config {
@@ -120,6 +121,13 @@ resource "aws_cloudfront_distribution" "this" {
 
   tags = local.tags
 
+  lifecycle {
+    precondition {
+      condition     = !(var.enable_blue_green && (var.viewer_request_function_arn != null || var.create_index_html_function))
+      error_message = "enable_blue_green cannot be combined with viewer_request_function_arn or create_index_html_function."
+    }
+  }
+
   viewer_certificate {
     acm_certificate_arn            = local.acm_certificate_arn
     ssl_support_method             = "sni-only"
@@ -176,4 +184,56 @@ function handler(event) {
     return request;
 }
 EOF
+}
+
+resource "aws_cloudfront_key_value_store" "active_version" {
+  count   = var.enable_blue_green ? 1 : 0
+  name    = "${local.id}-active-version"
+  comment = "Active deployment version for blue/green routing"
+}
+
+resource "aws_cloudfront_function" "blue_green" {
+  count   = var.enable_blue_green ? 1 : 0
+  name    = "${local.id}-blue-green"
+  runtime = "cloudfront-js-2.0"
+  comment = "Prepends active_version (and path_prefix) to all viewer requests"
+  publish = true
+
+  key_value_store_associations = [aws_cloudfront_key_value_store.active_version[0].arn]
+
+  code = <<-EOF
+import cf from 'cloudfront';
+const kvsHandle = cf.kvs();
+
+async function handler(event) {
+    var request = event.request;
+    let uri = request.uri;
+
+    // Get version prefix if exists
+    let activeVersion = "";
+    try {
+        activeVersion = "/" + await kvsHandle.get('active_version');
+    } catch (err) {
+        activeVersion = "";
+    }
+
+    // Add app URL prefix if it should exist and is missing
+    const appUrlPrefix = "${var.path_prefix}";
+    if (appUrlPrefix !== "" && !uri.startsWith(appUrlPrefix)) {
+        uri = appUrlPrefix + uri;
+    }
+
+    // Append index.html at the end of the complete path if needed
+    if (uri.endsWith('/')) {
+        uri += 'index.html';
+    } else if (!uri.includes('.')) {
+        uri += '/index.html';
+    }
+
+    const fullPath = activeVersion + uri;
+    request.uri = fullPath;
+
+    return request;
+}
+  EOF
 }

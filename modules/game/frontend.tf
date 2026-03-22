@@ -15,11 +15,11 @@ module "frontend" {
   create_acm_certificate = false
   acm_certificate_arn    = module.acm_certificate.certificate_arn
 
-  path_prefix = "game/"
+  path_prefix = "/game"
 
   logs_bucket_name = data.aws_ssm_parameter.logs_s3_bucket_name.value
 
-  create_index_html_function = true
+  enable_blue_green = true
 
   # Configure API Gateway origin
   # additional_origins = {

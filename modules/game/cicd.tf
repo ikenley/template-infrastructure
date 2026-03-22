@@ -218,6 +218,16 @@ resource "aws_codebuild_project" "codebuild_main" {
     }
 
     environment_variable {
+      name  = "ACTIVE_VERSION_SSM_PARAMETER_NAME"
+      value = module.frontend.active_version_ssm_parameter_name
+    }
+
+    environment_variable {
+      name  = "KVS_ARN"
+      value = module.frontend.kvs_arn
+    }
+
+    environment_variable {
       name  = "VITE_API_URL_PREFIX"
       value = "https://${var.domain_name}/ai/api"
     }
@@ -386,6 +396,31 @@ resource "aws_iam_policy" "codebuild_main" {
         "Resource" : [
           "arn:aws:ssm:*:*:parameter/docker/*",
           "arn:aws:ssm:*:*:parameter/${local.id}/codebuild/*",
+        ]
+      },
+      {
+        "Sid" : "AllowSSMPutParameter",
+        "Effect" : "Allow",
+        "Action" : [
+          "ssm:PutParameter"
+        ],
+        "Resource" : [
+          module.frontend.active_version_ssm_parameter_arn
+        ]
+      },
+      {
+        "Sid" : "AllowCdnKeyValueStore",
+        "Effect" : "Allow",
+        "Action" : [
+          "cloudfront-keyvaluestore:DescribeKeyValueStore",
+          "cloudfront-keyvaluestore:GetKey",
+          "cloudfront-keyvaluestore:PutKey",
+          "cloudfront-keyvaluestore:DeleteKey",
+          "cloudfront-keyvaluestore:ListKeys",
+          "cloudfront-keyvaluestore:UpdateKeys"
+        ],
+        "Resource" : [
+          module.frontend.kvs_arn
         ]
       },
       {
