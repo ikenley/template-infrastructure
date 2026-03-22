@@ -412,8 +412,12 @@ resource "aws_iam_policy" "codebuild_main" {
         "Sid" : "AllowCdnKeyValueStore",
         "Effect" : "Allow",
         "Action" : [
-          "cloudfront:UpdateKeyValueStore",
-          "cloudfront:GetKeyValueStore"
+          "cloudfront-keyvaluestore:DescribeKeyValueStore",
+          "cloudfront-keyvaluestore:GetKey",
+          "cloudfront-keyvaluestore:PutKey",
+          "cloudfront-keyvaluestore:DeleteKey",
+          "cloudfront-keyvaluestore:ListKeys",
+          "cloudfront-keyvaluestore:UpdateKeys"
         ],
         "Resource" : [
           module.frontend.kvs_arn

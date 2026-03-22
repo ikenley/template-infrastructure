@@ -202,29 +202,38 @@ resource "aws_cloudfront_function" "blue_green" {
   key_value_store_associations = [aws_cloudfront_key_value_store.active_version[0].arn]
 
   code = <<-EOF
-    import cf from 'cloudfront';
-    const kvsHandle = cf.kvs();
+import cf from 'cloudfront';
+const kvsHandle = cf.kvs();
 
-    async function handler(event) {
-        var request = event.request;
-        var uri = request.uri;
+async function handler(event) {
+    var request = event.request;
+    let uri = request.uri;
 
-        // index.html rewriting (subsumes create_index_html_function behavior)
-        if (uri.endsWith('/')) {
-            uri += 'index.html';
-        } else if (!uri.includes('.')) {
-            uri += '/index.html';
-        }
-
-        try {
-            var activeVersion = await kvsHandle.get('active_version');
-            request.uri = '/' + activeVersion + '/${var.path_prefix}' + uri.replace(/^\//, '');
-        } catch (err) {
-            // KVS key not yet set; pass through with index.html rewrite only
-            request.uri = uri;
-        }
-
-        return request;
+    // Get version prefix if exists
+    let activeVersion = "";
+    try {
+        activeVersion = "/" + await kvsHandle.get('active_version');
+    } catch (err) {
+        activeVersion = "";
     }
+
+    // Add app URL prefix if it should exist and is missing
+    const appUrlPrefix = "${var.path_prefix}";
+    if (appUrlPrefix !== "" && !uri.startsWith(appUrlPrefix)) {
+        uri = appUrlPrefix + uri;
+    }
+
+    // Append index.html at the end of the complete path if needed
+    if (uri.endsWith('/')) {
+        uri += 'index.html';
+    } else if (!uri.includes('.')) {
+        uri += '/index.html';
+    }
+
+    const fullPath = activeVersion + uri;
+    request.uri = fullPath;
+
+    return request;
+}
   EOF
 }
