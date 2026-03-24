@@ -399,10 +399,12 @@ resource "aws_iam_policy" "codebuild_main" {
         ]
       },
       {
-        "Sid" : "AllowSSMPutParameter",
+        "Sid" : "AllowActiveVersionSsmParameter",
         "Effect" : "Allow",
         "Action" : [
-          "ssm:PutParameter"
+          "ssm:PutParameter",
+          "ssm:GetParameter",
+          "ssm:GetParameters"
         ],
         "Resource" : [
           module.frontend.active_version_ssm_parameter_arn
