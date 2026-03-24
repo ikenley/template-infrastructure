@@ -36,7 +36,7 @@ module "game" {
   project_name = "game"
 
   git_repo   = "ikenley/game"
-  git_branch = "static-site-blue-green-delete-old-versions" #"main"
+  git_branch = "main"
 
   parent_domain_name = "ikenley.com"
   domain_name        = "game.ikenley.com"
