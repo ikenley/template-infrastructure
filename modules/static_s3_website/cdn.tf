@@ -217,17 +217,15 @@ async function handler(event) {
         activeVersion = "";
     }
 
+    // Redirect to index.html if subdirectory
+    if (uri.endsWith('/') || !uri.includes('.')) {
+        uri = '/index.html';
+    } 
+
     // Add app URL prefix if it should exist and is missing
     const appUrlPrefix = "${var.path_prefix}";
     if (appUrlPrefix !== "" && !uri.startsWith(appUrlPrefix)) {
         uri = appUrlPrefix + uri;
-    }
-
-    // Append index.html at the end of the complete path if needed
-    if (uri.endsWith('/')) {
-        uri += 'index.html';
-    } else if (!uri.includes('.')) {
-        uri += '/index.html';
     }
 
     const fullPath = activeVersion + uri;
