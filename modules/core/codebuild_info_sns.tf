@@ -9,8 +9,6 @@ locals {
 resource "aws_sns_topic" "codebuild_status" {
   name = local.codebuild_status_sns_id
 
-  kms_master_key_id = "alias/aws/sns"
-
   tags = local.tags
 }
 
