@@ -12,3 +12,9 @@ variable "spend_money" {
 # cognito
 variable "google_client_id" {}
 variable "google_client_secret" {}
+
+variable "codebuild_status_emails" {
+  type        = list(string)
+  description = "Email addresses to subscribe to the CodeBuild status SNS topic"
+  default     = []
+}
