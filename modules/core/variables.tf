@@ -180,3 +180,9 @@ variable "aurora_snapshot_identifier" {
   type        = string
   default     = null
 }
+
+variable "codebuild_status_emails" {
+  description = "Email addresses subscribed to CodeBuild status (FAILED/SUCCEEDED) notifications"
+  type        = list(string)
+  default     = []
+}

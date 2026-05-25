@@ -98,6 +98,13 @@ resource "aws_rds_cluster" "this" {
   storage_encrypted       = true
 
   tags = local.tags
+
+  lifecycle {
+    ignore_changes = [
+      # Allow engine_version minor updates without forcing new cluster creation
+      engine_version
+    ]
+  }
 }
 
 resource "aws_rds_cluster_instance" "this" {

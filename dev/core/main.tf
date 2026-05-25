@@ -120,5 +120,7 @@ module "core" {
 
   aurora_snapshot_identifier = "arn:aws:rds:us-east-1:924586450630:cluster-snapshot:aurora-2026-02-22"
 
+  codebuild_status_emails = var.codebuild_status_emails
+
   tags = {}
 }
