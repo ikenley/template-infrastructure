@@ -147,7 +147,7 @@ resource "aws_codebuild_project" "codebuild_main" {
   environment {
     type                        = "LINUX_CONTAINER"
     compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:4.0"
+    image                       = "aws/codebuild/amazonlinux2-x86_64-standard:5.0"
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
 
