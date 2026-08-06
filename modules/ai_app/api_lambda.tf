@@ -2,6 +2,28 @@
 # Front-end: Static React application on S3 behind Cloudfront CDN
 # ------------------------------------------------------------------------------
 
+locals {
+  lambda_env_vars = {
+    APP_ENV               = var.env
+    BASE_DOMAIN           = var.parent_domain_name
+    CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
+
+    # Only used in api lambda
+    # This needs to be here because they share the same config loader
+    AUTHORIZED_EMAILS         = data.aws_ssm_parameter.authorized_emails.value
+    BEDROCK_AGENT_ID          = data.aws_ssm_parameter.agent_id.value
+    BEDROCK_AGENT_ALIAS_ID    = data.aws_ssm_parameter.agent_alias_id.value
+    FROM_EMAIL_ADDRESS        = "image@ikenley.com"
+    IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
+    JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
+    STATE_FUNCTION_ARN        = data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value
+
+    # Only used in job runner
+    # This needs to be here because they share the same config loader
+    IMAGE_S3_BUCKET_NAME = module.frontend.bucket_id
+  }
+}
+
 module "api_lambda" {
   source = "../api_lambda"
 
@@ -23,19 +45,7 @@ module "api_lambda" {
   lambda_timeout     = 30
   lambda_memory_size = 1024
 
-  environment_variables = {
-    APP_ENV               = var.env
-    BASE_DOMAIN           = var.parent_domain_name
-    CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
-
-    AUTHORIZED_EMAILS         = data.aws_ssm_parameter.authorized_emails.value
-    BEDROCK_AGENT_ID          = data.aws_ssm_parameter.agent_id.value
-    BEDROCK_AGENT_ALIAS_ID    = data.aws_ssm_parameter.agent_alias_id.value
-    FROM_EMAIL_ADDRESS        = data.aws_ssm_parameter.ses_email_address.value
-    IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
-    JOB_QUEUE_URL             = aws_sqs_queue.job_runner.url
-    STATE_FUNCTION_ARN        = data.aws_ssm_parameter.storybook_sfn_state_machine_arn.value
-  }
+  environment_variables = local.lambda_env_vars
 
   tags = var.tags
 }

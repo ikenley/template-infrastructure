@@ -20,14 +20,7 @@ resource "aws_lambda_function" "job_runner" {
   memory_size = 1024
 
   environment {
-    variables = {
-      APP_ENV               = var.env
-      BASE_DOMAIN           = var.parent_domain_name
-      CONFIG_SSM_PARAM_NAME = aws_ssm_parameter.lambda_config.name
-      IMAGE_S3_BUCKET_NAME  = module.frontend.bucket_id
-      FROM_EMAIL_ADDRESS    = "image@ikenley.com"
-      IMAGE_METADATA_TABLE_NAME = aws_dynamodb_table.image_metadata.name
-    }
+    variables = local.lambda_env_vars
   }
 
   vpc_config {
