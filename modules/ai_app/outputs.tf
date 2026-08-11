@@ -14,7 +14,7 @@ resource "aws_ssm_parameter" "lambda_config" {
   })
 
   lifecycle {
-    ignore_changes = [ value ]
+    ignore_changes = [value]
   }
 }
 

@@ -43,4 +43,5 @@ module "ai_app" {
 
   description = "AI-fueled pun generAItor"
 
+  alarm_emails = ["ikenley6@gmail.com"]
 }

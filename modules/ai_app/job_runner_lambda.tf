@@ -202,7 +202,35 @@ resource "aws_sqs_queue" "job_runner" {
 
   sqs_managed_sse_enabled = true
 
+  # 6x the lambda timeout, per AWS guidance
+  visibility_timeout_seconds = 180
+
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.job_runner_dlq.arn
+    maxReceiveCount     = 3
+  })
+
   tags = local.tags
+}
+
+resource "aws_sqs_queue" "job_runner_dlq" {
+  name = "${local.job_runner_id}-dlq"
+
+  sqs_managed_sse_enabled = true
+
+  # 14 days, the SQS maximum
+  message_retention_seconds = 1209600
+
+  tags = local.tags
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "job_runner_dlq" {
+  queue_url = aws_sqs_queue.job_runner_dlq.id
+
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue"
+    sourceQueueArns   = [aws_sqs_queue.job_runner.arn]
+  })
 }
 
 resource "aws_lambda_event_source_mapping" "job_runner" {
