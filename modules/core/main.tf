@@ -85,6 +85,15 @@ module "s3_bucket_knowledge_base" {
   tags = local.tags
 }
 
+# Internal "logbook" entries
+module "s3_bucket_logbook" {
+  source = "../s3_bucket"
+
+  bucket_name_suffix = "logbook"
+
+  tags = local.tags
+}
+
 # ------------------------------------------------------------------------------
 # Docker credentials
 # ------------------------------------------------------------------------------

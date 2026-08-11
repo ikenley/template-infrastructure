@@ -17,6 +17,12 @@ variable "is_prod" {
   type        = bool
 }
 
+variable "alarm_emails" {
+  description = "Email addresses subscribed to ai_app alarm notifications (e.g. job runner DLQ)"
+  type        = list(string)
+  default     = []
+}
+
 variable "project_name" {
   description = "Project name to use as a base for most resources"
 }
