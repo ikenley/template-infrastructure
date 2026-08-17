@@ -54,12 +54,21 @@ resource "aws_s3_bucket_lifecycle_configuration" "this" {
   bucket = aws_s3_bucket.this.id
 
   rule {
-    id = "rule-1"
+    id = "intelligent-tiering"
 
     status = "Enabled"
 
     transition {
       storage_class = "INTELLIGENT_TIERING"
+    }
+
+    noncurrent_version_transition {
+      noncurrent_days = 60
+      storage_class   = "DEEP_ARCHIVE"
+    }
+
+    abort_incomplete_multipart_upload {
+      days_after_initiation = 30
     }
   }
 }
@@ -70,7 +79,7 @@ resource "aws_s3_bucket_intelligent_tiering_configuration" "this" {
   bucket = aws_s3_bucket.this.id
   name   = "archive-policy"
 
-  
+
   tiering {
     access_tier = "ARCHIVE_ACCESS"
     days        = 90
